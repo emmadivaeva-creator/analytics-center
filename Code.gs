@@ -6,11 +6,14 @@
  */
 
 const APP = Object.freeze({
-  version: '1.0.0',
-  cachePrefix: 'analytics-center-v1',
+  version: '1.1.0',
+  cachePrefix: 'analytics-center-v2',
   cacheSeconds: 300,
   sourceProperty: 'ANALYTICS_SHEET_ID',
   adminProperty: 'ANALYTICS_ADMIN_EMAIL',
+  reportsFolderProperty: 'SENDSAY_REPORTS_FOLDER_ID',
+  importSheet: '_Импорт Sendsay',
+  importBatchSize: 6,
   currentDashboardSheet: '1. Редакциям — главное',
   resultsSheet: 'Итоги DEMO',
   registrySheet: 'Реестр писем',
@@ -29,6 +32,13 @@ const APP = Object.freeze({
     '1.5 Досыл по живым'
   ]
 });
+
+const IMPORT_HEADERS = Object.freeze([
+  'File ID', 'Имя файла', 'Изменён на Drive', 'Импортирован', 'Статус', 'Ошибка',
+  'Дата отправки', 'Время отправки', 'Тип', 'Продукт', 'Поток', 'Сегмент', 'Campaign',
+  'Sendsay', 'Тема письма', 'Отправлено', 'Доставлено', 'Доставляемость',
+  'Уник. открытия', 'OR', 'Уник. клики', 'Click rate', 'CTOR', 'Отписки', 'UTOR'
+]);
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
@@ -54,6 +64,7 @@ function setup() {
   props.setProperty(APP.sourceProperty, spreadsheet.getId());
   const email = Session.getEffectiveUser().getEmail();
   if (email) props.setProperty(APP.adminProperty, email.toLowerCase());
+  ensureImportSheet_(spreadsheet);
   clearCache_();
 
   return {
@@ -86,15 +97,97 @@ function refreshAppData() {
   }
 }
 
+/**
+ * Imports the next small batch of new or updated Sendsay snapshots from Drive.
+ * The browser repeats this call while `remaining` is greater than zero, which
+ * keeps every Apps Script execution short enough for large MHTML files.
+ */
+function syncDriveReports() {
+  assertAdmin_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const result = importNewDriveReports_(openSource_(), APP.importBatchSize);
+    clearCache_();
+    return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Receives one MHTML file selected in the web app and saves it to Drive. */
+function uploadSendsayReport(formObject) {
+  assertAdmin_();
+  const blob = formObject && formObject.reportFile;
+  if (!blob || typeof blob.getBytes !== 'function') {
+    throw new Error('Не удалось получить файл. Выберите отчёт Sendsay в формате .mhtml.');
+  }
+
+  const name = safeFileName_(blob.getName());
+  if (!/\.mhtml?$/i.test(name)) {
+    throw new Error('Поддерживаются отчёты Sendsay только в формате .mhtml.');
+  }
+  const bytes = blob.getBytes();
+  if (!bytes.length) throw new Error('Файл «' + name + '» пустой.');
+  if (bytes.length > 20 * 1024 * 1024) {
+    throw new Error('Файл «' + name + '» больше 20 МБ. Загрузите его в папку Drive и нажмите «Обновить».');
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const spreadsheet = openSource_();
+    const folder = reportsFolder_();
+    const existing = folder.getFilesByName(name);
+    let file = null;
+    while (existing.hasNext()) {
+      const candidate = existing.next();
+      if (candidate.getSize() === bytes.length) {
+        file = candidate;
+        break;
+      }
+    }
+
+    const duplicate = Boolean(file);
+    if (!file) {
+      file = folder.createFile(Utilities.newBlob(bytes, 'multipart/related', name));
+    }
+    const report = importDriveFile_(spreadsheet, file);
+    clearCache_();
+    return {
+      ok: true,
+      duplicate: duplicate,
+      fileName: name,
+      subject: report.subject,
+      product: report.product,
+      date: report.date
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Saves the reports folder privately in Apps Script properties. */
+function saveReportsFolder(folderUrl) {
+  assertAdmin_();
+  const match = String(folderUrl || '').match(/(?:folders\/|^)([-\w]{20,})(?:[/?#]|$)/i);
+  if (!match) throw new Error('Вставьте полную ссылку на папку Google Drive.');
+  const folder = DriveApp.getFolderById(match[1]);
+  folder.getName(); // Verifies that the deploying account can read the folder.
+  PropertiesService.getScriptProperties().setProperty(APP.reportsFolderProperty, folder.getId());
+  clearCache_();
+  return { ok: true, name: folder.getName() };
+}
+
 function buildAppData_() {
   const spreadsheet = openSource_();
   const products = readCurrentProducts_(spreadsheet);
   const currentWeek = detectCurrentWeek_(spreadsheet) || 36;
   const weeks = readWeeks_(spreadsheet, products, currentWeek);
   const plans = readPlans_(spreadsheet);
-  const emails = readEmails_(spreadsheet, plans);
+  const emails = mergeEmails_(readEmails_(spreadsheet, plans), readImportedEmails_(spreadsheet, plans));
   const insights = readInsights_(spreadsheet);
-  const updated = DriveApp.getFileById(spreadsheet.getId()).getLastUpdated();
+  const updated = new Date();
   const activeEmail = (Session.getActiveUser().getEmail() || '').toLowerCase();
   const adminEmail = (PropertiesService.getScriptProperties().getProperty(APP.adminProperty) || '').toLowerCase();
 
@@ -106,8 +199,10 @@ function buildAppData_() {
       currentWeek: currentWeek,
       viewer: activeEmail,
       canRefresh: Boolean(activeEmail && adminEmail && activeEmail === adminEmail),
+      canImport: Boolean(activeEmail && adminEmail && activeEmail === adminEmail),
       sourceUrl: spreadsheet.getUrl(),
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
+      import: readImportStatus_(spreadsheet)
     },
     summary: aggregateProducts_(products),
     products: products,
@@ -239,6 +334,387 @@ function readWeeks_(spreadsheet, currentProducts, currentWeek) {
 
   byWeek[currentWeek] = aggregateWeek_(currentWeek, currentProducts);
   return Object.keys(byWeek).map(Number).sort((a, b) => a - b).map(week => byWeek[week]);
+}
+
+function importNewDriveReports_(spreadsheet, batchSize) {
+  ensureImportSheet_(spreadsheet);
+  const imported = importIndex_(spreadsheet);
+  const iterator = reportsFolder_().getFiles();
+  const candidates = [];
+
+  while (iterator.hasNext()) {
+    const file = iterator.next();
+    const name = file.getName();
+    if (!/\.mhtml?$/i.test(name)) continue;
+    const modified = file.getLastUpdated().toISOString();
+    const previous = imported[file.getId()];
+    if (!previous || previous.modified !== modified) {
+      candidates.push({ file: file, modified: modified });
+    }
+  }
+
+  candidates.sort((a, b) => b.modified.localeCompare(a.modified));
+  const batch = candidates.slice(0, Math.max(1, batchSize || APP.importBatchSize));
+  let success = 0;
+  let errors = 0;
+  const items = [];
+
+  batch.forEach(item => {
+    try {
+      const report = importDriveFile_(spreadsheet, item.file);
+      success++;
+      items.push({ fileName: item.file.getName(), ok: true, subject: report.subject });
+    } catch (error) {
+      errors++;
+      writeImportError_(spreadsheet, item.file, error);
+      items.push({ fileName: item.file.getName(), ok: false, error: error.message || String(error) });
+    }
+  });
+
+  return {
+    ok: true,
+    processed: batch.length,
+    success: success,
+    errors: errors,
+    remaining: Math.max(0, candidates.length - batch.length),
+    found: candidates.length,
+    items: items,
+    importedTotal: readImportStatus_(spreadsheet).total
+  };
+}
+
+function importDriveFile_(spreadsheet, file) {
+  const raw = file.getBlob().getDataAsString('UTF-8');
+  const report = parseSendsayMhtml_(raw, file.getName());
+  if (!report.campaignId || !report.subject || !report.date) {
+    throw new Error('В отчёте не найдены обязательные поля Sendsay: кампания, дата или тема письма.');
+  }
+
+  report.fileId = file.getId();
+  report.fileName = file.getName();
+  report.modified = file.getLastUpdated().toISOString();
+  report.importedAt = new Date().toISOString();
+  upsertImportRow_(spreadsheet, report);
+  return report;
+}
+
+function parseSendsayMhtml_(raw, fileName) {
+  if (!raw || raw.indexOf('app.sendsay.ru/reports/campaigns/') < 0) {
+    throw new Error('Файл не похож на сохранённую сводку Sendsay.');
+  }
+
+  const unfolded = raw.replace(/=\r?\n/g, '');
+  const campaignIdMatch = raw.match(/reports\/campaigns\/(\d+)\/summary/i);
+  const campaignId = campaignIdMatch ? campaignIdMatch[1] : '';
+  const campaign = extractCampaignName_(raw, fileName);
+  const sentBlock = snippetAfter_(unfolded, 'data-sentry=3D"CampaignReportHeader-sent"', 1200);
+  const sentMatch = sentBlock.match(/(\d{2}\.\d{2}\.\d{4})[\s\S]{0,120}?(\d{2}:\d{2})/);
+  const date = sentMatch ? normalizeDate_(sentMatch[1]) : dateFromText_(campaign + ' ' + fileName);
+  const time = sentMatch ? sentMatch[2] : '';
+  const subject = extractInputValue_(unfolded, 'StatReportSummaryLetterParams-subject');
+  const fromEmail = extractInputValue_(unfolded, 'StatReportSummaryLetterParams-fromEmail');
+  const fromName = extractInputValue_(unfolded, 'StatReportSummaryLetterParams-fromName');
+  const classification = classifyCampaign_(campaign, fileName, subject, fromEmail + ' ' + fromName);
+
+  return {
+    campaignId: campaignId,
+    campaign: campaign,
+    sendsay: 'https://app.sendsay.ru/reports/campaigns/' + campaignId + '/summary',
+    date: date,
+    time: time,
+    type: classification.type,
+    product: classification.product,
+    flow: classification.flow,
+    segment: classification.segment,
+    subject: subject,
+    sent: metricNumber_(unfolded, 'SummaryStatsWithTooltips-sent'),
+    delivered: metricNumber_(unfolded, 'SummaryStatsWithTooltips-delivered'),
+    deliveredRate: metricPercent_(unfolded, 'SummaryStatsWithTooltips-deliveredRatio'),
+    uniqueOpened: metricNumber_(unfolded, 'SummaryStatsWithTooltips-uniqueOpened'),
+    openRate: metricPercent_(unfolded, 'SummaryStatsWithTooltips-uniqueOpenedRatio'),
+    uniqueClicked: metricNumber_(unfolded, 'SummaryStatsWithTooltips-uniqueClicked'),
+    clickRate: metricPercent_(unfolded, 'SummaryStatsWithTooltips-uniqueClickedRatio'),
+    ctor: metricPercent_(unfolded, 'SummaryStatsWithTooltips-CTOR'),
+    unsubscribed: metricNumber_(unfolded, 'SummaryStatsWithTooltips-unsubed'),
+    utor: metricPercent_(unfolded, 'SummaryStatsWithTooltips-UTOR')
+  };
+}
+
+function extractCampaignName_(raw, fileName) {
+  const header = raw.match(/^Subject:\s*(.+)$/mi);
+  const title = header ? decodeQpText_(header[1]) : String(fileName || '');
+  const parts = title.split(/\s*[|_]\s*/).filter(Boolean);
+  const demoIndex = parts.findIndex(part => /^(demo|news)$/i.test(part));
+  if (demoIndex >= 0 && parts.length > demoIndex + 1) {
+    const tail = parts.slice(demoIndex + 1);
+    while (tail.length && /^(sendsay|mhtml|webarchive)$/i.test(tail[tail.length - 1].replace(/\..*$/, ''))) tail.pop();
+    if (tail.length) return tail.join('_').replace(/_+$/, '');
+  }
+  const match = title.match(/(?:Demo|News)\s*[|_]\s*(.*?)\s*[|_]\s*Sendsay/i);
+  return match ? match[1].trim() : String(fileName || '').replace(/\.mhtml?$/i, '');
+}
+
+function classifyCampaign_(campaign, fileName, subject, sender) {
+  const text = norm_([campaign, fileName, subject, sender].join(' '));
+  const type = /letter_news|\bnews\b|digest/.test(text) ? 'news' : 'demo';
+  let product = 'Не указано';
+  let flow = 'Не указано';
+
+  if (/goszakaz[_-]?cgz/.test(text)) { product = 'ГЗ Система'; flow = product; }
+  else if (/goszakaz[_-]?(gzru|vio|fas)/.test(text)) {
+    product = 'ГЗ Периодика';
+    flow = /[_-]vio(?:_|\b)/.test(text) ? product + ' · ВИО' : /[_-]fas(?:_|\b)/.test(text) ? product + ' · ФАС' : product + ' · ГЗРУ';
+  }
+  else if (/letter_demo_goszakaz|goszakaz-school|высшая школа госзакупок/.test(text)) { product = 'ГЗ Школа'; flow = product; }
+  else if (/gosfinansi[_-]?letter[_-]?gfss/.test(text)) { product = 'ГФ Система'; flow = product; }
+  else if (/gosfinansi[_-]?letter[_-]?demo[_-]?school|школа главбуха/.test(text)) { product = 'ГФ Школа'; flow = product; }
+  else if (/gosfinansi[_-]?letteri?[_-]?(ubu|zbu)|\bubu\b|\bzbu\b/.test(text)) {
+    product = 'ГФ Периодика';
+    flow = /[_-]zbu(?:_|\b)/.test(text) ? product + ' · ЗБУ' : product + ' · УБУ';
+  }
+  else if (/letter_news_goszakaz/.test(text)) { product = 'ГЗ Периодика'; flow = product; }
+  else if (/letter_news_gf/.test(text)) { product = 'ГФ Периодика'; flow = product; }
+
+  let segment = type === 'news' ? 'Новостная рассылка' : 'Живые';
+  if (/(?:^|_)open(?:_|\.)/.test(campaign.toLowerCase())) segment = 'Clicks';
+  else if (/(?:^|_)d(?:_|\.)/.test(campaign.toLowerCase())) segment = 'Дожим демо';
+  else if (/(?:^|_)50(?:_|\.)/.test(campaign.toLowerCase())) segment = 'Прогрев 0–50';
+  else if (/(?:^|_)1(?:_|\.)/.test(campaign.toLowerCase())) segment = 'Все доступные';
+
+  return { type: type, product: product, flow: flow === 'Не указано' ? product : flow, segment: segment };
+}
+
+function metricNumber_(unfolded, key) {
+  return number_(extractMetricText_(unfolded, key));
+}
+
+function metricPercent_(unfolded, key) {
+  return percent_(extractMetricText_(unfolded, key));
+}
+
+function extractMetricText_(unfolded, key) {
+  const marker = 'data-sentry=3D"' + key + '"';
+  const snippet = snippetAfter_(unfolded, marker, 1600);
+  if (!snippet) return '';
+  const h4End = snippet.indexOf('</h4>');
+  const spanEnd = snippet.indexOf('</span>');
+  let end = -1;
+  if (h4End >= 0 && spanEnd >= 0) end = Math.min(h4End + 5, spanEnd + 7);
+  else end = h4End >= 0 ? h4End + 5 : spanEnd + 7;
+  if (end < 0) return '';
+  const match = snippet.slice(end).match(/<span[^>]*>([^<]*)<\/span>/i);
+  return match ? decodeQpText_(match[1]) : '';
+}
+
+function extractInputValue_(unfolded, key) {
+  const marker = 'data-sentry=3D"' + key + '"';
+  const snippet = snippetAfter_(unfolded, marker, 5000);
+  if (!snippet) return '';
+  const match = snippet.match(/<input[^>]*\svalue=3D"([^"]*)"/i);
+  return match ? decodeQpText_(match[1]) : '';
+}
+
+function snippetAfter_(text, marker, length) {
+  const index = text.indexOf(marker);
+  return index < 0 ? '' : text.slice(index, index + length);
+}
+
+function decodeQpText_(value) {
+  const source = String(value || '').replace(/=\r?\n/g, '');
+  const bytes = [];
+  for (let i = 0; i < source.length; i++) {
+    if (source[i] === '=' && /^[0-9a-f]{2}$/i.test(source.slice(i + 1, i + 3))) {
+      bytes.push(parseInt(source.slice(i + 1, i + 3), 16));
+      i += 2;
+    } else {
+      const code = source.charCodeAt(i);
+      if (code <= 127) bytes.push(code);
+      else bytes.push.apply(bytes, Utilities.newBlob(source[i]).getBytes().map(byte => byte < 0 ? byte + 256 : byte));
+    }
+  }
+  const signed = bytes.map(byte => byte > 127 ? byte - 256 : byte);
+  return htmlText_(Utilities.newBlob(signed).getDataAsString('UTF-8'));
+}
+
+function htmlText_(value) {
+  return String(value || '')
+    .replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function reportsFolder_() {
+  const id = PropertiesService.getScriptProperties().getProperty(APP.reportsFolderProperty);
+  if (!id) throw new Error('Папка с отчётами ещё не подключена. Вставьте ссылку на сайте один раз.');
+  return DriveApp.getFolderById(id);
+}
+
+function ensureImportSheet_(spreadsheet) {
+  let sheet = spreadsheet.getSheetByName(APP.importSheet);
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(APP.importSheet);
+    sheet.getRange(1, 1, 1, IMPORT_HEADERS.length).setValues([IMPORT_HEADERS]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, IMPORT_HEADERS.length)
+      .setBackground('#111b31')
+      .setFontColor('#ffffff')
+      .setFontWeight('bold');
+    sheet.hideSheet();
+  } else if (sheet.getLastColumn() < IMPORT_HEADERS.length || norm_(sheet.getRange(1, 1).getDisplayValue()) !== 'file id') {
+    sheet.getRange(1, 1, 1, IMPORT_HEADERS.length).setValues([IMPORT_HEADERS]);
+  }
+  return sheet;
+}
+
+function importIndex_(spreadsheet) {
+  const sheet = ensureImportSheet_(spreadsheet);
+  const values = sheet.getDataRange().getDisplayValues();
+  const index = {};
+  for (let i = 1; i < values.length; i++) {
+    const id = String(values[i][0] || '').trim();
+    if (!id) continue;
+    index[id] = { row: i + 1, modified: values[i][2], status: values[i][4] };
+  }
+  return index;
+}
+
+function upsertImportRow_(spreadsheet, report) {
+  const sheet = ensureImportSheet_(spreadsheet);
+  const index = importIndex_(spreadsheet);
+  const row = [
+    report.fileId, report.fileName, report.modified, report.importedAt, 'Готово', '',
+    report.date, report.time, report.type, report.product, report.flow, report.segment, report.campaign,
+    report.sendsay, report.subject, report.sent, report.delivered, report.deliveredRate,
+    report.uniqueOpened, report.openRate, report.uniqueClicked, report.clickRate, report.ctor,
+    report.unsubscribed, report.utor
+  ];
+  const rowNumber = index[report.fileId] ? index[report.fileId].row : sheet.getLastRow() + 1;
+  sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
+}
+
+function writeImportError_(spreadsheet, file, error) {
+  const report = {
+    fileId: file.getId(), fileName: file.getName(), modified: file.getLastUpdated().toISOString(),
+    importedAt: new Date().toISOString(), date: '', time: '', type: '', product: '', flow: '', segment: '',
+    campaign: '', sendsay: '', subject: '', sent: '', delivered: '', deliveredRate: '',
+    uniqueOpened: '', openRate: '', uniqueClicked: '', clickRate: '', ctor: '', unsubscribed: '', utor: ''
+  };
+  const sheet = ensureImportSheet_(spreadsheet);
+  const index = importIndex_(spreadsheet);
+  const row = [
+    report.fileId, report.fileName, report.modified, report.importedAt, 'Ошибка',
+    String(error && error.message ? error.message : error).slice(0, 500),
+    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+  ];
+  const rowNumber = index[report.fileId] ? index[report.fileId].row : sheet.getLastRow() + 1;
+  sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
+}
+
+function readImportStatus_(spreadsheet) {
+  const folderConfigured = Boolean(PropertiesService.getScriptProperties().getProperty(APP.reportsFolderProperty));
+  const sheet = spreadsheet.getSheetByName(APP.importSheet);
+  if (!sheet || sheet.getLastRow() < 2) return { total: 0, errors: 0, lastImportedAt: '', folderConfigured: folderConfigured };
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 6).getDisplayValues();
+  let errors = 0;
+  let lastImportedAt = '';
+  values.forEach(row => {
+    if (row[4] === 'Ошибка') errors++;
+    if (row[3] > lastImportedAt) lastImportedAt = row[3];
+  });
+  return { total: values.filter(row => row[0]).length, errors: errors, lastImportedAt: lastImportedAt, folderConfigured: folderConfigured };
+}
+
+function safeFileName_(value) {
+  const name = String(value || 'report.mhtml').replace(/[\\/:*?"<>|]+/g, '_').trim();
+  return name.slice(0, 220) || 'report.mhtml';
+}
+
+function readImportedEmails_(spreadsheet, plans) {
+  const sheet = spreadsheet.getSheetByName(APP.importSheet);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  const rows = sheet.getDataRange().getDisplayValues();
+  const headers = headerMap_(rows[0]);
+  const col = aliases => indexOfHeader_(headers, aliases);
+  const idx = {
+    fileId: col(['file id']), status: col(['статус']), date: col(['дата отправки']),
+    type: col(['тип']), product: col(['продукт']), flow: col(['поток']), segment: col(['сегмент']), campaign: col(['campaign']),
+    sendsay: col(['sendsay']), subject: col(['тема письма']), delivered: col(['доставлено']),
+    openRate: col(['or']), clicks: col(['уник. клики']), clickRate: col(['click rate']), ctor: col(['ctor'])
+  };
+  const planIndexes = buildPlanIndexes_(plans);
+  const output = [];
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (valueAt_(row, idx.status) !== 'Готово') continue;
+    const date = normalizeDate_(valueAt_(row, idx.date));
+    const subject = String(valueAt_(row, idx.subject) || '').trim();
+    if (!date || !subject) continue;
+    const product = String(valueAt_(row, idx.product) || 'Не указано').trim();
+    const plan = matchPlan_(planIndexes, subject, '', product, date);
+    output.push({
+      id: 'import-' + String(valueAt_(row, idx.fileId) || i),
+      importedOnly: true,
+      hasDemoData: false,
+      date: date,
+      week: isoWeek_(date),
+      type: String(valueAt_(row, idx.type) || 'demo').trim(),
+      product: product,
+      productFlow: String(valueAt_(row, idx.flow) || product).trim(),
+      segment: String(valueAt_(row, idx.segment) || '').trim(),
+      campaign: String(valueAt_(row, idx.campaign) || '').trim(),
+      sendsay: url_(valueAt_(row, idx.sendsay)),
+      subject: subject,
+      material: '',
+      delivered: number_(valueAt_(row, idx.delivered)),
+      openRate: percent_(valueAt_(row, idx.openRate)),
+      clicks: number_(valueAt_(row, idx.clicks)),
+      clickRate: percent_(valueAt_(row, idx.clickRate)),
+      ctor: percent_(valueAt_(row, idx.ctor)),
+      red: 0, yellow: 0, green: 0, potential: 0,
+      maturity: 'Sendsay загружен · DEMO ещё не сопоставлено',
+      score: 'Только данные Sendsay',
+      worked: '', failed: '', source: 'Импорт из папки Sendsay',
+      weeklyPlan: 0, weeklyFact: 0, weeklyProgress: 0,
+      note: 'Письмо уже видно в реестре. R / Y / G появятся после точного сопоставления с отчётом DEMO.',
+      body: plan ? plan.body : '', innerTitle: plan ? plan.innerTitle : '', cta: plan ? plan.cta : '',
+      targetUrl: plan ? plan.targetUrl : '', rationale: plan ? plan.rationale : '',
+      exclusions: plan ? plan.exclusions : '', planStatus: plan ? plan.status : ''
+    });
+  }
+  return output;
+}
+
+function mergeEmails_(registry, imported) {
+  const byKey = {};
+  imported.forEach(item => { byKey[emailKey_(item)] = item; });
+  registry.forEach(item => {
+    item.hasDemoData = true;
+    const key = emailKey_(item);
+    const raw = byKey[key];
+    byKey[key] = raw ? Object.assign({}, raw, item, {
+      delivered: item.delivered || raw.delivered,
+      openRate: item.openRate || raw.openRate,
+      clicks: item.clicks || raw.clicks,
+      clickRate: item.clickRate || raw.clickRate,
+      ctor: item.ctor || raw.ctor,
+      importedOnly: false,
+      hasDemoData: true
+    }) : item;
+  });
+  return Object.keys(byKey).map(key => byKey[key])
+    .sort((a, b) => b.date.localeCompare(a.date) || b.green - a.green || a.subject.localeCompare(b.subject));
+}
+
+function emailKey_(item) {
+  const sendsay = String(item.sendsay || '').match(/campaigns\/(\d+)/i);
+  if (sendsay) return 'sendsay:' + sendsay[1];
+  if (item.campaign) return 'campaign:' + norm_(item.campaign);
+  return ['fallback', item.date, item.product, subjectKey_(item.subject)].join(':');
 }
 
 function readEmails_(spreadsheet, plans) {
