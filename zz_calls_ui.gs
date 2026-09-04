@@ -1,13 +1,15 @@
 /**
- * Подмешивает интерфейс «Звонки / Что продает» в текущий index.html,
- * не переписывая существующие вкладки DEMO / Sendsay.
+ * Подмешивает дополнительные интерфейсные модули в текущий index.html,
+ * не переписывая существующие вкладки Analytics Center.
  */
 doGet = function() {
   const base = HtmlService.createHtmlOutputFromFile('index').getContent();
   const callsUi = HtmlService.createHtmlOutputFromFile('calls_ui').getContent();
+  const sendsayUi = HtmlService.createHtmlOutputFromFile('sendsay_ui').getContent();
+  const addons = callsUi + '\n' + sendsayUi;
   const html = base.indexOf('</body>') >= 0
-    ? base.replace('</body>', callsUi + '\n</body>')
-    : base + callsUi;
+    ? base.replace('</body>', addons + '\n</body>')
+    : base + addons;
 
   return HtmlService.createHtmlOutput(html)
     .setTitle('DEMO Analytics')
