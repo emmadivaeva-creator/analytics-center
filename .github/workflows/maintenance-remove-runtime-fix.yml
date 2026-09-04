@@ -77,6 +77,6 @@ jobs:
         run: |
           git config user.name "analytics-center-maintenance"
           git config user.email "actions@users.noreply.github.com"
-          git add Code.gs Calls.gs zz_runtime_fix.gs
+          git add -A
           git commit -m "Move runtime fixes into canonical modules"
           git push
