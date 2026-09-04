@@ -22,16 +22,9 @@ jobs:
           code = Path('Code.gs')
           text = code.read_text(encoding='utf-8')
           text = text.replace("parserVersion: 'sendsay-webarchive-v2'", "parserVersion: 'sendsay-webarchive-v3'", 1)
-          text = text.replace(
-              r"^\s*\d+\s*\|\s*(?:demo|news)\s*\|\s*(.*?)\s*\|\s*sendsay\s*$",
-              r"^\s*\d+\s*(?:\||_)\s*(?:demo|news)\s*(?:\||_)\s*(.*?)\s*(?:\||_)\s*sendsay\s*$",
-              1
-          )
-          text = text.replace(
-              r"generic[1].replace(/\s*\|\s*Sendsay\s*$/i, '').trim()",
-              r"generic[1].replace(/\s*(?:\||_)\s*Sendsay\s*$/i, '').trim()",
-              1
-          )
+          text = text.replace(r"^\s*\d+\s*\|\s*(?:demo|news)\s*\|\s*(.*?)\s*\|\s*sendsay\s*$", r"^\s*\d+\s*(?:\||_)\s*(?:demo|news)\s*(?:\||_)\s*(.*?)\s*(?:\||_)\s*sendsay\s*$", 1)
+          text = text.replace(r"generic[1].replace(/\s*\|\s*Sendsay\s*$/i, '').trim()", r"generic[1].replace(/\s*(?:\||_)\s*Sendsay\s*$/i, '').trim()", 1)
+
           old_type = "  const type = /letter_news|\\bnews\\b|digest/.test(text) ? 'news' : 'demo';\n"
           new_type = "  const isNews = canonicalNewsCampaign_(campaign);\n  const type = isNews ? 'news' : 'demo';\n"
           if old_type in text:
@@ -39,43 +32,41 @@ jobs:
           elif new_type not in text:
               raise SystemExit('Base NEWS type block not found')
 
-          fallback = """
-  if (product === 'Не указано') {
-    const sourceIdMatch = String(fileName || '').match(/^\s*(\d+)/);
-    const sourceId = sourceIdMatch ? sourceIdMatch[1] : '';
-    const productBySourceId = {
-      '265': 'ГФ Периодика',
-      '729': 'ГЗ Периодика',
-      '818': 'ГЗ Система',
-      '1005': 'ГФ Школа',
-      '1213': 'ГЗ Школа',
-      '1223': 'ГФ Система'
-    };
-    if (productBySourceId[sourceId]) {
-      product = productBySourceId[sourceId];
-      flow = product;
-    }
-  }
-"""
+          fallback_lines = [
+              '',
+              "  if (product === 'Не указано') {",
+              "    const sourceIdMatch = String(fileName || '').match(/^\\s*(\\d+)/);",
+              "    const sourceId = sourceIdMatch ? sourceIdMatch[1] : '';",
+              '    const productBySourceId = {',
+              "      '265': 'ГФ Периодика',",
+              "      '729': 'ГЗ Периодика',",
+              "      '818': 'ГЗ Система',",
+              "      '1005': 'ГФ Школа',",
+              "      '1213': 'ГЗ Школа',",
+              "      '1223': 'ГФ Система'",
+              '    };',
+              '    if (productBySourceId[sourceId]) {',
+              '      product = productBySourceId[sourceId];',
+              '      flow = product;',
+              '    }',
+              '  }',
+              ''
+          ]
+          fallback = '\n'.join(fallback_lines)
           segment_marker = "\n  let segment = type === 'news' ? 'Новостная рассылка' : 'Живые';\n"
-          if fallback.strip() not in text:
+          if "'1005': 'ГФ Школа'" not in text:
               if segment_marker not in text:
                   raise SystemExit('Base classification segment marker not found')
               text = text.replace(segment_marker, fallback + segment_marker, 1)
 
-          limit_block = """  if (bytes.length > 35 * 1024 * 1024) {
-    throw new Error('Файл «' + name + '» больше 35 МБ. Положите его в папку Drive и нажмите «Обновить данные».');
-  }
-
-"""
+          limit_block = "  if (bytes.length > 35 * 1024 * 1024) {\n    throw new Error('Файл «' + name + '» больше 35 МБ. Положите его в папку Drive и нажмите «Обновить данные».');\n  }\n\n"
           text = text.replace(limit_block, '', 1)
           code.write_text(text, encoding='utf-8')
 
           core = Path('CoreRules.gs')
           c = core.read_text(encoding='utf-8')
           core_marker = "\n  let segment = isNews ? 'Новостная рассылка' : 'Живые';\n"
-          core_fallback = fallback.replace("let segment = type", "let segment = type")
-          if fallback.strip() not in c:
+          if "'1005': 'ГФ Школа'" not in c:
               if core_marker not in c:
                   raise SystemExit('CoreRules classification segment marker not found')
               c = c.replace(core_marker, fallback + core_marker, 1)
@@ -88,7 +79,7 @@ jobs:
           grep -q "const isNews = canonicalNewsCampaign_" Code.gs
           grep -q "'1005': 'ГФ Школа'" Code.gs
           grep -q "'1005': 'ГФ Школа'" CoreRules.gs
-          ! grep -q "больше 35 МБ" Code.gs
+          if grep -q "больше 35 МБ" Code.gs; then exit 1; fi
 
       - name: Commit classification update
         run: |
