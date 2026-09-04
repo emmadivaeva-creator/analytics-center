@@ -30,7 +30,7 @@
     const results={};
     let processed=0;
     for(let round=0;round<500;round++){
-      const r=await server('syncDriveReports');
+      const r=await server('syncDriveReportsReliable',round===0);
       processed+=n(r&&r.processed);
       (r&&Array.isArray(r.items)?r.items:[]).forEach(item=>{
         if(item&&item.fileName)results[item.fileName]=item;
