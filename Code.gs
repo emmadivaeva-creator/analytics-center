@@ -507,7 +507,7 @@ function importDriveFile_(storage, file) {
   const missing = [];
   if (!report.campaignId) missing.push('ссылка/ID кампании');
   if (!report.date) missing.push('дата отправки');
-  if (!report.subject) missing.push('тема письма');
+  if (!report.subject) report.subject = 'Тема не сохранена в отчёте Sendsay';
 
   if (missing.length) {
     const error = new Error(
