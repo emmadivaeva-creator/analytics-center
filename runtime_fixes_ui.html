@@ -1,25 +1,3 @@
-<style>
-/* Финальный компактный Пульс: две спокойные колонки, по три строки. */
-#weekView #matrix{display:block!important}
-#weekView .legend{margin:0 0 10px!important;gap:6px!important}
-#weekView .legend span{padding:5px 8px!important;font-size:9px!important}
-.pulse-board{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.pulse-side{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
-.pulse-side-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #edf0f5;font-size:13px;font-weight:900}
-.pulse-side-head small{font-size:9px;font-weight:700;color:var(--muted)}
-.pulse-side-head.gz{background:#f4f7ff;color:#234fae}.pulse-side-head.gf{background:#f7f5ff;color:#5e48b2}
-.pulse-row{padding:13px 14px;border-bottom:1px solid #edf0f5}.pulse-row:last-child{border-bottom:0}
-.pulse-row-top{display:grid;grid-template-columns:minmax(90px,1fr) auto auto;gap:10px;align-items:center}
-.pulse-name{font-size:12px;font-weight:850}.pulse-percent{font-size:24px;font-weight:950;letter-spacing:-.04em;min-width:68px;text-align:right}
-.pulse-state{font-size:8px;font-weight:900;padding:4px 7px;border-radius:999px;white-space:nowrap;background:#eef2f7;color:#58657a}
-.pulse-state.done{background:var(--green-soft);color:var(--green)}.pulse-state.wait{background:var(--yellow-soft);color:#946100}.pulse-state.risk{background:var(--red-soft);color:#b63b47}
-.pulse-line{height:6px;background:#edf0f5;border-radius:999px;overflow:hidden;margin:8px 0}.pulse-line i{display:block;height:100%;border-radius:inherit;background:var(--blue)}
-.pulse-row.done .pulse-line i{background:var(--green)}.pulse-row.wait .pulse-line i{background:var(--yellow)}.pulse-row.risk .pulse-line i{background:var(--red)}
-.pulse-facts{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:9px;color:var(--muted)}.pulse-facts b{font-size:10px;color:var(--ink)}
-.pulse-gap.good{color:var(--green);font-weight:850}.pulse-y{margin-left:auto}
-@media(max-width:900px){.pulse-board{grid-template-columns:1fr}.pulse-y{margin-left:0}}
-@media(max-width:560px){.pulse-row-top{grid-template-columns:1fr auto}.pulse-state{grid-column:1/-1;justify-self:start}.pulse-facts{gap:8px}}
-</style>
 <script>
 (function(){
   /* Решения по плану учитывают не только цифры, но и сколько времени осталось до конца недели. */
@@ -31,9 +9,9 @@
     if(n(p.plan) && n(p.green) >= n(p.plan)) return {key:'done',label:'План закрыт'};
     if(workday() === 5) return {key:'risk',label:'Недобор недели'};
     if(n(p.plan) && pace(p) >= n(p.plan)) return {key:'done',label:'По темпу закрываем'};
-    if(n(p.plan) && potential(p) >= n(p.plan)) return {key:'wait',label:'Ждём отправленные'};
-    if(canNewPushMature(p)) return {key:'risk',label:'Дожим сейчас'};
-    return {key:'risk',label:'Уже не успеет'};
+    if(n(p.plan) && potential(p) >= n(p.plan)) return {key:'wait',label:'Ждём уже отправленные'};
+    if(canNewPushMature(p)) return {key:'risk',label:'Нужен дожим сейчас'};
+    return {key:'risk',label:'Дожим уже не успеет'};
   };
 
   decisionText = function(p){
@@ -46,50 +24,36 @@
     return `До плана ${gap}, Yellow ${y}; после него всё равно останется ${shortAfterYellow}. Но новый дожим уже не успеет созреть в эту неделю: для ${/Школа/i.test(String(p.product||''))?'Школы нужно около 6 дней':'Периодики/Системы нужно около 3 дней'}. Фиксируем риск недобора; следующую отправку считаем уже работой на следующий период.`;
   };
 
-  function pulseRow(fullName, shortName){
-    const p=product(fullName),s=status(p),plan=n(p.plan),green=n(p.green),yellow=n(p.yellow),pr=plan?green/plan*100:0,gap=Math.max(0,plan-green),friday=workday()===5;
-    const gapHtml=gap ? `до плана <b>${fmt.format(gap)}</b>` : `<span class="pulse-gap good">план закрыт</span>`;
-    const yText=friday?'Y переходящий':'Y';
-    return `<div class="pulse-row ${s.key}">
-      <div class="pulse-row-top"><div class="pulse-name">${esc(shortName)}</div><div class="pulse-percent">${pct.format(pr)}%</div><span class="pulse-state ${s.key}">${esc(s.label)}</span></div>
-      <div class="pulse-line"><i style="width:${Math.min(100,Math.max(0,pr))}%"></i></div>
-      <div class="pulse-facts"><span>Green <b>${fmt.format(green)} / ${fmt.format(plan)}</b></span><span>${gapHtml}</span><span class="pulse-y">${yText} <b>${fmt.format(yellow)}</b></span></div>
-    </div>`;
-  }
-
-  function renderPulseBoard(){
-    const matrix=document.querySelector('#matrix');if(!matrix)return;
-    matrix.innerHTML=`<div class="pulse-board">
-      <section class="pulse-side"><div class="pulse-side-head gz"><span>Госзаказ</span><small>3 продукта</small></div>${pulseRow('ГЗ Периодика','Периодика')}${pulseRow('ГЗ Школа','Школа')}${pulseRow('ГЗ Система','Система')}</section>
-      <section class="pulse-side"><div class="pulse-side-head gf"><span>Госфинансы</span><small>3 продукта</small></div>${pulseRow('ГФ Периодика','Периодика')}${pulseRow('ГФ Школа','Школа')}${pulseRow('ГФ Система','Система')}</section>
-    </div>`;
-    const head=document.querySelector('#weekView .head h1'),sub=document.querySelector('#weekView .head p');
-    if(head) head.textContent='Пульс DEMO по шести продуктам';
-    if(sub) sub.textContent='Сначала процент плана. Ниже только три вещи: Green, сколько не хватает и текущий Yellow.';
-    const legend=document.querySelector('#weekView .legend');
-    if(legend){
-      legend.innerHTML=workday()===5
-        ? '<span><i class="dot g"></i>Green = итог недели</span><span><i class="dot y"></i>Yellow = переходящий потенциал</span>'
-        : '<span><i class="dot g"></i>Green = факт</span><span><i class="dot y"></i>Yellow = уже запущенный потенциал</span>';
-    }
-  }
-
-  const baseRenderWeek2=renderWeek;
-  renderWeek=function(){ baseRenderWeek2(); renderPulseBoard(); };
-
-  /* Новостными считаем только выпуски с явной припиской digest. */
-  function isDigestMail(x){
-    const hay=[x&&x.campaign,x&&x.segment,x&&x.name,x&&x.issueName,x&&x.subjectTag].filter(Boolean).join(' ').toLowerCase();
-    return /(?:^|[^a-z])digest(?:[^a-z]|$)/i.test(hay);
-  }
-  mailType = function(x){
-    if(isActive(x)) return 'active';
-    return isDigestMail(x) ? 'news' : 'direct';
+  /* Пульс: в пятницу показываем итог, а не нелепый «прогноз к пятнице». */
+  card = function(name){
+    const p=product(name),s=status(p),pr=n(p.plan)?n(p.green)/n(p.plan)*100:0,gap=Math.max(0,n(p.plan)-n(p.green));
+    const friday=workday()===5;
+    const right=friday
+      ? `<span class="pulse-forecast">итог <b>${fmt.format(p.green)}</b> Green</span>`
+      : `<span class="pulse-forecast">прогноз <b>${fmt.format(pace(p))}</b></span>`;
+    const yLabel=friday?'Y переходящий':'Y';
+    return `<article class="pcard pulse-clean ${s.key}"><div class="ptop"><b>${esc(name)}</b><span class="badge ${s.key}">${s.label}</span></div><div class="mainnum"><strong>${pct.format(pr)}%</strong><span><b>${fmt.format(p.green)}</b> Green<br>из плана ${fmt.format(p.plan)}</span></div><div class="progress"><i style="width:${Math.min(100,Math.max(0,pr))}%"></i></div><div class="pulse-bottom"><span>${gap?`До плана <b>${fmt.format(gap)}</b>`:'<b>План закрыт</b>'} · ${yLabel} ${fmt.format(p.yellow)}</span>${right}</div></article>`;
   };
 
-  /* В обычной вкладке «Письма» оставляем только обычные DEMO. */
+  const baseRenderWeek2=renderWeek;
+  renderWeek=function(){
+    baseRenderWeek2();
+    const legend=document.querySelector('#weekView .legend');
+    if(!legend) return;
+    if(workday()===5){
+      legend.innerHTML='<span><i class="dot g"></i>Green = итог недели</span><span><i class="dot y"></i>Yellow = переходящий потенциал</span><span>В пятницу новый дожим на текущий план уже не ставим</span>';
+    } else {
+      legend.innerHTML='<span><i class="dot g"></i>Green = факт</span><span><i class="dot y"></i>Yellow = уже запущенный потенциал</span><span>Новый дожим учитываем только пока он успевает созреть</span>';
+    }
+  };
+
+  /* В обычной вкладке «Письма» оставляем только обычные DEMO.
+     АКТИВДЕМО и новостные живут в своих отдельных вкладках. */
+  function isNewsMail(x){
+    return String(x && x.type || '').toLowerCase()==='news' || /(?:^|[_\-])nd(?:[_\-.]|$)|news|novost/i.test(String(x && x.campaign || ''));
+  }
   const baseFilteredEmails2=filteredEmails;
-  filteredEmails=function(){ return baseFilteredEmails2().filter(x=>!isActive(x) && !isDigestMail(x)); };
+  filteredEmails=function(){ return baseFilteredEmails2().filter(x=>!isActive(x) && !isNewsMail(x)); };
   const emailType=document.querySelector('#emailType');
   if(emailType){ [...emailType.options].forEach(o=>{ if(o.value==='active'||o.value==='news') o.remove(); }); }
 
@@ -98,7 +62,7 @@
     baseRenderEmails2();
     const title=document.querySelector('#emailsView .head h1'),subtitle=document.querySelector('#emailsView .head p');
     if(title) title.textContent='Фактически отправленные DEMO-письма';
-    if(subtitle) subtitle.textContent='Только обычные DEMO. АКТИВДЕМО и digest-рассылки вынесены в отдельные вкладки.';
+    if(subtitle) subtitle.textContent='Только обычные DEMO. АКТИВДЕМО и новостные вынесены в отдельные вкладки.';
     const rows=filteredEmails(),metrics=document.querySelectorAll('#emailMetrics .metric');
     if(metrics[3]) metrics[3].innerHTML=`<span>Средний CTR</span><strong>${pct.format(weighted(rows,'clickRate'))}%</strong><small>обычные DEMO</small>`;
   };
