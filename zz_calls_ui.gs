@@ -4,12 +4,13 @@
  */
 function doGet() {
   const base = HtmlService.createHtmlOutputFromFile('index').getContent();
+  const compatUi = HtmlService.createHtmlOutputFromFile('compat_ui').getContent();
   const callsUi = HtmlService.createHtmlOutputFromFile('calls_ui').getContent();
   const sendsayUi = HtmlService.createHtmlOutputFromFile('sendsay_ui').getContent();
   const emailAnalyticsUi = HtmlService.createHtmlOutputFromFile('email_analytics_ui').getContent();
   const newsUi = HtmlService.createHtmlOutputFromFile('news_ui').getContent();
   const runtimeFixesUi = HtmlService.createHtmlOutputFromFile('runtime_fixes_ui').getContent();
-  const addons = callsUi + '\n' + sendsayUi + '\n' + emailAnalyticsUi + '\n' + newsUi + '\n' + runtimeFixesUi;
+  const addons = compatUi + '\n' + callsUi + '\n' + sendsayUi + '\n' + emailAnalyticsUi + '\n' + newsUi + '\n' + runtimeFixesUi;
   const html = base.indexOf('</body>') >= 0
     ? base.replace('</body>', addons + '\n</body>')
     : base + addons;
