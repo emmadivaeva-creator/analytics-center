@@ -108,5 +108,31 @@
           : '<span class="tag">DEMO</span>';
     };
   }
+
+  /* Оставляем в верхнем меню только одну вкладку аналитики.
+     Старые модули могут добавлять «Аналитика писем», новые — «Аналитика». */
+  function dedupeAnalyticsNav(){
+    var nav = document.querySelector('#nav');
+    if (!nav) return;
+    var buttons = Array.prototype.slice.call(nav.querySelectorAll('.navbtn'));
+    var matches = buttons.filter(function(btn){
+      var view = String(btn.dataset && btn.dataset.view || '').toLowerCase();
+      var text = String(btn.textContent || '').trim().toLowerCase();
+      return view === 'mailanalytics' || text === 'аналитика' || text === 'аналитика писем' || text === 'аналитика рассылок';
+    });
+    if (!matches.length) return;
+    var canonical = matches.filter(function(btn){ return String(btn.dataset && btn.dataset.view || '').toLowerCase() === 'mailanalytics'; })[0] || matches[0];
+    canonical.dataset.view = 'mailanalytics';
+    canonical.textContent = 'Аналитика';
+    matches.forEach(function(btn){ if (btn !== canonical && btn.parentNode) btn.parentNode.removeChild(btn); });
+  }
+
+  dedupeAnalyticsNav();
+  setTimeout(dedupeAnalyticsNav, 0);
+  setTimeout(dedupeAnalyticsNav, 250);
+  if (typeof MutationObserver !== 'undefined') {
+    var observer = new MutationObserver(function(){ dedupeAnalyticsNav(); });
+    observer.observe(document.documentElement, {childList:true, subtree:true});
+  }
 })();
 </script>
