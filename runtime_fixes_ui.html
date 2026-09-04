@@ -1,0 +1,68 @@
+<script>
+(function(){
+  /* К пятнице текущая неделя уже не планируется: фиксируем факт, а не обещаем дозревание. */
+  const baseStatus = status;
+  status = function(p){
+    if(n(p.plan) && n(p.green) >= n(p.plan)) return {key:'done',label:'План закрыт'};
+    if(workday() === 5) return {key:'risk',label:'Недобор недели'};
+    return baseStatus(p);
+  };
+
+  const baseDecisionText = decisionText;
+  decisionText = function(p){
+    if(n(p.plan) && n(p.green) >= n(p.plan)) return 'Ничего не дожимаем. План уже закрыт.';
+    if(workday() === 5){
+      const gap = Math.max(0,n(p.plan)-n(p.green));
+      return `Пятница: до плана ${gap}. Новый дожим уже не успеет повлиять на текущую неделю. Фиксируем недобор; Yellow не считаем способом закрыть этот план.`;
+    }
+    return baseDecisionText(p);
+  };
+
+  /* Пульс в пятницу показывает итог, а не бессмысленный прогноз «к пятнице». */
+  card = function(name){
+    const p=product(name),s=status(p),pr=n(p.plan)?n(p.green)/n(p.plan)*100:0,gap=Math.max(0,n(p.plan)-n(p.green));
+    const friday = workday()===5;
+    const right = friday
+      ? `<span class="pulse-forecast">итог <b>${fmt.format(p.green)}</b> Green</span>`
+      : `<span class="pulse-forecast">прогноз <b>${fmt.format(pace(p))}</b></span>`;
+    return `<article class="pcard pulse-clean ${s.key}"><div class="ptop"><b>${esc(name)}</b><span class="badge ${s.key}">${s.label}</span></div><div class="mainnum"><strong>${pct.format(pr)}%</strong><span><b>${fmt.format(p.green)}</b> Green<br>из плана ${fmt.format(p.plan)}</span></div><div class="progress"><i style="width:${Math.min(100,Math.max(0,pr))}%"></i></div><div class="pulse-bottom"><span>${gap?`До плана <b>${fmt.format(gap)}</b>`:'<b>План закрыт</b>'} · Y ${fmt.format(p.yellow)}</span>${right}</div></article>`;
+  };
+
+  const baseRenderWeek2 = renderWeek;
+  renderWeek = function(){
+    baseRenderWeek2();
+    const legend=document.querySelector('#weekView .legend');
+    if(legend && workday()===5){
+      legend.innerHTML='<span><i class="dot g"></i>Green = итог недели</span><span><i class="dot y"></i>Yellow = переходящий потенциал, не закрытие этой недели</span><span>В пятницу новый дожим на текущий план уже не ставим</span>';
+    }
+  };
+
+  /* В обычной вкладке «Письма» оставляем только обычные DEMO.
+     АКТИВДЕМО и новостные живут в своих отдельных вкладках. */
+  function isNewsMail(x){
+    return String(x && x.type || '').toLowerCase()==='news' || /(?:^|[_\-])nd(?:[_\-.]|$)|news|novost/i.test(String(x && x.campaign || ''));
+  }
+  const baseFilteredEmails2 = filteredEmails;
+  filteredEmails = function(){
+    return baseFilteredEmails2().filter(x=>!isActive(x) && !isNewsMail(x));
+  };
+  const emailType=document.querySelector('#emailType');
+  if(emailType){
+    [...emailType.options].forEach(o=>{ if(o.value==='active'||o.value==='news') o.remove(); });
+  }
+
+  const baseRenderEmails2 = renderEmails;
+  renderEmails = function(){
+    baseRenderEmails2();
+    const title=document.querySelector('#emailsView .head h1');
+    const subtitle=document.querySelector('#emailsView .head p');
+    if(title) title.textContent='Фактически отправленные DEMO-письма';
+    if(subtitle) subtitle.textContent='Только обычные DEMO. АКТИВДЕМО и новостные вынесены в отдельные вкладки.';
+    const rows=filteredEmails();
+    const metrics=document.querySelectorAll('#emailMetrics .metric');
+    if(metrics[3]) metrics[3].innerHTML=`<span>Средний CTR</span><strong>${pct.format(weighted(rows,'clickRate'))}%</strong><small>обычные DEMO</small>`;
+  };
+
+  if(state.data){ renderWeek(); renderEmails(); }
+})();
+</script>
