@@ -1,5 +1,15 @@
-/** Единственная точка сборки интерфейса веб-приложения. */
-doGet = function() {
+/**
+ * Единственная рабочая точка входа Web App.
+ *
+ * Важно: doGet должен быть объявленной функцией Apps Script, а не только
+ * присваиванием глобальной переменной. Интерфейс собирается из index.html
+ * и всех подключаемых UI-модулей, включая отдельную вкладку «Новостные».
+ */
+function doGet() {
+  return buildAnalyticsWebApp_();
+}
+
+function buildAnalyticsWebApp_() {
   const base = HtmlService.createHtmlOutputFromFile('index').getContent();
   const modules = [
     'compat_ui',
@@ -24,4 +34,4 @@ doGet = function() {
     .setTitle('DEMO Analytics')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
-};
+}
