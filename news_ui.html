@@ -1,0 +1,73 @@
+<style>
+.news-hero{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:10px}.news-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px;box-shadow:var(--shadow)}.news-card span{display:block;color:var(--muted);font-size:9px}.news-card strong{display:block;font-size:22px;letter-spacing:-.035em;margin-top:3px}.news-card small{display:block;color:var(--muted);font-size:8px;margin-top:2px}.news-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.news-filters label{font-size:10px;color:var(--muted)}.news-filters .control{width:190px}.news-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:10px}.news-list{padding:8px 16px 14px}.news-row{padding:10px 0;border-bottom:1px solid #edf0f5;cursor:pointer}.news-row:last-child{border-bottom:0}.news-row:hover b{color:var(--blue)}.news-row-top{display:flex;justify-content:space-between;gap:10px}.news-row b{font-size:11px}.news-row strong{font-size:10px;white-space:nowrap}.news-meta{font-size:9px;color:var(--muted);margin-top:3px}.news-example{font-size:9px;color:var(--muted);margin-top:5px;padding-left:10px;border-left:2px solid #e5e9f1;line-height:1.35}.news-example b{color:var(--ink);font-size:9px}.news-bar{height:5px;background:#edf0f5;border-radius:999px;overflow:hidden;margin-top:6px}.news-bar i{display:block;height:100%;background:var(--blue);border-radius:inherit}.news-products{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}.news-product{font-size:8px;font-weight:850;border-radius:999px;padding:3px 6px;background:#eef2f8;color:#536078}@media(max-width:900px){.news-hero{grid-template-columns:1fr 1fr}.news-grid{grid-template-columns:1fr}}@media(max-width:600px){.news-hero{grid-template-columns:1fr}.news-filters .control{width:100%}}
+</style>
+<script>
+(function(){
+  if(document.querySelector('[data-view="news"]'))return;
+  const q=s=>document.querySelector(s),uniq=a=>[...new Set(a.filter(Boolean))];
+
+  /* Во вкладке «Письма» оставляем только обычные DEMO. */
+  const typeSelect=q('#emailType');
+  if(typeSelect){
+    [...typeSelect.options].forEach(o=>{if(o.value==='active'||o.value==='news')o.remove()});
+    if(typeSelect.options[0])typeSelect.options[0].textContent='Обычные DEMO';
+  }
+  const prevFiltered=filteredEmails;
+  filteredEmails=function(){return prevFiltered().filter(x=>mailType(x)==='direct')};
+  const prevRenderEmails=renderEmails;
+  renderEmails=function(){
+    prevRenderEmails();
+    const title=q('#emailsView .head h1'),sub=q('#emailsView .head p');
+    if(title)title.textContent='Обычные DEMO-рассылки';
+    if(sub)sub.textContent='Только обычные DEMO. АКТИВДЕМО и новостные вынесены в отдельные вкладки.';
+    const metrics=document.querySelectorAll('#emailMetrics .metric');
+    if(metrics[3])metrics[3].innerHTML=`<span>Средний CTR</span><strong>${pct.format(weighted(filteredEmails(),'clickRate'))}%</strong><small>обычные DEMO</small>`;
+  };
+
+  /* Отдельная вкладка новостных рассылок. */
+  const activeBtn=document.querySelector('[data-view="active"]');
+  const btn=document.createElement('button');btn.className='navbtn';btn.dataset.view='news';btn.textContent='Новостные';
+  if(activeBtn)activeBtn.before(btn);else q('#nav').appendChild(btn);
+
+  const section=document.createElement('section');section.className='view';section.id='newsView';
+  section.innerHTML=`
+    <div class="head"><div><div class="eyebrow">Новостные рассылки</div><h1>Что лучше работает в новостных письмах</h1><p>Отдельно смотрим открываемость, клики, темы, время отправки и различия по продуктам. DEMO-результат сюда не дорисовываем без точной UTM-связи.</p></div><div class="week" id="newsCount">0 писем</div></div>
+    <div class="news-filters"><label>Продукт:</label><select class="control" id="newsProduct"><option value="">Все продукты</option></select><label>Неделя:</label><select class="control" id="newsWeek"><option value="">Все недели</option></select><button class="softbtn" id="newsReset">Сбросить</button></div>
+    <div class="news-hero" id="newsHero"></div>
+    <div class="news-grid">
+      <section class="panel"><div class="panelhead"><h2>Какие темы открывают лучше</h2><p>Под каждой группой показываем реальные subject.</p></div><div class="news-list" id="newsThemes"></div></section>
+      <section class="panel"><div class="panelhead"><h2>В какое время отправлять</h2><p>OR и CTR по фактическому часу отправки. n показывает размер выборки.</p></div><div class="news-list" id="newsTimes"></div></section>
+      <section class="panel"><div class="panelhead"><h2>По продуктам</h2><p>Где новостные письма открывают и кликают лучше.</p></div><div class="news-list" id="newsProducts"></div></section>
+      <section class="panel"><div class="panelhead"><h2>Лучшие конкретные письма</h2><p>Рейтинг отдельных выпусков по OR.</p></div><div class="news-list" id="newsBest"></div></section>
+    </div>
+    <section class="panel"><div class="panelhead"><h2>Все новостные письма</h2><p>Фактическая отправка из Sendsay.</p></div><div class="tablewrap"><table><thead><tr><th>Когда</th><th>Продукт</th><th>Тема</th><th class="num">Доставлено</th><th class="num">OR</th><th class="num">CTR</th><th class="num">CTOR</th></tr></thead><tbody id="newsRows"></tbody></table></div></section>`;
+  const activeView=q('#activeView');if(activeView)activeView.before(section);else q('#app').appendChild(section);
+
+  function rows(){const p=q('#newsProduct').value,w=q('#newsWeek').value;return (state.data&&state.data.emails||[]).filter(x=>mailType(x)==='news'&&(!p||x.product===p)&&(!w||String(x.week)===w)).sort((a,b)=>`${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`))}
+  function group(list,keyFn){const m={};list.forEach(x=>{const k=keyFn(x)||'—';(m[k]||(m[k]=[])).push(x)});return Object.entries(m).map(([name,items])=>({name,items,count:items.length,del:items.reduce((s,x)=>s+n(x.delivered),0),or:weighted(items,'openRate'),ctr:weighted(items,'clickRate'),ctor:weighted(items,'ctor')}))}
+  function bucketLocal(t){const m=String(t||'').match(/(\d{1,2}):/);if(!m)return'Время не распознано';const h=Number(m[1]);return String(h).padStart(2,'0')+':00–'+String((h+1)%24).padStart(2,'0')+':00'}
+  function examples(items,limit){return items.slice().sort((a,b)=>n(b.openRate)-n(a.openRate)).slice(0,limit||2)}
+  function productChips(items){return uniq(items.map(x=>x.product)).map(p=>`<span class="news-product">${esc(p)}</span>`).join('')}
+  function rankHtml(groups,mode){const max=Math.max(1,...groups.map(x=>x.or));return groups.length?groups.slice(0,8).map((x,i)=>`<div class="news-row" data-news-group="${mode}" data-news-index="${i}"><div class="news-row-top"><b>${esc(x.name)}</b><strong>${pct.format(x.or)}% OR</strong></div><div class="news-meta">n=${x.count} · ${fmt.format(x.del)} доставлено · CTR ${pct.format(x.ctr)}% · CTOR ${pct.format(x.ctor)}%</div>${mode==='theme'?`<div class="news-products">${productChips(x.items)}</div><div class="news-example">${examples(x.items,2).map(e=>`<div><b>${esc(e.product)}:</b> ${esc(e.subject)}</div>`).join('')}</div>`:''}<div class="news-bar"><i style="width:${Math.min(100,x.or/max*100)}%"></i></div></div>`).join(''):'<div class="empty"><b>Пока мало данных</b></div>'}
+  function renderNews(){if(!state.data)return;const list=rows(),allNews=(state.data.emails||[]).filter(x=>mailType(x)==='news');
+    const ps=uniq(allNews.map(x=>x.product)).sort(),ws=uniq(allNews.map(x=>x.week).filter(Boolean)).sort((a,b)=>b-a),p=q('#newsProduct').value,w=q('#newsWeek').value;
+    q('#newsProduct').innerHTML='<option value="">Все продукты</option>'+ps.map(x=>`<option value="${attr(x)}">${esc(x)}</option>`).join('');if(ps.includes(p))q('#newsProduct').value=p;
+    q('#newsWeek').innerHTML='<option value="">Все недели</option>'+ws.map(x=>`<option value="${x}">W${x}</option>`).join('');if(ws.map(String).includes(String(w)))q('#newsWeek').value=w;
+    const delivered=list.reduce((s,x)=>s+n(x.delivered),0),themes=group(list,x=>theme(x.subject)).sort((a,b)=>b.or-a.or),times=group(list,x=>bucketLocal(x.time)).filter(x=>x.name!=='Время не распознано').sort((a,b)=>b.or-a.or),products=group(list,x=>x.product).sort((a,b)=>b.or-a.or),best=list.slice().sort((a,b)=>n(b.openRate)-n(a.openRate));
+    q('#newsCount').textContent=fmt.format(list.length)+' писем';
+    q('#newsHero').innerHTML=[['Писем',fmt.format(list.length),'в выборке'],['Доставлено',fmt.format(delivered),'суммарно'],['Средний OR',pct.format(weighted(list,'openRate'))+'%','взвешено по доставке'],['Средний CTR',pct.format(weighted(list,'clickRate'))+'%','взвешено по доставке']].map(x=>`<div class="news-card"><span>${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></div>`).join('');
+    q('#newsThemes').innerHTML=rankHtml(themes,'theme');q('#newsThemes')._rows=themes;
+    q('#newsTimes').innerHTML=rankHtml(times,'time');q('#newsTimes')._rows=times;
+    q('#newsProducts').innerHTML=rankHtml(products,'product');q('#newsProducts')._rows=products;
+    q('#newsBest').innerHTML=best.length?best.slice(0,8).map(x=>`<div class="news-row" data-news-mail="${attr(x.id)}"><div class="news-row-top"><b>${esc(x.subject)}</b><strong>${pct.format(x.openRate||0)}% OR</strong></div><div class="news-meta">${esc(x.product)} · ${dRu(x.date)} ${esc(x.time||'')} · CTR ${pct.format(x.clickRate||0)}%</div></div>`).join(''):'<div class="empty"><b>Новостных писем пока нет</b></div>';
+    q('#newsRows').innerHTML=list.length?list.slice(0,500).map(x=>`<tr class="click" data-news-mail="${attr(x.id)}"><td>${dRu(x.date)}<br><small>${esc(x.time||'—')}</small></td><td>${esc(x.product)}</td><td class="subject"><b>${esc(x.subject)}</b></td><td class="num">${fmt.format(x.delivered||0)}</td><td class="num">${pct.format(x.openRate||0)}%</td><td class="num">${pct.format(x.clickRate||0)}%</td><td class="num">${pct.format(x.ctor||0)}%</td></tr>`).join(''):'<tr><td colspan="7"><div class="empty"><b>Нет новостных писем</b>Проверьте фильтры или загрузку Sendsay.</div></td></tr>';
+  }
+  function openGroup(kind,index){const box=q(kind==='theme'?'#newsThemes':kind==='time'?'#newsTimes':'#newsProducts'),g=box&&box._rows?box._rows[Number(index)]:null;if(!g)return;const items=g.items||[];q('#drawerMeta').textContent=`Новостные · ${items.length} писем`;q('#drawerTitle').textContent=g.name;const mails=items.slice().sort((a,b)=>n(b.openRate)-n(a.openRate)).slice(0,15).map(x=>`<div class="calls-fragment"><b>${esc(x.product)} · ${dRu(x.date)} ${esc(x.time||'')}</b><br>${esc(x.subject)}<br><span style="color:var(--muted)">OR ${pct.format(x.openRate||0)}% · CTR ${pct.format(x.clickRate||0)}% · CTOR ${pct.format(x.ctor||0)}%</span></div>`).join('');q('#drawerBody').innerHTML=`<div class="drawerstats"><div class="dstat"><span>Писем</span><b>${items.length}</b></div><div class="dstat"><span>OR</span><b>${pct.format(g.or)}%</b></div><div class="dstat"><span>CTR</span><b>${pct.format(g.ctr)}%</b></div></div><div class="dsection"><h3>Конкретные письма</h3>${mails}</div>`;q('#drawerBack').classList.add('open');q('#drawer').classList.add('open')}
+  section.addEventListener('click',e=>{const m=e.target.closest('[data-news-mail]');if(m)return openEmail(m.dataset.newsMail);const g=e.target.closest('[data-news-group]');if(g)openGroup(g.dataset.newsGroup,g.dataset.newsIndex)});
+  q('#newsProduct').onchange=renderNews;q('#newsWeek').onchange=renderNews;q('#newsReset').onclick=()=>{q('#newsProduct').value='';q('#newsWeek').value='';renderNews()};btn.addEventListener('click',renderNews);
+
+  const prevAll=renderAll;renderAll=function(){prevAll();renderNews()};
+  if(state.data){renderEmails();renderNews()}
+  if(location.hash==='#news'){switchView('news');renderNews()}
+})();
+</script>
