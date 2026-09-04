@@ -47,12 +47,10 @@
     }
   };
 
-  /* В обычной вкладке оставляем обычные DEMO. Новость определяем по серверному type
-     или явному news/digest-маркеру, но не по служебному суффиксу _nd_. */
+  /* NEWS определяем только по двум штатным Campaign. */
   function isNewsMail(x){
-    const type=String(x && x.type || '').toLowerCase();
-    const campaign=String(x && x.campaign || '');
-    return type==='news' || /letter_news|(?:^|[_\-. ])news(?:[_\-. ]|$)|digest/i.test(campaign);
+    const c=String(x && x.campaign || '').trim();
+    return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(c) || /^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(c);
   }
   const baseFilteredEmails2=filteredEmails;
   filteredEmails=function(){ return baseFilteredEmails2().filter(x=>!isActive(x) && !isNewsMail(x)); };
@@ -69,7 +67,7 @@
     if(metrics[3]) metrics[3].innerHTML=`<span>Средний CTR</span><strong>${pct.format(weighted(rows,'clickRate'))}%</strong><small>обычные DEMO</small>`;
   };
 
-  /* Один надёжный маршрут синхронизации вместо ограничения 25×4=100 файлов. */
+  /* Без общего лимита: браузер вызывает сервер порциями до полного опустошения очереди. */
   async function syncAllReliable(){
     if(!apps()||state.busy)return;
     setBusy(true);
@@ -96,7 +94,7 @@
   const syncBtn=document.querySelector('#syncBtn');
   if(syncBtn)syncBtn.onclick=syncAllReliable;
 
-  /* Старый загрузчик в служебной вкладке тоже переводим на save-first маршрут. */
+  /* Ручная загрузка тоже без общего лимита по числу файлов. */
   uploadFiles=async function(files){
     files=[...(files||[])];
     if(!files.length||!apps())return;
