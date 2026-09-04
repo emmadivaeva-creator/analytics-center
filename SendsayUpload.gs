@@ -54,11 +54,12 @@ function syncDriveReportsReliable(firstPass) {
 
 /**
  * После изменения канонических правил один раз заставляет перечитать весь архив.
- * Это нужно, чтобы уже сохранённые строки получили новую классификацию NEWS/DEMO.
+ * Это нужно, чтобы уже сохранённые строки получили новую классификацию NEWS/DEMO
+ * и нормализованное имя Campaign без служебного хвоста Sendsay.
  */
 function prepareCanonicalReparseOnce_() {
   const props = PropertiesService.getScriptProperties();
-  const version = '2026-09-04-canonical-news-v1';
+  const version = '2026-09-04-canonical-news-v2';
   const key = 'ANALYTICS_CANONICAL_RULES_VERSION';
   if (props.getProperty(key) === version) return 0;
 
