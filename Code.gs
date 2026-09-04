@@ -10,7 +10,7 @@
 
 const APP = Object.freeze({
   version: '2.0.0',
-  parserVersion: 'sendsay-webarchive-v2',
+  parserVersion: 'sendsay-webarchive-v3',
   cachePrefix: 'analytics-center-v6',
   cacheSeconds: 300,
 
@@ -169,10 +169,6 @@ function uploadSendsayReport(formObject) {
 
   const bytes = blob.getBytes();
   if (!bytes.length) throw new Error('Файл «' + name + '» пустой.');
-  if (bytes.length > 35 * 1024 * 1024) {
-    throw new Error('Файл «' + name + '» больше 35 МБ. Положите его в папку Drive и нажмите «Обновить данные».');
-  }
-
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -594,7 +590,7 @@ function extractCampaignName_(raw, fileName) {
     .trim();
 
   const direct = baseName.match(
-    /^\s*\d+\s*\|\s*(?:demo|news)\s*\|\s*(.*?)\s*\|\s*sendsay\s*$/i
+    /^\s*\d+\s*(?:\||_)\s*(?:demo|news)\s*(?:\||_)\s*(.*?)\s*(?:\||_)\s*sendsay\s*$/i
   );
   if (direct && direct[1]) return direct[1].trim();
 
@@ -607,7 +603,7 @@ function extractCampaignName_(raw, fileName) {
 
   const generic = baseName.match(/(?:Demo|News)\s*[|_]\s*(.*)$/i);
   return generic && generic[1]
-    ? generic[1].replace(/\s*\|\s*Sendsay\s*$/i, '').trim()
+    ? generic[1].replace(/\s*(?:\||_)\s*Sendsay\s*$/i, '').trim()
     : baseName;
 }
 
@@ -615,7 +611,8 @@ function classifyCampaign_(campaign, fileName, subject, sender) {
   const text = norm_([campaign, fileName, subject, sender].join(' '));
   const rawCampaign = String(campaign || '').toLowerCase();
 
-  const type = /letter_news|\bnews\b|digest/.test(text) ? 'news' : 'demo';
+  const isNews = canonicalNewsCampaign_(campaign);
+  const type = isNews ? 'news' : 'demo';
   let product = 'Не указано';
   let flow = 'Не указано';
 
@@ -655,6 +652,23 @@ function classifyCampaign_(campaign, fileName, subject, sender) {
   } else if (/letter_news_gf|gosfinansi_letter_news/.test(text)) {
     product = 'ГФ Периодика';
     flow = product;
+  }
+
+  if (product === 'Не указано') {
+    const sourceIdMatch = String(fileName || '').match(/^\s*(\d+)/);
+    const sourceId = sourceIdMatch ? sourceIdMatch[1] : '';
+    const productBySourceId = {
+      '265': 'ГФ Периодика',
+      '729': 'ГЗ Периодика',
+      '818': 'ГЗ Система',
+      '1005': 'ГФ Школа',
+      '1213': 'ГЗ Школа',
+      '1223': 'ГФ Система'
+    };
+    if (productBySourceId[sourceId]) {
+      product = productBySourceId[sourceId];
+      flow = product;
+    }
   }
 
   let segment = type === 'news' ? 'Новостная рассылка' : 'Живые';

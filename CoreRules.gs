@@ -58,6 +58,23 @@ classifyCampaign_ = function(campaign, fileName, subject, sender) {
     flow = /[_-]zbu(?:_|\.|\b)/.test(text) ? product + ' · ЗБУ' : product + ' · УБУ';
   }
 
+  if (product === 'Не указано') {
+    const sourceIdMatch = String(fileName || '').match(/^\s*(\d+)/);
+    const sourceId = sourceIdMatch ? sourceIdMatch[1] : '';
+    const productBySourceId = {
+      '265': 'ГФ Периодика',
+      '729': 'ГЗ Периодика',
+      '818': 'ГЗ Система',
+      '1005': 'ГФ Школа',
+      '1213': 'ГЗ Школа',
+      '1223': 'ГФ Система'
+    };
+    if (productBySourceId[sourceId]) {
+      product = productBySourceId[sourceId];
+      flow = product;
+    }
+  }
+
   let segment = isNews ? 'Новостная рассылка' : 'Живые';
   if (!isNews && /activdemo/.test(rawCampaign)) segment = 'Дожим демо';
   else if (!isNews && /(?:^|_)open(?:_|\.|$)/.test(rawCampaign)) segment = 'Клики';
