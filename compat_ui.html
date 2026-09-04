@@ -1,20 +1,111 @@
 <script>
+/*
+ * Совместимость дополнительных модулей с разными версиями index.html.
+ * Держим здесь только безопасные клиентские helper-функции, чтобы новые
+ * вкладки не падали из-за отсутствия функции в старой сборке интерфейса.
+ */
 (function(){
-  /* Совместимость дополнительных модулей с разными версиями index.html. */
-  if (typeof window.isActive !== 'function') {
-    window.isActive = function(x){
-      return /activdemo/i.test(String((x && x.campaign) || '')) || String((x && x.type) || '').toLowerCase() === 'active';
+  if (typeof n !== 'function') {
+    window.n = function(v){ return Number(v) || 0; };
+  }
+
+  if (typeof esc !== 'function') {
+    window.esc = function(v){
+      return String(v == null ? '' : v).replace(/[&<>"']/g,function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
     };
   }
 
-  if (typeof window.mailType !== 'function') {
+  if (typeof attr !== 'function') {
+    window.attr = function(v){ return esc(v).replace(/`/g,'&#96;'); };
+  }
+
+  if (typeof isUrl !== 'function') {
+    window.isUrl = function(v){ return /^https?:\/\//i.test(String(v || '')); };
+  }
+
+  if (typeof dRu !== 'function') {
+    window.dRu = function(v){
+      if (!v) return '—';
+      var d = new Date(String(v).length <= 10 ? String(v) + 'T12:00:00' : v);
+      return isNaN(d) ? String(v) : d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+    };
+  }
+
+  if (typeof dtRu !== 'function') {
+    window.dtRu = function(v){
+      if (!v) return '—';
+      var d = new Date(v);
+      return isNaN(d) ? String(v) : d.toLocaleString('ru-RU',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    };
+  }
+
+  if (typeof fmt === 'undefined') {
+    window.fmt = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0});
+  }
+
+  if (typeof pct === 'undefined') {
+    window.pct = new Intl.NumberFormat('ru-RU',{maximumFractionDigits:1});
+  }
+
+  if (typeof weighted !== 'function') {
+    window.weighted = function(rows,key){
+      rows = Array.isArray(rows) ? rows : [];
+      var delivered = rows.reduce(function(s,x){ return s + n(x && x.delivered); },0);
+      return delivered ? rows.reduce(function(s,x){ return s + n(x && x.delivered) * n(x && x[key]); },0) / delivered : 0;
+    };
+  }
+
+  if (typeof isActive !== 'function') {
+    window.isActive = function(x){
+      var campaign = String((x && x.campaign) || '');
+      var type = String((x && x.type) || '').toLowerCase();
+      return /activdemo/i.test(campaign) || type === 'active' || type === 'активдемо';
+    };
+  }
+
+  if (typeof mailType !== 'function') {
     window.mailType = function(x){
-      if (window.isActive(x)) return 'active';
-      const type = String((x && x.type) || '').toLowerCase();
-      const campaign = String((x && x.campaign) || '').toLowerCase();
-      const segment = String((x && x.segment) || '').toLowerCase();
-      if (type === 'news' || type === 'новостное' || /(?:^|[_\-])nd(?:[_\-.]|$)|news|novost|новост/.test(campaign + ' ' + segment)) return 'news';
+      if (isActive(x)) return 'active';
+      var type = String((x && x.type) || '').toLowerCase();
+      var campaign = String((x && x.campaign) || '').toLowerCase();
+      var segment = String((x && x.segment) || '').toLowerCase();
+      var haystack = campaign + ' ' + segment;
+      if (type === 'news' || type === 'новостное' || type === 'новости' || /(?:^|[_\-])nd(?:[_\-.]|$)|news|novost|новост/.test(haystack)) return 'news';
       return 'direct';
+    };
+  }
+
+  if (typeof theme !== 'function') {
+    window.theme = function(subject){
+      var s = String(subject || '').toLowerCase();
+      if (/штраф|ошиб|риск|наруш|отклон|нельзя|накаж|провер|ревиз/.test(s)) return 'Риск / ошибка / проверка';
+      if (/измен|новы|поправ|правил|закон|приказ|с 1 |с сентября|вступ/.test(s)) return 'Изменения / новые правила';
+      if (/образец|шаблон|чек.?лист|таблиц|готов|инструкц|памятк|алгоритм|калькулятор/.test(s)) return 'Готовое решение';
+      if (/косгу|квр|нмцк|цен|код|кбк|расчет|расчёт/.test(s)) return 'Коды / деньги / расчёты';
+      if (/кроссворд|тест|проверь|разгада|аттест/.test(s)) return 'Проверка знаний / игра';
+      return 'Практическая тема / интрига';
+    };
+  }
+
+  if (typeof bucket !== 'function') {
+    window.bucket = function(time){
+      var m = String(time || '').match(/(\d{1,2}):/);
+      if (!m) return 'Время не распознано';
+      var h = Number(m[1]);
+      return String(h).padStart(2,'0') + ':00–' + String((h + 1) % 24).padStart(2,'0') + ':00';
+    };
+  }
+
+  if (typeof typeTag !== 'function') {
+    window.typeTag = function(x){
+      var t = mailType(x);
+      return t === 'active'
+        ? '<span class="tag active">АКТИВДЕМО</span>'
+        : t === 'news'
+          ? '<span class="tag news">Новости</span>'
+          : '<span class="tag">DEMO</span>';
     };
   }
 })();
