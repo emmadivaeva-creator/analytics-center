@@ -6,13 +6,15 @@
  */
 
 const APP = Object.freeze({
-  version: '1.2.0',
-  cachePrefix: 'analytics-center-v3',
+  version: '1.3.0',
+  cachePrefix: 'analytics-center-v4',
   cacheSeconds: 300,
   sourceProperty: 'ANALYTICS_SHEET_ID',
   adminProperty: 'ANALYTICS_ADMIN_EMAIL',
   reportsFolderProperty: 'SENDSAY_REPORTS_FOLDER_ID',
+  demoStatsId: '1d8l_kvvBWB2oVhU3cYtZF_Lx9iBI6kKn2fNVd_QZ0m0',
   importSheet: '_Импорт Sendsay',
+  demoSummarySheet: '_Сводка DEMO',
   importBatchSize: 6,
   currentDashboardSheet: '1. Редакциям — главное',
   resultsSheet: 'Итоги DEMO',
@@ -30,6 +32,14 @@ const APP = Object.freeze({
     '1.2 План для Вики — 17–21.08',
     '1.1 Досылки активдемо',
     '1.5 Досыл по живым'
+  ],
+  demoSheets: [
+    { name: 'Факт ДЕМО пер', family: 'Периодика', type: 'direct' },
+    { name: 'Новостные ДЕМО пер', family: 'Периодика', type: 'news' },
+    { name: 'ФАКТ демо СС', family: 'Система', type: 'direct' },
+    { name: 'Новостные Демо СС', family: 'Система', type: 'news' },
+    { name: 'ФАКТ демо Школа', family: 'Школа', type: 'direct' },
+    { name: 'Новостные демо Школа', family: 'Школа', type: 'news' }
   ]
 });
 
@@ -37,7 +47,12 @@ const IMPORT_HEADERS = Object.freeze([
   'File ID', 'Имя файла', 'Изменён на Drive', 'Импортирован', 'Статус', 'Ошибка',
   'Дата отправки', 'Время отправки', 'Тип', 'Продукт', 'Поток', 'Сегмент', 'Campaign',
   'Sendsay', 'Тема письма', 'Отправлено', 'Доставлено', 'Доставляемость',
-  'Уник. открытия', 'OR', 'Уник. клики', 'Click rate', 'CTOR', 'Отписки', 'UTOR'
+  'Уник. открытия', 'OR', 'Уник. клики', 'Click rate', 'CTOR', 'Отписки', 'UTOR',
+  'DEMO статус', 'DEMO источник', 'DEMO ключ', 'DEMO R', 'DEMO Y', 'DEMO G', 'DEMO обновлено'
+]);
+
+const DEMO_SUMMARY_HEADERS = Object.freeze([
+  'Неделя', 'Продукт', 'R', 'Y', 'G', 'План', 'Обновлено', 'Источник'
 ]);
 
 function doGet() {
@@ -65,6 +80,7 @@ function setup() {
   const email = Session.getEffectiveUser().getEmail();
   if (email) props.setProperty(APP.adminProperty, email.toLowerCase());
   ensureImportSheet_(spreadsheet);
+  ensureDemoSummarySheet_(spreadsheet);
   clearCache_();
 
   return {
@@ -110,6 +126,31 @@ function syncDriveReports() {
     const result = importNewDriveReports_(openSource_(), APP.importBatchSize);
     clearCache_();
     return result;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Refreshes product totals and exact per-campaign DEMO attribution. */
+function syncDemoStats() {
+  assertAdmin_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const spreadsheet = openSource_();
+    const demoSpreadsheet = SpreadsheetApp.openById(APP.demoStatsId);
+    const result = buildDemoStats_(demoSpreadsheet);
+    writeDemoSummary_(spreadsheet, result);
+    const matches = linkImportedReportsToDemo_(spreadsheet, result.campaigns);
+    clearCache_();
+    return {
+      ok: true,
+      currentWeek: result.currentWeek,
+      matched: matches.matched,
+      unmatched: matches.unmatched,
+      newsSkipped: matches.newsSkipped,
+      updatedAt: result.updatedAt
+    };
   } finally {
     lock.releaseLock();
   }
@@ -183,9 +224,10 @@ function saveReportsFolder(folderUrl) {
 
 function buildAppData_() {
   const spreadsheet = openSource_();
-  const products = readCurrentProducts_(spreadsheet);
-  const currentWeek = detectCurrentWeek_(spreadsheet) || 36;
-  const weeks = readWeeks_(spreadsheet, products, currentWeek);
+  const demoSnapshot = readDemoSnapshot_(spreadsheet);
+  const products = demoSnapshot.products.length ? demoSnapshot.products : readCurrentProducts_(spreadsheet);
+  const currentWeek = demoSnapshot.currentWeek || detectCurrentWeek_(spreadsheet) || 36;
+  const weeks = demoSnapshot.weeks.length ? demoSnapshot.weeks : readWeeks_(spreadsheet, products, currentWeek);
   const plans = readPlans_(spreadsheet);
   const emails = mergeEmails_(readEmails_(spreadsheet, plans), readImportedEmails_(spreadsheet, plans));
   const insights = readInsights_(spreadsheet);
@@ -203,6 +245,7 @@ function buildAppData_() {
       canRefresh: Boolean(activeEmail && adminEmail && activeEmail === adminEmail),
       canImport: Boolean(activeEmail && adminEmail && activeEmail === adminEmail),
       sourceUrl: spreadsheet.getUrl(),
+      demoUpdatedAt: demoSnapshot.updatedAt || '',
       generatedAt: new Date().toISOString(),
       import: readImportStatus_(spreadsheet)
     },
@@ -292,6 +335,305 @@ function detectCurrentWeek_(spreadsheet) {
   const text = rows.flat().join(' ');
   const match = text.match(/(?:W|недел[^\d]{0,6})(\d{1,2})/i) || text.match(/(\d{1,2})[-–— ]*(?:я|ая)?\s*недел/i);
   return match ? Number(match[1]) : null;
+}
+
+function buildDemoStats_(demoSpreadsheet) {
+  const campaigns = {};
+  const totals = {};
+  const observedWeeks = {};
+  const updatedAt = new Date().toISOString();
+
+  APP.demoSheets.forEach(spec => {
+    const sheet = demoSpreadsheet.getSheetByName(spec.name);
+    if (!sheet) throw new Error('В таблице DEMO не найден лист «' + spec.name + '».');
+    const rows = sheet.getDataRange().getDisplayValues();
+    const headerIndex = rows.findIndex(row => {
+      const first = norm_(row[0]);
+      const second = norm_(row[1]);
+      return first === 'издательская группа' && second.indexOf('utm ') === 0;
+    });
+    if (headerIndex < 1) throw new Error('Не найдена таблица UTM на листе «' + spec.name + '».');
+
+    const weekRow = rows[headerIndex - 1] || [];
+    const headers = rows[headerIndex] || [];
+    const metricColumns = [];
+    for (let column = 2; column < headers.length; column++) {
+      const weekMatch = String(weekRow[column] || '').match(/\d{1,2}/);
+      const metric = demoMetric_(headers[column]);
+      if (!weekMatch || !metric) continue;
+      const week = Number(weekMatch[0]);
+      observedWeeks[week] = true;
+      metricColumns.push({ column: column, week: week, metric: metric });
+    }
+
+    for (let rowIndex = headerIndex + 1; rowIndex < rows.length; rowIndex++) {
+      const row = rows[rowIndex];
+      const group = demoGroup_(row[0]);
+      const sourceKey = String(row[1] || '').trim();
+      const term = String(row[2] || '').trim();
+      if (!group || !sourceKey || /итог/i.test(sourceKey)) continue;
+      if (spec.type === 'news' && (!term || /итог/i.test(term))) continue;
+      const product = group + ' ' + spec.family;
+
+      metricColumns.forEach(info => {
+        if (spec.type !== 'direct') return;
+        const totalKey = product + '|' + info.week;
+        if (!totals[totalKey]) totals[totalKey] = emptyDemoTotal_(product, info.week);
+        totals[totalKey][info.metric] += number_(row[info.column]);
+        const key = demoCampaignLookupKey_(product, info.week, sourceKey);
+        if (!campaigns[key]) {
+          campaigns[key] = {
+            product: product,
+            week: info.week,
+            campaign: sourceKey,
+            source: spec.name,
+            red: 0,
+            yellow: 0,
+            green: 0
+          };
+        }
+        campaigns[key][info.metric] += number_(row[info.column]);
+      });
+    }
+  });
+
+  const weeks = Object.keys(observedWeeks).map(Number).filter(Boolean).sort((a, b) => a - b);
+  const plans = readDemoPlans_(demoSpreadsheet, observedWeeks);
+  APP.productOrder.forEach(product => {
+    weeks.forEach(week => {
+      const key = product + '|' + week;
+      if (!totals[key]) totals[key] = emptyDemoTotal_(product, week);
+      totals[key].plan = number_(plans[key]);
+    });
+  });
+
+  return {
+    campaigns: campaigns,
+    totals: totals,
+    currentWeek: weeks.length ? weeks[weeks.length - 1] : null,
+    updatedAt: updatedAt,
+    sourceUrl: demoSpreadsheet.getUrl()
+  };
+}
+
+function readDemoPlans_(demoSpreadsheet, observedWeeks) {
+  const sheet = demoSpreadsheet.getSheetByName('Планы на год');
+  if (!sheet) return {};
+  const rows = sheet.getDataRange().getDisplayValues();
+  const plans = {};
+  let family = '';
+  let weekColumns = {};
+
+  for (let i = 0; i < rows.length; i++) {
+    const first = norm_(rows[i][0]);
+    if (first === 'школа') { family = 'Школа'; weekColumns = {}; continue; }
+    if (first === 'система') { family = 'Система'; weekColumns = {}; continue; }
+    if (first === 'периодика') { family = 'Периодика'; weekColumns = {}; continue; }
+    if (!family) continue;
+
+    const candidateWeeks = {};
+    let consecutiveWeeks = 0;
+    let previousWeek = null;
+    for (let column = 1; column < rows[i].length; column++) {
+      const week = Number(rows[i][column]);
+      if (!observedWeeks[week]) continue;
+      candidateWeeks[column] = week;
+      if (previousWeek === null || week === previousWeek + 1) consecutiveWeeks++;
+      else consecutiveWeeks = 1;
+      previousWeek = week;
+    }
+    if (consecutiveWeeks >= 3) {
+      weekColumns = candidateWeeks;
+      continue;
+    }
+
+    const group = demoGroup_(rows[i][0]);
+    const planRow = rows[i + 1] || [];
+    if (!group || norm_(planRow[0]) !== 'план' || !Object.keys(weekColumns).length) continue;
+    Object.keys(weekColumns).forEach(column => {
+      const week = weekColumns[column];
+      plans[group + ' ' + family + '|' + week] = number_(planRow[Number(column)]);
+    });
+  }
+  return plans;
+}
+
+function writeDemoSummary_(spreadsheet, result) {
+  const sheet = ensureDemoSummarySheet_(spreadsheet);
+  const rows = Object.keys(result.totals).map(key => result.totals[key])
+    .sort((a, b) => a.week - b.week || APP.productOrder.indexOf(a.product) - APP.productOrder.indexOf(b.product))
+    .map(item => [
+      item.week, item.product, item.red, item.yellow, item.green, item.plan,
+      result.updatedAt, result.sourceUrl
+    ]);
+  sheet.clearContents();
+  sheet.getRange(1, 1, 1, DEMO_SUMMARY_HEADERS.length).setValues([DEMO_SUMMARY_HEADERS]);
+  if (rows.length) sheet.getRange(2, 1, rows.length, DEMO_SUMMARY_HEADERS.length).setValues(rows);
+  sheet.setFrozenRows(1);
+  sheet.getRange(1, 1, 1, DEMO_SUMMARY_HEADERS.length)
+    .setBackground('#111b31').setFontColor('#ffffff').setFontWeight('bold');
+  if (!sheet.isSheetHidden()) sheet.hideSheet();
+}
+
+function ensureDemoSummarySheet_(spreadsheet) {
+  let sheet = spreadsheet.getSheetByName(APP.demoSummarySheet);
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(APP.demoSummarySheet);
+    sheet.hideSheet();
+  }
+  return sheet;
+}
+
+function readDemoSnapshot_(spreadsheet) {
+  const sheet = spreadsheet.getSheetByName(APP.demoSummarySheet);
+  if (!sheet || sheet.getLastRow() < 2) return { products: [], weeks: [], currentWeek: null, updatedAt: '' };
+  const rows = sheet.getDataRange().getDisplayValues();
+  const headers = headerMap_(rows[0]);
+  const col = aliases => indexOfHeader_(headers, aliases);
+  const idx = {
+    week: col(['неделя']), product: col(['продукт']), red: col(['r']), yellow: col(['y']),
+    green: col(['g']), plan: col(['план']), updated: col(['обновлено'])
+  };
+  const byWeek = {};
+  let currentWeek = null;
+  let updatedAt = '';
+  for (let i = 1; i < rows.length; i++) {
+    const week = number_(valueAt_(rows[i], idx.week));
+    const product = normalizeProduct_(valueAt_(rows[i], idx.product));
+    if (!week || !product) continue;
+    currentWeek = currentWeek === null ? week : Math.max(currentWeek, week);
+    if (!byWeek[week]) byWeek[week] = {};
+    const green = number_(valueAt_(rows[i], idx.green));
+    const plan = number_(valueAt_(rows[i], idx.plan));
+    byWeek[week][product] = {
+      product: product,
+      red: number_(valueAt_(rows[i], idx.red)),
+      yellow: number_(valueAt_(rows[i], idx.yellow)),
+      green: green,
+      plan: plan,
+      progress: plan ? round_(green / plan * 100, 1) : 0,
+      decision: demoDecision_(green, number_(valueAt_(rows[i], idx.yellow)), plan)
+    };
+    const stamp = String(valueAt_(rows[i], idx.updated) || '');
+    if (stamp > updatedAt) updatedAt = stamp;
+  }
+  if (currentWeek === null) return { products: [], weeks: [], currentWeek: null, updatedAt: updatedAt };
+  const products = APP.productOrder.map(product => byWeek[currentWeek][product] || emptyDemoTotal_(product, currentWeek));
+  products.forEach(item => {
+    item.progress = item.plan ? round_(item.green / item.plan * 100, 1) : 0;
+    item.decision = demoDecision_(item.green, item.yellow, item.plan);
+  });
+  const weeks = Object.keys(byWeek).map(Number).sort((a, b) => a - b).map(week => {
+    const items = APP.productOrder.map(product => byWeek[week][product] || emptyDemoTotal_(product, week));
+    return aggregateWeek_(week, items);
+  });
+  return { products: products, weeks: weeks, currentWeek: currentWeek, updatedAt: updatedAt };
+}
+
+function linkImportedReportsToDemo_(spreadsheet, campaigns) {
+  const sheet = ensureImportSheet_(spreadsheet);
+  const rowCount = sheet.getLastRow() - 1;
+  if (rowCount < 1) return { matched: 0, unmatched: 0, newsSkipped: 0 };
+  const values = sheet.getRange(1, 1, rowCount + 1, IMPORT_HEADERS.length).getDisplayValues();
+  const headers = headerMap_(values[0]);
+  const col = aliases => indexOfHeader_(headers, aliases);
+  const idx = {
+    status: col(['статус']), date: col(['дата отправки']), type: col(['тип']),
+    product: col(['продукт']), flow: col(['поток']), campaign: col(['campaign'])
+  };
+  let matched = 0;
+  let unmatched = 0;
+  let newsSkipped = 0;
+  const updatedAt = new Date().toISOString();
+  const output = [];
+  const productOutput = [];
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    const originalProduct = String(valueAt_(row, idx.product) || '').trim();
+    const originalFlow = String(valueAt_(row, idx.flow) || '').trim();
+    const campaign = String(valueAt_(row, idx.campaign) || '').trim();
+    const inferredProduct = classifyCampaign_(campaign, '', '', '').product;
+    const product = normalizeProduct_(originalProduct) || normalizeProduct_(inferredProduct);
+    productOutput.push([product || originalProduct, originalFlow && originalFlow !== 'Не указано' ? originalFlow : (product || originalFlow)]);
+    if (valueAt_(row, idx.status) !== 'Готово') {
+      output.push(['', '', '', '', '', '', updatedAt]);
+      continue;
+    }
+    const type = norm_(valueAt_(row, idx.type));
+    const date = normalizeDate_(valueAt_(row, idx.date));
+    const week = isoWeek_(date);
+    const lookupKey = product && week && campaign ? demoCampaignLookupKey_(product, week, campaign) : '';
+
+    if (type === 'news') {
+      newsSkipped++;
+      output.push(['Новостное: нужен UTM Content/Term', 'Новостные листы DEMO', lookupKey, '', '', '', updatedAt]);
+      continue;
+    }
+    const match = lookupKey ? campaigns[lookupKey] : null;
+    if (match) {
+      matched++;
+      output.push(['Связано точно', match.source, lookupKey, match.red, match.yellow, match.green, updatedAt]);
+    } else {
+      unmatched++;
+      const reason = product ? 'Не найдено в DEMO' : 'Не определён продукт';
+      output.push([reason, '', lookupKey, '', '', '', updatedAt]);
+    }
+  }
+  if (idx.product >= 0 && idx.flow === idx.product + 1) {
+    sheet.getRange(2, idx.product + 1, productOutput.length, 2).setValues(productOutput);
+  }
+  sheet.getRange(2, 26, output.length, 7).setValues(output);
+  return { matched: matched, unmatched: unmatched, newsSkipped: newsSkipped };
+}
+
+function demoMetric_(value) {
+  const text = norm_(value);
+  if (text.indexOf('красн') >= 0) return 'red';
+  if (text.indexOf('желт') >= 0) return 'yellow';
+  if (text.indexOf('зелен') >= 0) return 'green';
+  return '';
+}
+
+function demoGroup_(value) {
+  const text = norm_(value);
+  if (text.indexOf('госзаказ') >= 0) return 'ГЗ';
+  if (text.indexOf('госфинанс') >= 0) return 'ГФ';
+  return '';
+}
+
+function demoCampaignKey_(value) {
+  return norm_(value)
+    .replace(/[^a-zа-я0-9]+/gi, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/_+/g, '_')
+    .replace(/^letter_demo_20\d{2}_\d{2}_\d{2}_/, '');
+}
+
+function demoCampaignLookupKey_(product, week, campaign) {
+  return product + '|' + week + '|' + demoCampaignKey_(campaign);
+}
+
+function emptyDemoTotal_(product, week) {
+  return { product: product, week: week, red: 0, yellow: 0, green: 0, plan: 0 };
+}
+
+function demoDecision_(green, yellow, plan) {
+  if (!plan) return 'План для недели не найден.';
+  const progress = green / plan * 100;
+  if (progress >= 100) return 'План выполнен. Не расширять объём без отдельного решения.';
+  if (progress >= 80) return 'Близко к плану: сначала дождаться дозревания yellow.';
+  if (yellow > green) return 'Главный резерв — yellow; повторно проверить после дозревания.';
+  return 'До плана есть разрыв: смотреть сильные темы отдельно по продукту.';
+}
+
+function demoMaturity_(date, product) {
+  const sent = new Date(date + 'T12:00:00Z');
+  if (isNaN(sent)) return '';
+  const today = new Date();
+  const age = Math.max(0, Math.floor((today.getTime() - sent.getTime()) / 86400000));
+  const threshold = /школа/i.test(product) ? 6 : 3;
+  return age >= threshold ? 'Зрелый срез · D+' + age : 'Данные дозревают · D+' + age + ' из D+' + threshold;
 }
 
 function readWeeks_(spreadsheet, currentProducts, currentWeek) {
@@ -469,15 +811,15 @@ function classifyCampaign_(campaign, fileName, subject, sender) {
   let product = 'Не указано';
   let flow = 'Не указано';
 
-  if (/goszakaz[_-]?cgz/.test(text)) { product = 'ГЗ Система'; flow = product; }
-  else if (/goszakaz[_-]?(gzru|vio|fas)/.test(text)) {
+  if (/goszakaz[_-]?cgz|activdemo[_-]?cgz/.test(text)) { product = 'ГЗ Система'; flow = product; }
+  else if (/goszakaz[_-]?(gzru|vio|fas)|activdemo[_-]?(gzru|vio|fas)/.test(text)) {
     product = 'ГЗ Периодика';
     flow = /[_-]vio(?:_|\b)/.test(text) ? product + ' · ВИО' : /[_-]fas(?:_|\b)/.test(text) ? product + ' · ФАС' : product + ' · ГЗРУ';
   }
   else if (/letter_demo_goszakaz|goszakaz-school|высшая школа госзакупок/.test(text)) { product = 'ГЗ Школа'; flow = product; }
-  else if (/gosfinansi[_-]?letter[_-]?gfss/.test(text)) { product = 'ГФ Система'; flow = product; }
+  else if (/gosfinansi[_-]?letter[_-]?(?:activdemo[_-]?)?gfss/.test(text)) { product = 'ГФ Система'; flow = product; }
   else if (/gosfinansi[_-]?letter[_-]?demo[_-]?school|школа главбуха/.test(text)) { product = 'ГФ Школа'; flow = product; }
-  else if (/gosfinansi[_-]?letteri?[_-]?(ubu|zbu)|\bubu\b|\bzbu\b/.test(text)) {
+  else if (/gosfinansi[_-]?letteri?[_-]?(?:activdemo[_-]?)?(ubu|zbu)|\bubu\b|\bzbu\b/.test(text)) {
     product = 'ГФ Периодика';
     flow = /[_-]zbu(?:_|\b)/.test(text) ? product + ' · ЗБУ' : product + ' · УБУ';
   }
@@ -600,7 +942,8 @@ function upsertImportRow_(spreadsheet, report) {
     report.date, report.time, report.type, report.product, report.flow, report.segment, report.campaign,
     report.sendsay, report.subject, report.sent, report.delivered, report.deliveredRate,
     report.uniqueOpened, report.openRate, report.uniqueClicked, report.clickRate, report.ctor,
-    report.unsubscribed, report.utor
+    report.unsubscribed, report.utor,
+    '', '', '', '', '', '', ''
   ];
   const rowNumber = index[report.fileId] ? index[report.fileId].row : sheet.getLastRow() + 1;
   sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
@@ -641,7 +984,8 @@ function writeImportError_(spreadsheet, file, error) {
     report.date, report.time, report.type, report.product, report.flow, report.segment, report.campaign,
     report.sendsay, report.subject, report.sent, report.delivered, report.deliveredRate,
     report.uniqueOpened, report.openRate, report.uniqueClicked, report.clickRate, report.ctor,
-    report.unsubscribed, report.utor
+    report.unsubscribed, report.utor,
+    '', '', '', '', '', '', ''
   ];
   const rowNumber = index[report.fileId] ? index[report.fileId].row : sheet.getLastRow() + 1;
   sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
@@ -654,34 +998,56 @@ function readImportStatus_(spreadsheet) {
     return { total: 0, errors: 0, failed: [], lastImportedAt: '', folderConfigured: folderConfigured };
   }
 
-  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 15).getDisplayValues();
+  const values = sheet.getDataRange().getDisplayValues();
+  const headers = headerMap_(values[0]);
+  const col = aliases => indexOfHeader_(headers, aliases);
+  const idx = {
+    fileId: col(['file id']), fileName: col(['имя файла']), imported: col(['импортирован']),
+    status: col(['статус']), error: col(['ошибка']), sendsay: col(['sendsay']),
+    demoStatus: col(['demo статус']), demoUpdated: col(['demo обновлено'])
+  };
   let ready = 0;
   let errors = 0;
+  let demoMatched = 0;
+  let demoUnmatched = 0;
+  let demoNewsSkipped = 0;
   let lastImportedAt = '';
+  let demoUpdatedAt = '';
   const failed = [];
 
-  values.forEach(row => {
-    if (!row[0]) return;
-    const status = row[4];
+  values.slice(1).forEach(row => {
+    if (!valueAt_(row, idx.fileId)) return;
+    const status = valueAt_(row, idx.status);
     if (status === 'Готово') ready++;
+    const demoStatus = String(valueAt_(row, idx.demoStatus) || '');
+    if (demoStatus === 'Связано точно') demoMatched++;
+    else if (demoStatus.indexOf('Новостное:') === 0) demoNewsSkipped++;
+    else if (status === 'Готово' && demoStatus) demoUnmatched++;
     if (status === 'Ошибка') {
       errors++;
       failed.push({
-        fileId: row[0],
-        fileName: row[1] || 'Файл без названия',
-        message: row[5] || 'Отчёт не удалось распознать.',
-        importedAt: row[3] || '',
-        driveUrl: 'https://drive.google.com/file/d/' + encodeURIComponent(row[0]) + '/view',
-        sendsayUrl: /^https:\/\//i.test(row[13] || '') ? row[13] : ''
+        fileId: valueAt_(row, idx.fileId),
+        fileName: valueAt_(row, idx.fileName) || 'Файл без названия',
+        message: valueAt_(row, idx.error) || 'Отчёт не удалось распознать.',
+        importedAt: valueAt_(row, idx.imported) || '',
+        driveUrl: 'https://drive.google.com/file/d/' + encodeURIComponent(valueAt_(row, idx.fileId)) + '/view',
+        sendsayUrl: /^https:\/\//i.test(valueAt_(row, idx.sendsay) || '') ? valueAt_(row, idx.sendsay) : ''
       });
     }
-    if (row[3] > lastImportedAt) lastImportedAt = row[3];
+    const importedAt = String(valueAt_(row, idx.imported) || '');
+    const demoStamp = String(valueAt_(row, idx.demoUpdated) || '');
+    if (importedAt > lastImportedAt) lastImportedAt = importedAt;
+    if (demoStamp > demoUpdatedAt) demoUpdatedAt = demoStamp;
   });
 
   failed.sort((a, b) => String(b.importedAt).localeCompare(String(a.importedAt)));
   return {
     total: ready,
     errors: errors,
+    demoMatched: demoMatched,
+    demoUnmatched: demoUnmatched,
+    demoNewsSkipped: demoNewsSkipped,
+    demoUpdatedAt: demoUpdatedAt,
     failed: failed.slice(0, 50),
     lastImportedAt: lastImportedAt,
     folderConfigured: folderConfigured
@@ -703,7 +1069,9 @@ function readImportedEmails_(spreadsheet, plans) {
     fileId: col(['file id']), status: col(['статус']), date: col(['дата отправки']),
     type: col(['тип']), product: col(['продукт']), flow: col(['поток']), segment: col(['сегмент']), campaign: col(['campaign']),
     sendsay: col(['sendsay']), subject: col(['тема письма']), delivered: col(['доставлено']),
-    openRate: col(['or']), clicks: col(['уник. клики']), clickRate: col(['click rate']), ctor: col(['ctor'])
+    openRate: col(['or']), clicks: col(['уник. клики']), clickRate: col(['click rate']), ctor: col(['ctor']),
+    demoStatus: col(['demo статус']), demoSource: col(['demo источник']),
+    red: col(['demo r']), yellow: col(['demo y']), green: col(['demo g'])
   };
   const planIndexes = buildPlanIndexes_(plans);
   const output = [];
@@ -713,12 +1081,16 @@ function readImportedEmails_(spreadsheet, plans) {
     const date = normalizeDate_(valueAt_(row, idx.date));
     const subject = String(valueAt_(row, idx.subject) || '').trim();
     if (!date || !subject) continue;
-    const product = String(valueAt_(row, idx.product) || 'Не указано').trim();
+    const savedProduct = String(valueAt_(row, idx.product) || '').trim();
+    const inferredProduct = classifyCampaign_(valueAt_(row, idx.campaign), '', subject, '').product;
+    const product = normalizeProduct_(savedProduct) || normalizeProduct_(inferredProduct) || savedProduct || 'Не указано';
+    const demoStatus = String(valueAt_(row, idx.demoStatus) || '').trim();
+    const hasDemoData = demoStatus === 'Связано точно';
     const plan = matchPlan_(planIndexes, subject, '', product, date);
     output.push({
       id: 'import-' + String(valueAt_(row, idx.fileId) || i),
       importedOnly: true,
-      hasDemoData: false,
+      hasDemoData: hasDemoData,
       date: date,
       week: isoWeek_(date),
       type: String(valueAt_(row, idx.type) || 'demo').trim(),
@@ -734,12 +1106,21 @@ function readImportedEmails_(spreadsheet, plans) {
       clicks: number_(valueAt_(row, idx.clicks)),
       clickRate: percent_(valueAt_(row, idx.clickRate)),
       ctor: percent_(valueAt_(row, idx.ctor)),
-      red: 0, yellow: 0, green: 0, potential: 0,
-      maturity: 'Sendsay загружен · DEMO ещё не сопоставлено',
-      score: 'Только данные Sendsay',
+      red: hasDemoData ? number_(valueAt_(row, idx.red)) : 0,
+      yellow: hasDemoData ? number_(valueAt_(row, idx.yellow)) : 0,
+      green: hasDemoData ? number_(valueAt_(row, idx.green)) : 0,
+      potential: hasDemoData ? number_(valueAt_(row, idx.yellow)) + number_(valueAt_(row, idx.green)) : 0,
+      maturity: hasDemoData ? demoMaturity_(date, product) : (demoStatus || 'Sendsay загружен · DEMO ещё не сопоставлено'),
+      score: hasDemoData ? 'Точное совпадение по Campaign' : 'Только данные Sendsay',
       worked: '', failed: '', source: 'Импорт из папки Sendsay',
+      demoMatchStatus: demoStatus,
+      demoSource: String(valueAt_(row, idx.demoSource) || '').trim(),
       weeklyPlan: 0, weeklyFact: 0, weeklyProgress: 0,
-      note: 'Письмо уже видно в реестре. R / Y / G появятся после точного сопоставления с отчётом DEMO.',
+      note: hasDemoData
+        ? 'R / Y / G загружены из DEMO по точному совпадению Campaign.'
+        : (norm_(valueAt_(row, idx.type)) === 'news'
+          ? 'Новостное письмо видно в реестре, но индивидуальные R / Y / G не назначены без точного UTM Content/Term.'
+          : 'R / Y / G не назначены: точного совпадения Campaign в отчёте DEMO пока нет.'),
       body: plan ? plan.body : '', innerTitle: plan ? plan.innerTitle : '', cta: plan ? plan.cta : '',
       targetUrl: plan ? plan.targetUrl : '', rationale: plan ? plan.rationale : '',
       exclusions: plan ? plan.exclusions : '', planStatus: plan ? plan.status : ''
@@ -761,6 +1142,12 @@ function mergeEmails_(registry, imported) {
       clicks: item.clicks || raw.clicks,
       clickRate: item.clickRate || raw.clickRate,
       ctor: item.ctor || raw.ctor,
+      red: raw.hasDemoData ? raw.red : item.red,
+      yellow: raw.hasDemoData ? raw.yellow : item.yellow,
+      green: raw.hasDemoData ? raw.green : item.green,
+      potential: raw.hasDemoData ? raw.potential : item.potential,
+      demoMatchStatus: raw.demoMatchStatus || 'Реестр аналитики',
+      demoSource: raw.demoSource || item.source,
       importedOnly: false,
       hasDemoData: true
     }) : item;
