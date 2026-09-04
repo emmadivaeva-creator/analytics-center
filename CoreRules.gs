@@ -150,3 +150,49 @@ readImportStatus_ = function(storage) {
     latestSendDate:latestSendDate, folderConfigured:folderConfigured
   };
 };
+
+function importStatusForFile_(storage, fileId) {
+  const sheet=ensureSendsaySheet_(storage);
+  const rows=sheet.getDataRange().getDisplayValues();
+  if(rows.length<2)return'';
+  const headers=headerMap_(rows[0]);
+  const fileCol=indexOfHeader_(headers,['file id']);
+  const statusCol=indexOfHeader_(headers,['статус']);
+  for(let i=1;i<rows.length;i++){
+    if(String(valueAt_(rows[i],fileCol)||'')===String(fileId||''))return String(valueAt_(rows[i],statusCol)||'');
+  }
+  return'';
+}
+
+uploadSendsayReport = function(formObject) {
+  assertAdmin_();
+  const saved=saveSendsayReportFile(formObject);
+  const lock=LockService.getScriptLock();
+  lock.waitLock(20000);
+  try{
+    const storage=openStorage_();
+    const file=DriveApp.getFileById(saved.fileId);
+    let report;
+    try{
+      report=importDriveFile_(storage,file);
+    }catch(error){
+      writeImportError_(storage,file,error);
+      clearCache_();
+      throw error;
+    }
+    reconcileCanonicalRows_(ensureSendsaySheet_(storage));
+    const status=importStatusForFile_(storage,saved.fileId);
+    clearCache_();
+    return{
+      ok:true,
+      duplicate:status==='Дубль',
+      status:status,
+      fileName:saved.fileName,
+      subject:report.subject,
+      product:report.product,
+      date:report.date
+    };
+  }finally{
+    lock.releaseLock();
+  }
+};
