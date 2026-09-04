@@ -6,8 +6,8 @@
  */
 
 const APP = Object.freeze({
-  version: '1.1.0',
-  cachePrefix: 'analytics-center-v2',
+  version: '1.2.0',
+  cachePrefix: 'analytics-center-v3',
   cacheSeconds: 300,
   sourceProperty: 'ANALYTICS_SHEET_ID',
   adminProperty: 'ANALYTICS_ADMIN_EMAIL',
@@ -139,10 +139,12 @@ function uploadSendsayReport(formObject) {
     const spreadsheet = openSource_();
     const folder = reportsFolder_();
     const existing = folder.getFilesByName(name);
+    const imported = importIndex_(spreadsheet);
     let file = null;
     while (existing.hasNext()) {
       const candidate = existing.next();
-      if (candidate.getSize() === bytes.length) {
+      const previous = imported[candidate.getId()];
+      if (candidate.getSize() === bytes.length && (!previous || previous.status !== 'Ошибка')) {
         file = candidate;
         break;
       }
@@ -386,14 +388,21 @@ function importNewDriveReports_(spreadsheet, batchSize) {
 function importDriveFile_(spreadsheet, file) {
   const raw = file.getBlob().getDataAsString('UTF-8');
   const report = parseSendsayMhtml_(raw, file.getName());
-  if (!report.campaignId || !report.subject || !report.date) {
-    throw new Error('В отчёте не найдены обязательные поля Sendsay: кампания, дата или тема письма.');
-  }
-
   report.fileId = file.getId();
   report.fileName = file.getName();
   report.modified = file.getLastUpdated().toISOString();
   report.importedAt = new Date().toISOString();
+
+  const missing = [];
+  if (!report.campaignId) missing.push('ссылка на кампанию');
+  if (!report.date) missing.push('дата отправки');
+  if (!report.subject) missing.push('тема письма');
+  if (missing.length) {
+    const error = new Error('Не найдены поля Sendsay: ' + missing.join(', ') + '. Пересохраните страницу отчёта после её полной загрузки.');
+    error.report = report;
+    throw error;
+  }
+
   upsertImportRow_(spreadsheet, report);
   return report;
 }
@@ -419,7 +428,7 @@ function parseSendsayMhtml_(raw, fileName) {
   return {
     campaignId: campaignId,
     campaign: campaign,
-    sendsay: 'https://app.sendsay.ru/reports/campaigns/' + campaignId + '/summary',
+    sendsay: campaignId ? 'https://app.sendsay.ru/reports/campaigns/' + campaignId + '/summary' : '',
     date: date,
     time: time,
     type: classification.type,
@@ -595,21 +604,44 @@ function upsertImportRow_(spreadsheet, report) {
   ];
   const rowNumber = index[report.fileId] ? index[report.fileId].row : sheet.getLastRow() + 1;
   sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
+  markReplacedErrors_(sheet, report.fileName, report.fileId);
+}
+
+function markReplacedErrors_(sheet, fileName, currentFileId) {
+  const rowCount = sheet.getLastRow() - 1;
+  if (rowCount < 1 || !fileName) return;
+  const values = sheet.getRange(2, 1, rowCount, 5).getDisplayValues();
+  let changed = false;
+  values.forEach(row => {
+    if (row[0] !== currentFileId && row[1] === fileName && row[4] === 'Ошибка') {
+      row[4] = 'Заменено';
+      changed = true;
+    }
+  });
+  if (changed) sheet.getRange(2, 5, rowCount, 1).setValues(values.map(row => [row[4]]));
 }
 
 function writeImportError_(spreadsheet, file, error) {
-  const report = {
-    fileId: file.getId(), fileName: file.getName(), modified: file.getLastUpdated().toISOString(),
-    importedAt: new Date().toISOString(), date: '', time: '', type: '', product: '', flow: '', segment: '',
-    campaign: '', sendsay: '', subject: '', sent: '', delivered: '', deliveredRate: '',
-    uniqueOpened: '', openRate: '', uniqueClicked: '', clickRate: '', ctor: '', unsubscribed: '', utor: ''
-  };
+  const partial = error && error.report ? error.report : {};
+  const report = Object.assign({
+    date: '', time: '', type: '', product: '', flow: '', segment: '', campaign: '', sendsay: '',
+    subject: '', sent: '', delivered: '', deliveredRate: '', uniqueOpened: '', openRate: '',
+    uniqueClicked: '', clickRate: '', ctor: '', unsubscribed: '', utor: ''
+  }, partial, {
+    fileId: file.getId(),
+    fileName: file.getName(),
+    modified: file.getLastUpdated().toISOString(),
+    importedAt: new Date().toISOString()
+  });
   const sheet = ensureImportSheet_(spreadsheet);
   const index = importIndex_(spreadsheet);
   const row = [
     report.fileId, report.fileName, report.modified, report.importedAt, 'Ошибка',
     String(error && error.message ? error.message : error).slice(0, 500),
-    '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+    report.date, report.time, report.type, report.product, report.flow, report.segment, report.campaign,
+    report.sendsay, report.subject, report.sent, report.delivered, report.deliveredRate,
+    report.uniqueOpened, report.openRate, report.uniqueClicked, report.clickRate, report.ctor,
+    report.unsubscribed, report.utor
   ];
   const rowNumber = index[report.fileId] ? index[report.fileId].row : sheet.getLastRow() + 1;
   sheet.getRange(rowNumber, 1, 1, row.length).setValues([row]);
@@ -618,15 +650,42 @@ function writeImportError_(spreadsheet, file, error) {
 function readImportStatus_(spreadsheet) {
   const folderConfigured = Boolean(PropertiesService.getScriptProperties().getProperty(APP.reportsFolderProperty));
   const sheet = spreadsheet.getSheetByName(APP.importSheet);
-  if (!sheet || sheet.getLastRow() < 2) return { total: 0, errors: 0, lastImportedAt: '', folderConfigured: folderConfigured };
-  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 6).getDisplayValues();
+  if (!sheet || sheet.getLastRow() < 2) {
+    return { total: 0, errors: 0, failed: [], lastImportedAt: '', folderConfigured: folderConfigured };
+  }
+
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 15).getDisplayValues();
+  let ready = 0;
   let errors = 0;
   let lastImportedAt = '';
+  const failed = [];
+
   values.forEach(row => {
-    if (row[4] === 'Ошибка') errors++;
+    if (!row[0]) return;
+    const status = row[4];
+    if (status === 'Готово') ready++;
+    if (status === 'Ошибка') {
+      errors++;
+      failed.push({
+        fileId: row[0],
+        fileName: row[1] || 'Файл без названия',
+        message: row[5] || 'Отчёт не удалось распознать.',
+        importedAt: row[3] || '',
+        driveUrl: 'https://drive.google.com/file/d/' + encodeURIComponent(row[0]) + '/view',
+        sendsayUrl: /^https:\/\//i.test(row[13] || '') ? row[13] : ''
+      });
+    }
     if (row[3] > lastImportedAt) lastImportedAt = row[3];
   });
-  return { total: values.filter(row => row[0]).length, errors: errors, lastImportedAt: lastImportedAt, folderConfigured: folderConfigured };
+
+  failed.sort((a, b) => String(b.importedAt).localeCompare(String(a.importedAt)));
+  return {
+    total: ready,
+    errors: errors,
+    failed: failed.slice(0, 50),
+    lastImportedAt: lastImportedAt,
+    folderConfigured: folderConfigured
+  };
 }
 
 function safeFileName_(value) {
@@ -1089,3 +1148,4 @@ function clearCache_() {
   for (let i = 0; i < count; i++) keys.push(APP.cachePrefix + ':' + i);
   cache.removeAll(keys);
 }
+
