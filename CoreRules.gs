@@ -6,6 +6,29 @@ function canonicalNewsCampaign_(campaign) {
     /^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(c);
 }
 
+extractCampaignName_ = function(raw, fileName) {
+  const baseName = String(fileName || '')
+    .replace(/\.(?:mhtml?|webarchive)$/i, '')
+    .trim();
+
+  const direct = baseName.match(
+    /^\s*\d+\s*(?:\||_)\s*(?:demo|news)\s*(?:\||_)\s*(.*?)\s*(?:\||_)\s*sendsay\s*$/i
+  );
+  if (direct && direct[1]) return direct[1].trim();
+
+  const header = String(raw || '').match(/^Subject:\s*(.+)$/mi);
+  const headerText = header ? decodeSnapshotText_(header[1]) : '';
+  const headerMatch = headerText.match(
+    /(?:Demo|News)\s*[|_]\s*(.*?)\s*[|_]\s*Sendsay/i
+  );
+  if (headerMatch && headerMatch[1]) return headerMatch[1].trim();
+
+  const generic = baseName.match(/(?:Demo|News)\s*[|_]\s*(.*)$/i);
+  return generic && generic[1]
+    ? generic[1].replace(/\s*(?:\||_)\s*Sendsay\s*$/i, '').trim()
+    : baseName.replace(/\s*(?:\||_)\s*Sendsay\s*$/i, '').trim();
+};
+
 classifyCampaign_ = function(campaign, fileName, subject, sender) {
   const text = norm_([campaign, fileName, subject, sender].join(' '));
   const rawCampaign = String(campaign || '').toLowerCase();
