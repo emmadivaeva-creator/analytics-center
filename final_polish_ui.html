@@ -91,7 +91,9 @@ html,body{background:var(--bg)}
 
   function campaignText(x){return String(x&&x.campaign||'');}
   function isDigest(x){
-    return /(?:^|[_\-. ])digest(?:[_\-. ]|$)/i.test(campaignText(x));
+    const c=campaignText(x).trim();
+    return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(c) ||
+      /^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(c);
   }
   function isClicks(x){
     return norm(x&&x.segment)==='клики' || /(?:^|_)open(?:_|\.|$)/i.test(campaignText(x));
