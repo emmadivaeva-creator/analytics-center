@@ -36,8 +36,7 @@
       (r&&Array.isArray(r.items)?r.items:[]).forEach(item=>{
         if(item&&item.fileName)results[item.fileName]=item;
       });
-      const allTargetsSeen=targetNames.every(name=>results[name]);
-      if(allTargetsSeen||!r||!r.remaining||!r.processed)break;
+      if(!r||!r.remaining||!r.processed)break;
     }
     return {processed,results};
   }
@@ -82,7 +81,7 @@
           }else if(r&&r.ok===false){
             parseErrors++;bar.style.background='var(--red)';result.className='ss-result err';result.innerHTML='<b>Ошибка разбора</b><br>'+esc(r.error||'Смотрите служебный лист');meta.textContent='файл сохранён в Drive · ошибка записана в синхронизацию';
           }else{
-            result.className='ss-result';result.innerHTML='<b>Сохранён в Drive</b><br>ещё не дошёл до очереди импорта';meta.textContent='файл не потерян · повторите синхронизацию';
+            result.className='ss-result';result.innerHTML='<b>Сохранён в Drive</b><br>обработан общей синхронизацией';meta.textContent='файл сохранён; проверьте служебный статус';
           }
         });
         await server('syncDemoStats');
