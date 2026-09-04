@@ -58,10 +58,7 @@ const DEMO_HEADERS = Object.freeze([
 ]);
 
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('index')
-    .setTitle('Редакционная аналитика DEMO')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT)
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  return buildAnalyticsWebApp_();
 }
 
 /**
