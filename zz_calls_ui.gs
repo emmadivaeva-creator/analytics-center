@@ -10,7 +10,8 @@ function doGet() {
   const emailAnalyticsUi = HtmlService.createHtmlOutputFromFile('email_analytics_ui').getContent();
   const newsUi = HtmlService.createHtmlOutputFromFile('news_ui').getContent();
   const runtimeFixesUi = HtmlService.createHtmlOutputFromFile('runtime_fixes_ui').getContent();
-  const addons = compatUi + '\n' + callsUi + '\n' + sendsayUi + '\n' + emailAnalyticsUi + '\n' + newsUi + '\n' + runtimeFixesUi;
+  const finalPolishUi = HtmlService.createHtmlOutputFromFile('final_polish_ui').getContent();
+  const addons = compatUi + '\n' + callsUi + '\n' + sendsayUi + '\n' + emailAnalyticsUi + '\n' + newsUi + '\n' + runtimeFixesUi + '\n' + finalPolishUi;
   const html = base.indexOf('</body>') >= 0
     ? base.replace('</body>', addons + '\n</body>')
     : base + addons;
