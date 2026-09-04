@@ -1,0 +1,38 @@
+name: One-shot partial Sendsay import maintenance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/maintenance-partial-sendsay.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Accept valid Sendsay snapshots without saved subject
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('Code.gs')
+          text = p.read_text(encoding='utf-8')
+          old = """  const missing = [];\n  if (!report.campaignId) missing.push('ссылка/ID кампании');\n  if (!report.date) missing.push('дата отправки');\n  if (!report.subject) missing.push('тема письма');\n\n  if (missing.length) {\n"""
+          new = """  const missing = [];\n  if (!report.campaignId) missing.push('ссылка/ID кампании');\n  if (!report.date) missing.push('дата отправки');\n  if (!report.subject) report.subject = 'Тема не сохранена в отчёте Sendsay';\n\n  if (missing.length) {\n"""
+          count = text.count(old)
+          if count != 1:
+              if new in text:
+                  raise SystemExit(0)
+              raise SystemExit(f'Expected exactly one validation block, found {count}; refusing unsafe patch')
+          p.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "analytics-center-maintenance"
+          git config user.email "actions@users.noreply.github.com"
+          git add Code.gs
+          git commit -m "Import valid Sendsay snapshots when subject is unavailable"
+          git push
