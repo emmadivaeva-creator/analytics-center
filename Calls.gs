@@ -75,6 +75,7 @@ function importCallsBatch(payload) {
   if (!rows.length) return { ok: true, added: 0, updated: 0, duplicates: 0, errors: 0 };
 
   const sheet = storage.getSheetByName(CALLS_CFG.rawSheet);
+  callsEnsureRawCapacity_(sheet, rows.length);
   const values = sheet.getDataRange().getValues();
   const index = {};
   for (let i = 1; i < values.length; i++) {
@@ -232,6 +233,14 @@ function callsEnsureSheets_(storage) {
   callsEnsureSheet_(storage, CALLS_CFG.importsSheet, CALLS_IMPORT_HEADERS, true);
 }
 
+function callsEnsureRawCapacity_(sheet, incomingRows) {
+  const needRows = Math.max(2, sheet.getLastRow() + Math.max(0, Number(incomingRows || 0)) + 25);
+  if (sheet.getMaxRows() < needRows) {
+    sheet.insertRowsAfter(sheet.getMaxRows(), needRows - sheet.getMaxRows());
+  }
+  return sheet;
+}
+
 function callsEnsureSheet_(storage, name, headers, hidden) {
   let sheet = storage.getSheetByName(name);
   if (!sheet) sheet = storage.insertSheet(name);
@@ -249,6 +258,10 @@ function callsNormalizeRecord_(raw, sourceFile, batchId) {
   const actionNo = callsClean_(raw.actionNo);
   const slApiNr = callsNormalizeSl_(raw.slApiNr);
   const sale = raw.sale === true || String(raw.sale).toLowerCase() === 'true' || Number(raw.salesCount || 0) > 0;
+  let transcript = String(raw.transcript || '').replace(/\u0000/g,'').trim();
+  if (transcript.length > 45000) {
+    transcript = transcript.slice(0, 45000) + '\n[Расшифровка обрезана при импорте: превышен лимит ячейки Google Sheets]';
+  }
   const record = {
     id: callsHash_(actionNo + '|' + slApiNr).slice(0, 24),
     sourceFile: sourceFile || callsClean_(raw.sourceFile),
@@ -262,7 +275,7 @@ function callsNormalizeRecord_(raw, sourceFile, batchId) {
     slApiNr: slApiNr,
     sale: sale,
     salesCount: Math.max(0, Number(raw.salesCount || 0)),
-    transcript: String(raw.transcript || '').replace(/\u0000/g,'').trim(),
+    transcript: transcript,
     sourceError: callsClean_(raw.sourceError)
   };
   record.fingerprint = callsFingerprint_(record);

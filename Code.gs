@@ -360,9 +360,17 @@ function assertAdmin_() {
 
 function canAdmin_() {
   const props = PropertiesService.getScriptProperties();
-  const admin = (props.getProperty(APP.adminProperty) || '').toLowerCase();
-  const active = (Session.getActiveUser().getEmail() || '').toLowerCase();
-  return Boolean(admin && active && admin === active);
+  let admin = String(props.getProperty(APP.adminProperty) || '').toLowerCase();
+  const active = String(Session.getActiveUser().getEmail() || '').toLowerCase();
+  const effective = String(Session.getEffectiveUser().getEmail() || '').toLowerCase();
+  const viewer = active || effective;
+
+  if (!admin && effective) {
+    props.setProperty(APP.adminProperty, effective);
+    admin = effective;
+  }
+
+  return Boolean(admin && viewer && admin === viewer);
 }
 
 function ensureSendsaySheet_(spreadsheet) {
