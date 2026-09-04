@@ -7,7 +7,8 @@ doGet = function() {
   const callsUi = HtmlService.createHtmlOutputFromFile('calls_ui').getContent();
   const sendsayUi = HtmlService.createHtmlOutputFromFile('sendsay_ui').getContent();
   const emailAnalyticsUi = HtmlService.createHtmlOutputFromFile('email_analytics_ui').getContent();
-  const addons = callsUi + '\n' + sendsayUi + '\n' + emailAnalyticsUi;
+  const newsUi = HtmlService.createHtmlOutputFromFile('news_ui').getContent();
+  const addons = callsUi + '\n' + sendsayUi + '\n' + emailAnalyticsUi + '\n' + newsUi;
   const html = base.indexOf('</body>') >= 0
     ? base.replace('</body>', addons + '\n</body>')
     : base + addons;
