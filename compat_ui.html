@@ -1,0 +1,21 @@
+<script>
+(function(){
+  /* Совместимость дополнительных модулей с разными версиями index.html. */
+  if (typeof window.isActive !== 'function') {
+    window.isActive = function(x){
+      return /activdemo/i.test(String((x && x.campaign) || '')) || String((x && x.type) || '').toLowerCase() === 'active';
+    };
+  }
+
+  if (typeof window.mailType !== 'function') {
+    window.mailType = function(x){
+      if (window.isActive(x)) return 'active';
+      const type = String((x && x.type) || '').toLowerCase();
+      const campaign = String((x && x.campaign) || '').toLowerCase();
+      const segment = String((x && x.segment) || '').toLowerCase();
+      if (type === 'news' || type === 'новостное' || /(?:^|[_\-])nd(?:[_\-.]|$)|news|novost|новост/.test(campaign + ' ' + segment)) return 'news';
+      return 'direct';
+    };
+  }
+})();
+</script>
