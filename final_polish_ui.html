@@ -1,180 +1,401 @@
 <style>
-/* Новая палитра: теплый нейтральный фон + темный графит + бирюзовый акцент. */
+/* UI refresh v3: warm editorial palette, no blue/purple overload. */
 :root{
-  --bg:#f5f2ec;
-  --card:#fffdfa;
-  --ink:#24312d;
-  --muted:#7b817d;
-  --line:#e6dfd5;
-  --nav:#26312e;
-  --blue:#2f7f78;
-  --blue-soft:#e7f2ef;
-  --green:#2f7b5b;
-  --green-soft:#e9f3ed;
-  --yellow:#a47622;
-  --yellow-soft:#f8f0dc;
-  --red:#b65d50;
-  --red-soft:#f8e9e6;
-  --violet:#806b83;
-  --shadow:0 10px 28px rgba(58,50,42,.07);
+  --bg:#f6f2eb;
+  --card:#fffdf9;
+  --ink:#29332f;
+  --muted:#7b7a73;
+  --line:#e6ded3;
+  --nav:#28332f;
+  --blue:#2f7d73;
+  --blue-soft:#e7f1ee;
+  --green:#34775a;
+  --green-soft:#e8f2ec;
+  --yellow:#a9782d;
+  --yellow-soft:#f7efdd;
+  --red:#b85f50;
+  --red-soft:#f8e9e5;
+  --violet:#8b6e62;
+  --shadow:0 10px 28px rgba(62,52,43,.07);
 }
-body{background:var(--bg)}
-.top{background:var(--nav);box-shadow:0 7px 22px rgba(37,49,46,.16)}
-.brandmark{background:linear-gradient(145deg,#4d8f85,#c57d5a)}
+html,body{background:var(--bg)}
+.top{background:var(--nav);box-shadow:0 7px 22px rgba(40,51,47,.16)}
+.brandmark{background:linear-gradient(145deg,#4f8f84,#c77d5c)}
 .navbtn.active,.navbtn:hover{background:rgba(255,255,255,.12)}
 .primary{background:var(--blue)}
-.week,.panel,.metric,.sumcard,.acard,.tablepanel,.heroitem,.servicebox,.news-card,.calls-card{background:var(--card)}
 .eyebrow{color:var(--blue)}
-.control:focus{border-color:#8fb9b3;box-shadow:0 0 0 3px #e5f1ef}
-.tag.news{background:#efe7f0;color:#735c78}
+.control{background:#fbf8f3}
+.control:focus{border-color:#91b9b2;box-shadow:0 0 0 3px #e6f0ed}
+.week,.panel,.metric,.sumcard,.acard,.tablepanel,.heroitem,.servicebox,.news-card,.calls-card{background:var(--card)}
+.tag.active{background:#f4e8e1;color:#965e45}
+.tag.news{background:#ece8df;color:#756548}
+.ea-product,.news-product{background:#eee8df!important;color:#665f56!important}
 
-/* Пульс DEMO: одна таблица вместо шести конкурирующих карточек. */
+/* DEMO pulse: one readable table. */
 #weekView #matrix{display:block!important}
-.pulse-simple{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
-.pulse-simple-head,.pulse-simple-row{display:grid;grid-template-columns:minmax(120px,1.25fr) 90px 110px 110px 110px minmax(120px,.9fr);gap:10px;align-items:center}
-.pulse-simple-head{padding:10px 14px;background:#eee9e1;color:var(--muted);font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}
-.pulse-simple-row{padding:12px 14px;border-top:1px solid #eee8df;font-size:11px}
-.pulse-simple-row:first-of-type{border-top:0}
-.pulse-simple-name b{display:block;font-size:12px}.pulse-simple-name small{display:block;color:var(--muted);margin-top:2px}
-.pulse-simple-pct{font-size:22px;font-weight:950;letter-spacing:-.04em}
-.pulse-simple-num{font-variant-numeric:tabular-nums}.pulse-simple-num b{font-size:12px}
-.pulse-simple-gap{font-weight:850}.pulse-simple-gap.good{color:var(--green)}
-.pulse-simple-status{justify-self:start;font-size:8px;font-weight:900;border-radius:999px;padding:5px 7px;background:#eeeae4;color:#635f5a;white-space:nowrap}
-.pulse-simple-status.done{background:var(--green-soft);color:var(--green)}.pulse-simple-status.wait{background:var(--yellow-soft);color:#85611d}.pulse-simple-status.risk{background:var(--red-soft);color:var(--red)}
-.pulse-simple-row.risk{box-shadow:inset 4px 0 0 var(--red)}.pulse-simple-row.wait{box-shadow:inset 4px 0 0 var(--yellow)}.pulse-simple-row.done{box-shadow:inset 4px 0 0 var(--green)}
-.pulse-simple-section{padding:7px 14px;background:#f8f5f0;border-top:1px solid #eee8df;font-size:10px;font-weight:900;color:#4c5a55}
-@media(max-width:920px){.pulse-simple{overflow:auto}.pulse-simple-head,.pulse-simple-row{min-width:760px}}
+.pulse-v3{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.pulse-v3-head,.pulse-v3-row{display:grid;grid-template-columns:minmax(150px,1.35fr) 90px 120px 110px 115px minmax(145px,.9fr);gap:10px;align-items:center}
+.pulse-v3-head{padding:10px 14px;background:#eee8df;color:var(--muted);font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.045em}
+.pulse-v3-section{padding:7px 14px;background:#f8f4ee;border-top:1px solid #ece4d9;font-size:10px;font-weight:900;color:#53615c}
+.pulse-v3-row{padding:12px 14px;border-top:1px solid #eee7dd;font-size:11px}
+.pulse-v3-row.risk{box-shadow:inset 4px 0 0 var(--red)}
+.pulse-v3-row.wait{box-shadow:inset 4px 0 0 var(--yellow)}
+.pulse-v3-row.done{box-shadow:inset 4px 0 0 var(--green)}
+.pulse-v3-name b{display:block;font-size:12px}.pulse-v3-name small{display:block;color:var(--muted);margin-top:2px}
+.pulse-v3-pct{font-size:22px;font-weight:950;letter-spacing:-.04em}
+.pulse-v3-num{font-variant-numeric:tabular-nums}.pulse-v3-num b{font-size:12px}
+.pulse-v3-gap{font-weight:850}.pulse-v3-gap.good{color:var(--green)}
+.pulse-v3-status{display:inline-flex;font-size:8px;font-weight:900;border-radius:999px;padding:5px 7px;background:#eee9e2;color:#67615a;white-space:nowrap}
+.pulse-v3-status.done{background:var(--green-soft);color:var(--green)}
+.pulse-v3-status.wait{background:var(--yellow-soft);color:#89631e}
+.pulse-v3-status.risk{background:var(--red-soft);color:var(--red)}
+.pulse-v3-y{display:block;font-size:8px;color:var(--muted);margin-top:3px}
+@media(max-width:920px){.pulse-v3{overflow:auto}.pulse-v3-head,.pulse-v3-row{min-width:800px}}
 
-/* Новая аналитика рассылок. */
-.mail-segment-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}
-.mail-segment-tabs button{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:7px 11px;font-size:10px;font-weight:850}
-.mail-segment-tabs button.active{background:var(--ink);border-color:var(--ink);color:#fff}
-.mail-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
-.mail-kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 12px}.mail-kpi span{display:block;font-size:8px;color:var(--muted)}.mail-kpi b{display:block;font-size:20px;margin-top:2px;letter-spacing:-.03em}.mail-kpi small{font-size:8px;color:var(--muted)}
-.mail-analytics-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.mail-rank{padding:7px 15px 13px}.mail-rank-row{padding:10px 0;border-bottom:1px solid #eee8df;cursor:pointer}.mail-rank-row:last-child{border-bottom:0}.mail-rank-top{display:flex;justify-content:space-between;gap:10px}.mail-rank-top b{font-size:11px}.mail-rank-top strong{font-size:10px;white-space:nowrap}.mail-rank-meta{font-size:9px;color:var(--muted);margin-top:3px}.mail-rank-example{font-size:9px;color:var(--muted);margin-top:5px;line-height:1.35}
-.mail-rank-example b{color:var(--ink)}
-.mail-note{font-size:9px;color:var(--muted);margin-top:8px}.mail-note b{color:var(--ink)}
-@media(max-width:900px){.mail-kpis{grid-template-columns:1fr 1fr}.mail-analytics-grid{grid-template-columns:1fr}}
+/* Mail analytics split by audience segment. */
+.ea-v3-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 10px}
+.ea-v3-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.ea-v3-tabs button{border:1px solid var(--line);background:var(--card);color:var(--muted);border-radius:999px;padding:7px 11px;font-size:10px;font-weight:850}
+.ea-v3-tabs button.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.ea-v3-week{width:150px!important}
+.ea-v3-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.ea-v3-kpi{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 12px}
+.ea-v3-kpi span{display:block;font-size:8px;color:var(--muted)}
+.ea-v3-kpi b{display:block;font-size:20px;margin-top:2px;letter-spacing:-.03em}
+.ea-v3-kpi small{display:block;font-size:8px;color:var(--muted);margin-top:2px}
+.ea-v3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
+.ea-v3-list{padding:7px 15px 13px}
+.ea-v3-row{padding:10px 0;border-bottom:1px solid #eee7dd;cursor:pointer}
+.ea-v3-row:last-child{border-bottom:0}
+.ea-v3-row:hover b{color:var(--blue)}
+.ea-v3-row-top{display:flex;justify-content:space-between;gap:10px}
+.ea-v3-row-top b{font-size:11px}.ea-v3-row-top strong{font-size:10px;white-space:nowrap}
+.ea-v3-meta{font-size:9px;color:var(--muted);margin-top:3px}
+.ea-v3-example{font-size:9px;color:var(--muted);margin-top:5px;line-height:1.35;padding-left:9px;border-left:2px solid #e8dfd4}
+.ea-v3-example b{color:var(--ink)}
+.ea-v3-note{font-size:9px;color:var(--muted);margin-top:7px}
+@media(max-width:900px){.ea-v3-kpis{grid-template-columns:1fr 1fr}.ea-v3-grid{grid-template-columns:1fr}}
+
+/* Small clarity tweaks for the news tab. */
+#newsView .head p strong{color:var(--ink)}
 </style>
+
 <script>
 (function(){
-  if(window.__finalPolishLoaded)return;
-  window.__finalPolishLoaded=true;
+  if(window.__analyticsUiRefreshV3)return;
+  window.__analyticsUiRefreshV3=true;
 
   const q=s=>document.querySelector(s);
   const uniq=a=>[...new Set((a||[]).filter(Boolean))];
+  const norm=v=>String(v||'').trim().toLowerCase();
 
-  function norm(v){return String(v||'').trim().toLowerCase();}
+  function campaignText(x){return String(x&&x.campaign||'');}
   function isDigest(x){
-    const hay=[x&&x.campaign,x&&x.segment,x&&x.name,x&&x.issueName,x&&x.subjectTag].filter(Boolean).join(' ');
-    return /(?:^|[^a-zа-я0-9])digest(?:[^a-zа-я0-9]|$)/i.test(hay);
+    return /(?:^|[_\-. ])digest(?:[_\-. ]|$)/i.test(campaignText(x));
   }
-  function isLive(x){return norm(x&&x.segment)==='живые';}
-  function isClicks(x){return norm(x&&x.segment)==='клики';}
-  function isActiveDemo(x){return isActive(x)||/дожим\s*демо/i.test(String(x&&x.segment||''));}
-  function segmentMode(x){if(isActiveDemo(x))return'active';if(isClicks(x))return'clicks';if(isLive(x))return'live';return'other';}
+  function isClicks(x){
+    return norm(x&&x.segment)==='клики' || /(?:^|_)open(?:_|\.|$)/i.test(campaignText(x));
+  }
+  function isActiveDemo(x){
+    return norm(x&&x.segment)==='дожим демо' || /activdemo/i.test(campaignText(x));
+  }
+  function isLive(x){
+    return norm(x&&x.segment)==='живые' && !isActiveDemo(x) && !isClicks(x) && !isDigest(x);
+  }
+  function segmentMode(x){
+    if(isActiveDemo(x))return'active';
+    if(isClicks(x))return'clicks';
+    if(isLive(x))return'live';
+    return'other';
+  }
 
-  /* Для вкладки «Новостные» считаем новостными только кампании с digest. */
-  mailType=function(x){
-    if(isActive(x))return'active';
+  /* News = only campaigns with explicit digest marker. */
+  window.mailType=function(x){
+    if(isActiveDemo(x))return'active';
     return isDigest(x)?'news':'direct';
   };
 
-  /* Пульс: не карточки, а одна читаемая таблица. */
-  function pulseStatus(p){return status(p);}
   function pulseRow(fullName,label){
-    const p=product(fullName),s=pulseStatus(p),plan=n(p.plan),green=n(p.green),yellow=n(p.yellow),gap=Math.max(0,plan-green),pr=plan?green/plan*100:0;
-    return `<div class="pulse-simple-row ${s.key}">
-      <div class="pulse-simple-name"><b>${esc(label)}</b><small>${esc(fullName.startsWith('ГЗ')?'Госзаказ':'Госфинансы')}</small></div>
-      <div class="pulse-simple-pct">${pct.format(pr)}%</div>
-      <div class="pulse-simple-num">Green <b>${fmt.format(green)}</b></div>
-      <div class="pulse-simple-num">План <b>${fmt.format(plan)}</b></div>
-      <div class="pulse-simple-gap ${gap?'':'good'}">${gap?'− '+fmt.format(gap):'закрыт'}</div>
-      <div><span class="pulse-simple-status ${s.key}">${esc(s.label)}</span><div class="mail-note">Y ${fmt.format(yellow)}</div></div>
+    const p=product(fullName),s=status(p),plan=n(p.plan),green=n(p.green),yellow=n(p.yellow);
+    const gap=Math.max(0,plan-green),pr=plan?green/plan*100:0;
+    const friday=typeof workday==='function' && workday()===5;
+    return `<div class="pulse-v3-row ${s.key}">
+      <div class="pulse-v3-name"><b>${esc(label)}</b><small>${esc(fullName.startsWith('ГЗ')?'Госзаказ':'Госфинансы')}</small></div>
+      <div class="pulse-v3-pct">${pct.format(pr)}%</div>
+      <div class="pulse-v3-num">Green <b>${fmt.format(green)} / ${fmt.format(plan)}</b></div>
+      <div class="pulse-v3-gap ${gap?'':'good'}">${gap?'− '+fmt.format(gap):'план закрыт'}</div>
+      <div class="pulse-v3-num">${friday?'Y переходящий':'Yellow'} <b>${fmt.format(yellow)}</b></div>
+      <div><span class="pulse-v3-status ${s.key}">${esc(s.label)}</span></div>
     </div>`;
   }
-  function renderCleanPulse(){
-    const matrix=q('#matrix');if(!matrix||!state.data)return;
-    matrix.innerHTML=`<div class="pulse-simple">
-      <div class="pulse-simple-head"><span>Продукт</span><span>Выполнение</span><span>Green</span><span>План</span><span>Остаток</span><span>Статус / Yellow</span></div>
-      <div class="pulse-simple-section">Госзаказ</div>
-      ${pulseRow('ГЗ Периодика','Периодика')}${pulseRow('ГЗ Школа','Школа')}${pulseRow('ГЗ Система','Система')}
-      <div class="pulse-simple-section">Госфинансы</div>
-      ${pulseRow('ГФ Периодика','Периодика')}${pulseRow('ГФ Школа','Школа')}${pulseRow('ГФ Система','Система')}
-    </div>`;
-    const sub=q('#weekView .head p');if(sub)sub.textContent='Шесть продуктов в одной таблице: выполнение плана, Green, остаток, Yellow и решение. Без визуального салата.';
-  }
-  const prevRenderWeekFinal=renderWeek;
-  renderWeek=function(){prevRenderWeekFinal();renderCleanPulse();};
 
-  /* Полностью пересобираем вкладку «Аналитика писем». */
-  let currentMode='live';
-  function baseRows(){
-    const p=q('#eaProduct')?q('#eaProduct').value:'';
-    const w=q('#eaWeek')?q('#eaWeek').value:'';
-    return (state.data&&state.data.emails||[]).filter(x=>(!p||x.product===p)&&(!w||String(x.week)===w));
-  }
-  function modeRows(){return baseRows().filter(x=>segmentMode(x)===currentMode);}
-  function groupBy(rows,keyFn){const out={};rows.forEach(x=>{const k=keyFn(x)||'—';(out[k]||(out[k]=[])).push(x)});return Object.entries(out).map(([name,items])=>({name,items,count:items.length,del:items.reduce((s,x)=>s+n(x.delivered),0),or:weighted(items,'openRate'),ctr:weighted(items,'clickRate'),ctor:weighted(items,'ctor')}));}
-  function sellingRows(){
-    const rows=baseRows().filter(x=>isLive(x)&&!isActiveDemo(x)&&!isClicks(x)&&x.hasDemoData===true&&n(x.delivered)>0);
-    const grouped={};rows.forEach(x=>{const key=String(x.material||x.subject||'').trim();if(!key)return;(grouped[key]||(grouped[key]=[])).push(x)});
-    return Object.entries(grouped).map(([name,items])=>{const del=items.reduce((s,x)=>s+n(x.delivered),0),green=items.reduce((s,x)=>s+n(x.green),0),yellow=items.reduce((s,x)=>s+n(x.yellow),0);return{name,items,del,green,yellow,rate:del?green/del*1000:0};}).sort((a,b)=>b.rate-a.rate||b.green-a.green);
-  }
-  function renderRank(groups,metric){
-    const rows=groups.slice(0,10);if(!rows.length)return'<div class="empty"><b>Пока нет данных</b></div>';
-    return rows.map((g,i)=>`<div class="mail-rank-row" data-mail-rank="${i}"><div class="mail-rank-top"><b>${esc(g.name)}</b><strong>${metric==='ctr'?pct.format(g.ctr)+'% CTR':pct.format(g.or)+'% OR'}</strong></div><div class="mail-rank-meta">n=${g.count} · ${fmt.format(g.del)} доставлено · OR ${pct.format(g.or)}% · CTR ${pct.format(g.ctr)}% · CTOR ${pct.format(g.ctor)}%</div><div class="mail-rank-example">${g.items.slice().sort((a,b)=>n(b.openRate)-n(a.openRate)).slice(0,2).map(x=>`<div><b>${esc(x.product)}:</b> ${esc(x.subject)}</div>`).join('')}</div></div>`).join('');
-  }
-  function renderSelling(){
-    const box=q('#eaSelling');if(!box)return;const selling=sellingRows();box._rows=selling;
-    box.innerHTML=selling.length?selling.slice(0,15).map((x,i)=>`<div class="ea-item" data-selling="${i}"><div class="ea-top"><div class="ea-title">${esc(x.name)}</div><div class="ea-score">${pct.format(x.rate)} G / 1000</div></div><div class="ea-meta">ТОЛЬКО ЖИВЫЕ · ${fmt.format(x.green)} Green · ${fmt.format(x.yellow)} Yellow · ${x.items.length} пис. · ${fmt.format(x.del)} доставлено</div><div class="ea-products">${uniq(x.items.map(r=>r.product)).map(p=>`<span class="ea-product">${esc(p)}</span>`).join('')}</div></div>`).join(''):'<div class="empty"><b>Нет живых писем с точной DEMO-связью</b>Клики и АКТИВДЕМО сюда принципиально не входят.</div>';
-  }
-  function renderSegmentAnalytics(){
-    const rows=modeRows(),del=rows.reduce((s,x)=>s+n(x.delivered),0),green=rows.reduce((s,x)=>s+n(x.green),0);
-    const modeLabel=currentMode==='live'?'Живые':currentMode==='active'?'АКТИВДЕМО':'Клики';
-    q('#eaModeTitle').textContent=modeLabel;
-    q('#eaKpis').innerHTML=[['Писем',fmt.format(rows.length),'в выборке'],['Доставлено',fmt.format(del),'суммарно'],['OR',pct.format(weighted(rows,'openRate'))+'%','взвешенный'],['CTR',pct.format(weighted(rows,'clickRate'))+'%','взвешенный'],['Green',currentMode==='live'?fmt.format(green):'—',currentMode==='live'?'только для живых':'не смешиваем с живыми']].map(x=>`<div class="mail-kpi"><span>${x[0]}</span><b>${x[1]}</b><small>${x[2]}</small></div>`).join('');
-    const themes=groupBy(rows,x=>theme(x.subject)).sort((a,b)=>b.or-a.or),times=groupBy(rows,x=>bucket(x.time)).filter(x=>x.name!=='Время не распознано').sort((a,b)=>b.or-a.or),best=rows.slice().sort((a,b)=>n(b.openRate)-n(a.openRate));
-    q('#eaModeThemes')._rows=themes;q('#eaModeThemes').innerHTML=renderRank(themes,'or');
-    q('#eaModeTimes')._rows=times;q('#eaModeTimes').innerHTML=renderRank(times,'or');
-    q('#eaModeBest').innerHTML=best.length?best.slice(0,10).map(x=>`<div class="mail-rank-row" data-best-mail="${attr(x.id)}"><div class="mail-rank-top"><b>${esc(x.subject)}</b><strong>${pct.format(x.openRate||0)}% OR</strong></div><div class="mail-rank-meta">${esc(x.product)} · ${dRu(x.date)} ${esc(x.time||'')} · CTR ${pct.format(x.clickRate||0)}%</div></div>`).join(''):'<div class="empty"><b>Пока нет писем</b></div>';
-    q('#mailSegmentTabs').querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.mode===currentMode));
-  }
-  function renderMailAnalyticsFinal(){
-    const view=q('#mailanalyticsView');if(!view||!state.data)return;
-    if(!view.dataset.finalized){
-      view.dataset.finalized='1';
-      view.innerHTML=`
-        <div class="head"><div><div class="eyebrow">Аналитика рассылок</div><h1>Что работает по каждому сегменту</h1><p>Живые, АКТИВДЕМО и Клики не смешиваем. Продажи считаем только по Живым.</p></div></div>
-        <div class="ea-filter"><label>Продукт:</label><select class="control" id="eaProduct"><option value="">Все продукты</option></select><label>Неделя:</label><select class="control" id="eaWeek"><option value="">Все недели</option></select></div>
-        <section class="panel" style="margin-bottom:10px"><div class="panelhead"><h2>Темы и материалы, которые продают</h2><p>Только сегмент «Живые» с точной DEMO-связью. Клики и АКТИВДЕМО исключены полностью.</p></div><div class="ea-list" id="eaSelling"></div></section>
-        <div id="eaThemes" style="display:none"></div><div class="mail-segment-tabs" id="mailSegmentTabs"><button data-mode="live" class="active">Живые</button><button data-mode="active">АКТИВДЕМО</button><button data-mode="clicks">Клики</button></div>
-        <div class="head" style="margin-bottom:10px"><div><div class="eyebrow">Сегмент</div><h1 id="eaModeTitle">Живые</h1></div></div>
-        <div class="mail-kpis" id="eaKpis"></div>
-        <div class="mail-analytics-grid">
-          <section class="panel"><div class="panelhead"><h2>Какие темы работают</h2><p>Рейтинг по OR внутри выбранного сегмента.</p></div><div class="mail-rank" id="eaModeThemes"></div></section>
-          <section class="panel"><div class="panelhead"><h2>В какое время отправлять</h2><p>OR/CTR по фактическому часу отправки.</p></div><div class="mail-rank" id="eaModeTimes"></div></section>
-          <section class="panel" style="grid-column:1/-1"><div class="panelhead"><h2>Лучшие конкретные письма</h2><p>Можно открыть письмо и посмотреть детали.</p></div><div class="mail-rank" id="eaModeBest"></div></section>
-        </div>`;
-      q('#mailSegmentTabs').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(!b)return;currentMode=b.dataset.mode;renderSegmentAnalytics();});
-      q('#eaProduct').addEventListener('change',()=>{renderSelling();renderSegmentAnalytics();});
-      q('#eaWeek').addEventListener('change',()=>{renderSelling();renderSegmentAnalytics();});
-      view.addEventListener('click',e=>{
-        const sell=e.target.closest('[data-selling]');if(sell){const x=q('#eaSelling')._rows&&q('#eaSelling')._rows[Number(sell.dataset.selling)];if(x){q('#drawerMeta').textContent=`Живые · ${x.items.length} писем`;q('#drawerTitle').textContent=x.name;q('#drawerBody').innerHTML=`<div class="drawerstats"><div class="dstat"><span>Green</span><b class="g">${fmt.format(x.green)}</b></div><div class="dstat"><span>Yellow</span><b>${fmt.format(x.yellow)}</b></div><div class="dstat"><span>G / 1000</span><b>${pct.format(x.rate)}</b></div></div><div class="dsection"><h3>Конкретные живые письма</h3>${x.items.slice(0,15).map(r=>`<div class="calls-fragment"><b>${esc(r.product)} · ${dRu(r.date)}</b><br>${esc(r.subject)}<br><span style="color:var(--muted)">Green ${fmt.format(r.green||0)} · Yellow ${fmt.format(r.yellow||0)}</span></div>`).join('')}</div>`;q('#drawerBack').classList.add('open');q('#drawer').classList.add('open');}return;}
-        const best=e.target.closest('[data-best-mail]');if(best)return openEmail(best.dataset.bestMail);
-      });
+  function renderPulseV3(){
+    if(!state.data)return;
+    const matrix=q('#matrix');if(!matrix)return;
+    matrix.innerHTML=`<div class="pulse-v3">
+      <div class="pulse-v3-head"><span>Продукт</span><span>План, %</span><span>Green / план</span><span>Остаток</span><span>Yellow</span><span>Решение</span></div>
+      <div class="pulse-v3-section">Госзаказ</div>
+      ${pulseRow('ГЗ Периодика','Периодика')}
+      ${pulseRow('ГЗ Школа','Школа')}
+      ${pulseRow('ГЗ Система','Система')}
+      <div class="pulse-v3-section">Госфинансы</div>
+      ${pulseRow('ГФ Периодика','Периодика')}
+      ${pulseRow('ГФ Школа','Школа')}
+      ${pulseRow('ГФ Система','Система')}
+    </div>`;
+    const h=q('#weekView .head h1'),sub=q('#weekView .head p');
+    if(h)h.textContent='Пульс DEMO по шести продуктам';
+    if(sub)sub.textContent='Одна таблица: выполнение плана, Green, остаток, Yellow и решение. Никаких шести карточек, которые спорят за внимание.';
+    const legend=q('#weekView .legend');
+    if(legend){
+      const friday=typeof workday==='function' && workday()===5;
+      legend.innerHTML=friday
+        ? '<span><i class="dot g"></i>Green = итог недели</span><span><i class="dot y"></i>Yellow = переходящий потенциал</span>'
+        : '<span><i class="dot g"></i>Green = факт</span><span><i class="dot y"></i>Yellow = уже запущенный потенциал</span>';
     }
-    const products=uniq((state.data.emails||[]).map(x=>x.product)).sort(),weeks=uniq((state.data.emails||[]).map(x=>x.week).filter(Boolean)).sort((a,b)=>b-a),p=q('#eaProduct').value,w=q('#eaWeek').value;
-    q('#eaProduct').innerHTML='<option value="">Все продукты</option>'+products.map(x=>`<option value="${attr(x)}">${esc(x)}</option>`).join('');if(products.includes(p))q('#eaProduct').value=p;
-    q('#eaWeek').innerHTML='<option value="">Все недели</option>'+weeks.map(x=>`<option value="${x}">W${x}</option>`).join('');if(weeks.map(String).includes(String(w)))q('#eaWeek').value=w;
-    renderSelling();renderSegmentAnalytics();
   }
 
-  const prevRenderAllFinal=renderAll;
-  renderAll=function(){prevRenderAllFinal();renderCleanPulse();renderMailAnalyticsFinal();};
+  const prevRenderWeekV3=window.renderWeek;
+  window.renderWeek=function(){
+    if(typeof prevRenderWeekV3==='function')prevRenderWeekV3();
+    renderPulseV3();
+  };
 
-  const mailBtn=q('[data-view="mailanalytics"]');if(mailBtn)mailBtn.addEventListener('click',renderMailAnalyticsFinal);
-  if(state.data){renderCleanPulse();renderMailAnalyticsFinal();}
+  let currentMode='live';
+
+  function selectedProduct(){const el=q('#eaProduct');return el?el.value:'';}
+  function selectedWeek(){const el=q('#eaWeek');return el?el.value:'';}
+  function allEmails(){return state.data&&Array.isArray(state.data.emails)?state.data.emails:[];}
+  function filteredBase(){
+    const p=selectedProduct(),w=selectedWeek();
+    return allEmails().filter(x=>(!p||x.product===p)&&(!w||String(x.week)===String(w)));
+  }
+  function modeRows(){return filteredBase().filter(x=>segmentMode(x)===currentMode);}
+  function byKey(rows,keyFn){
+    const out={};
+    rows.forEach(x=>{const k=keyFn(x);if(!k)return;(out[k]||(out[k]=[])).push(x);});
+    return out;
+  }
+  function groupStats(rows,keyFn){
+    return Object.entries(byKey(rows,keyFn)).map(([name,items])=>({
+      name,items,count:items.length,
+      delivered:items.reduce((s,x)=>s+n(x.delivered),0),
+      or:weighted(items,'openRate'),
+      ctr:weighted(items,'clickRate'),
+      ctor:weighted(items,'ctor'),
+      green:items.reduce((s,x)=>s+(x.hasDemoData===true?n(x.green):0),0)
+    }));
+  }
+  function liveSelling(){
+    const rows=filteredBase().filter(x=>isLive(x)&&x.hasDemoData===true&&n(x.delivered)>0);
+    return Object.entries(byKey(rows,x=>String(x.material||x.subject||'').trim())).map(([name,items])=>{
+      const delivered=items.reduce((s,x)=>s+n(x.delivered),0);
+      const green=items.reduce((s,x)=>s+n(x.green),0);
+      const yellow=items.reduce((s,x)=>s+n(x.yellow),0);
+      return{name,items,delivered,green,yellow,rate:delivered?green/delivered*1000:0};
+    }).sort((a,b)=>b.rate-a.rate||b.green-a.green);
+  }
+
+  function ensureAnalyticsLayout(){
+    const view=q('#mailanalyticsView');if(!view)return;
+    const head=view.querySelector('.head h1');
+    const sub=view.querySelector('.head p');
+    if(head)head.textContent='Аналитика рассылок';
+    if(sub)sub.textContent='Живые, АКТИВДЕМО и Клики считаются отдельно. Они больше не свалены в одну кастрюлю статистики.';
+
+    const filter=q('#eaProduct')&&q('#eaProduct').closest('.ea-filter');
+    if(filter && !q('#eaWeek')){
+      const week=document.createElement('select');
+      week.className='control ea-v3-week';
+      week.id='eaWeek';
+      week.innerHTML='<option value="">Все недели</option>';
+      filter.appendChild(week);
+    }
+
+    if(!q('#eaV3Top')){
+      const top=document.createElement('div');
+      top.className='ea-v3-top';top.id='eaV3Top';
+      top.innerHTML=`<div class="ea-v3-tabs" id="eaModeTabs">
+        <button type="button" data-mode="live" class="active">Живые</button>
+        <button type="button" data-mode="active">АКТИВДЕМО</button>
+        <button type="button" data-mode="clicks">Клики</button>
+      </div>`;
+      const firstGrid=view.querySelector('.ea-grid');
+      if(firstGrid)firstGrid.before(top);else view.appendChild(top);
+    }
+
+    const panels=view.querySelectorAll('.ea-grid .panel');
+    if(panels[0]){
+      const h=panels[0].querySelector('.panelhead h2'),p=panels[0].querySelector('.panelhead p');
+      if(h)h.textContent='Темы и материалы, которые продают';
+      if(p)p.textContent='Только Живые + точная DEMO-связь. АКТИВДЕМО и Клики здесь полностью исключены.';
+    }
+    if(panels[1]){
+      const h=panels[1].querySelector('.panelhead h2'),p=panels[1].querySelector('.panelhead p');
+      if(h)h.id='eaModeThemeTitle';
+      if(p)p.id='eaModeThemeSub';
+    }
+
+    if(!q('#eaV3Kpis')){
+      const k=document.createElement('div');k.className='ea-v3-kpis';k.id='eaV3Kpis';
+      const firstGrid=view.querySelector('.ea-grid');
+      if(firstGrid)firstGrid.before(k);
+    }
+    if(!q('#eaV3Extra')){
+      const extra=document.createElement('div');extra.className='ea-v3-grid';extra.id='eaV3Extra';
+      extra.innerHTML=`<section class="panel"><div class="panelhead"><h2>Когда отправлять</h2><p id="eaModeTimeSub"></p></div><div class="ea-v3-list" id="eaModeTimes"></div></section>
+        <section class="panel"><div class="panelhead"><h2>Лучшие конкретные письма</h2><p id="eaModeBestSub"></p></div><div class="ea-v3-list" id="eaModeBest"></div></section>`;
+      const firstGrid=view.querySelector('.ea-grid');
+      if(firstGrid)firstGrid.after(extra);else view.appendChild(extra);
+    }
+  }
+
+  function renderFilters(){
+    const productSel=q('#eaProduct'),weekSel=q('#eaWeek');
+    if(productSel){
+      const cur=productSel.value,ps=uniq(allEmails().map(x=>x.product)).sort();
+      productSel.innerHTML='<option value="">Все продукты</option>'+ps.map(x=>`<option value="${attr(x)}">${esc(x)}</option>`).join('');
+      if(ps.includes(cur))productSel.value=cur;
+    }
+    if(weekSel){
+      const cur=weekSel.value,ws=uniq(allEmails().map(x=>x.week).filter(Boolean)).sort((a,b)=>Number(b)-Number(a));
+      weekSel.innerHTML='<option value="">Все недели</option>'+ws.map(x=>`<option value="${attr(x)}">W${esc(x)}</option>`).join('');
+      if(ws.map(String).includes(String(cur)))weekSel.value=cur;
+    }
+  }
+
+  function renderSelling(){
+    const box=q('#eaSelling');if(!box)return;
+    const rows=liveSelling();box._v3rows=rows;
+    box.innerHTML=rows.length?rows.slice(0,15).map((x,i)=>`<div class="ea-item" data-v3-selling="${i}">
+      <div class="ea-top"><div class="ea-title">${esc(x.name)}</div><div class="ea-score">${pct.format(x.rate)} G / 1000</div></div>
+      <div class="ea-meta">ТОЛЬКО ЖИВЫЕ · ${fmt.format(x.green)} Green · ${fmt.format(x.yellow)} Yellow · ${x.items.length} пис. · ${fmt.format(x.delivered)} доставлено</div>
+      <div class="ea-products">${uniq(x.items.map(r=>r.product)).map(p=>`<span class="ea-product">${esc(p)}</span>`).join('')}</div>
+    </div>`).join(''):'<div class="empty"><b>Нет живых писем с точной DEMO-связью</b>АКТИВДЕМО и Клики сюда не попадают.</div>';
+  }
+
+  function rankHtml(groups,metric){
+    if(!groups.length)return'<div class="empty"><b>Пока мало данных</b></div>';
+    return groups.slice(0,10).map((g,i)=>`<div class="ea-v3-row" data-v3-group="${i}">
+      <div class="ea-v3-row-top"><b>${esc(g.name)}</b><strong>${metric==='ctr'?pct.format(g.ctr)+'% CTR':pct.format(g.or)+'% OR'}</strong></div>
+      <div class="ea-v3-meta">n=${g.count} · ${fmt.format(g.delivered)} доставлено · OR ${pct.format(g.or)}% · CTR ${pct.format(g.ctr)}% · CTOR ${pct.format(g.ctor)}% · Green ${fmt.format(g.green)}</div>
+      <div class="ea-v3-example">${g.items.slice().sort((a,b)=>n(b.openRate)-n(a.openRate)).slice(0,2).map(x=>`<div><b>${esc(x.product)}:</b> ${esc(x.subject)}</div>`).join('')}</div>
+    </div>`).join('');
+  }
+
+  function renderModeAnalytics(){
+    const rows=modeRows();
+    const delivered=rows.reduce((s,x)=>s+n(x.delivered),0);
+    const green=rows.reduce((s,x)=>s+(x.hasDemoData===true?n(x.green):0),0);
+    const gRate=delivered?green/delivered*1000:0;
+    const label=currentMode==='live'?'Живые':currentMode==='active'?'АКТИВДЕМО':'Клики';
+
+    q('#eaV3Kpis').innerHTML=[
+      ['Писем',fmt.format(rows.length),label],
+      ['OR',pct.format(weighted(rows,'openRate'))+'%','взвешенный'],
+      ['CTR',pct.format(weighted(rows,'clickRate'))+'%','взвешенный'],
+      ['Green',fmt.format(green),'только '+label],
+      ['G / 1000',pct.format(gRate),'только '+label]
+    ].map(x=>`<div class="ea-v3-kpi"><span>${x[0]}</span><b>${x[1]}</b><small>${esc(x[2])}</small></div>`).join('');
+
+    const themeGroups=groupStats(rows,x=>theme(x.subject)).sort((a,b)=>b.or-a.or);
+    const timeGroups=groupStats(rows,x=>bucket(x.time)).filter(x=>x.name!=='Время не распознано').sort((a,b)=>b.or-a.or);
+    const themeBox=q('#eaThemes');
+    if(themeBox){
+      themeBox._v3groups=themeGroups;
+      themeBox.innerHTML=rankHtml(themeGroups,'or');
+    }
+    const th=q('#eaModeThemeTitle'),ts=q('#eaModeThemeSub');
+    if(th)th.textContent='Какие темы работают · '+label;
+    if(ts)ts.textContent='OR, CTR, CTOR и Green только внутри выбранного сегмента.';
+
+    const timeBox=q('#eaModeTimes');
+    if(timeBox){
+      timeBox._v3groups=timeGroups;
+      timeBox.innerHTML=rankHtml(timeGroups,'or');
+    }
+    const timeSub=q('#eaModeTimeSub');
+    if(timeSub)timeSub.textContent='Фактический час отправки только для сегмента «'+label+'».';
+
+    const best=rows.slice().sort((a,b)=>{
+      const ar=n(a.delivered)?(a.hasDemoData===true?n(a.green):0)/n(a.delivered)*1000:0;
+      const br=n(b.delivered)?(b.hasDemoData===true?n(b.green):0)/n(b.delivered)*1000:0;
+      return br-ar || n(b.openRate)-n(a.openRate);
+    });
+    const bestBox=q('#eaModeBest');
+    if(bestBox)bestBox.innerHTML=best.length?best.slice(0,10).map(x=>{
+      const gr=n(x.delivered)?(x.hasDemoData===true?n(x.green):0)/n(x.delivered)*1000:0;
+      return `<div class="ea-v3-row" data-v3-mail="${attr(x.id)}"><div class="ea-v3-row-top"><b>${esc(x.subject)}</b><strong>${pct.format(gr)} G / 1000</strong></div><div class="ea-v3-meta">${esc(x.product)} · ${dRu(x.date)} ${esc(x.time||'')} · OR ${pct.format(x.openRate||0)}% · CTR ${pct.format(x.clickRate||0)}% · Green ${fmt.format(x.hasDemoData===true?n(x.green):0)}</div></div>`;
+    }).join(''):'<div class="empty"><b>Нет писем в этом сегменте</b></div>';
+    const bestSub=q('#eaModeBestSub');
+    if(bestSub)bestSub.textContent='Сначала собственный Green на 1000, затем OR. Сегменты не смешиваются.';
+  }
+
+  function openSelling(index){
+    const box=q('#eaSelling'),x=box&&box._v3rows?box._v3rows[Number(index)]:null;if(!x)return;
+    q('#drawerMeta').textContent='Живые · '+x.items.length+' писем';
+    q('#drawerTitle').textContent=x.name;
+    const mails=x.items.slice().sort((a,b)=>n(b.green)-n(a.green)).slice(0,15).map(r=>`<div class="calls-fragment"><b>${esc(r.product)} · ${dRu(r.date)} ${esc(r.time||'')}</b><br>${esc(r.subject)}<br><span style="color:var(--muted)">Green ${fmt.format(r.green||0)} · OR ${pct.format(r.openRate||0)}% · CTR ${pct.format(r.clickRate||0)}%</span></div>`).join('');
+    q('#drawerBody').innerHTML=`<div class="drawerstats"><div class="dstat"><span>Green</span><b class="g">${fmt.format(x.green)}</b></div><div class="dstat"><span>Yellow</span><b>${fmt.format(x.yellow)}</b></div><div class="dstat"><span>G / 1000</span><b>${pct.format(x.rate)}</b></div></div><div class="dsection"><h3>Только живые письма</h3>${mails}</div>`;
+    q('#drawerBack').classList.add('open');q('#drawer').classList.add('open');
+  }
+
+  function openGroup(box,index){
+    const g=box&&box._v3groups?box._v3groups[Number(index)]:null;if(!g)return;
+    q('#drawerMeta').textContent=(currentMode==='live'?'Живые':currentMode==='active'?'АКТИВДЕМО':'Клики')+' · '+g.count+' писем';
+    q('#drawerTitle').textContent=g.name;
+    const mails=g.items.slice().sort((a,b)=>n(b.openRate)-n(a.openRate)).slice(0,15).map(r=>`<div class="calls-fragment"><b>${esc(r.product)} · ${dRu(r.date)} ${esc(r.time||'')}</b><br>${esc(r.subject)}<br><span style="color:var(--muted)">OR ${pct.format(r.openRate||0)}% · CTR ${pct.format(r.clickRate||0)}% · Green ${fmt.format(r.hasDemoData===true?n(r.green):0)}</span></div>`).join('');
+    q('#drawerBody').innerHTML=`<div class="drawerstats"><div class="dstat"><span>Писем</span><b>${g.count}</b></div><div class="dstat"><span>OR</span><b>${pct.format(g.or)}%</b></div><div class="dstat"><span>CTR</span><b>${pct.format(g.ctr)}%</b></div><div class="dstat"><span>Green</span><b>${fmt.format(g.green)}</b></div></div><div class="dsection"><h3>Конкретные письма</h3>${mails}</div>`;
+    q('#drawerBack').classList.add('open');q('#drawer').classList.add('open');
+  }
+
+  function renderNewsRule(){
+    const sub=q('#newsView .head p');
+    if(sub)sub.innerHTML='Здесь учитываются <strong>только кампании, где в campaign есть приписка digest</strong>. OR, CTR, CTOR, темы, время и продукты считаются только по ним.';
+  }
+
+  function renderV3(){
+    if(!state.data)return;
+    ensureAnalyticsLayout();
+    renderFilters();
+    renderSelling();
+    renderModeAnalytics();
+    renderPulseV3();
+    renderNewsRule();
+  }
+
+  document.addEventListener('click',function(e){
+    const tab=e.target.closest('#eaModeTabs [data-mode]');
+    if(tab){
+      currentMode=tab.dataset.mode;
+      document.querySelectorAll('#eaModeTabs [data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===currentMode));
+      renderModeAnalytics();
+      return;
+    }
+    const sell=e.target.closest('[data-v3-selling]');
+    if(sell){openSelling(sell.dataset.v3Selling);return;}
+    const mail=e.target.closest('[data-v3-mail]');
+    if(mail){openEmail(mail.dataset.v3Mail);return;}
+    const group=e.target.closest('[data-v3-group]');
+    if(group){
+      const parent=group.closest('#eaThemes,#eaModeTimes');
+      openGroup(parent,group.dataset.v3Group);
+    }
+  });
+
+  document.addEventListener('change',function(e){
+    if(e.target&&['eaProduct','eaWeek'].includes(e.target.id)){
+      renderSelling();
+      renderModeAnalytics();
+    }
+  });
+
+  const prevRenderAllV3=window.renderAll;
+  window.renderAll=function(){
+    if(typeof prevRenderAllV3==='function')prevRenderAllV3();
+    renderV3();
+  };
+
+  if(state.data)renderV3();
 })();
 </script>
