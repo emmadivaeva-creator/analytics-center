@@ -87,7 +87,7 @@
   }
   function openEa(kind,index){
     const box=kind==='selling'?q('#eaSelling'):q('#eaThemes'),x=box&&box._rows?box._rows[Number(index)]:null;if(!x)return;
-    const rows=x.items||[],del=rows.reduce((s,r)=>s+n(r.delivered),0),green=rows.reduce((s,r)=>s+n(r.green),0),yellow=rows.reduce((s,r)=>s+n(r.yellow),0),red=rows.reduce((s,r)=>s+n(r.red),0),ors=weighted(rows,'openRate'),ctrs=weighted(rows,'clickRate');
+    const rows=x.items||[],del=rows.reduce((s,r)=>s+n(r.delivered),0),green=rows.reduce((s,r)=>s+n(r.green),0),yellow=rows.reduce((s,r)=>s+n(r.yellow),0),ors=weighted(rows,'openRate'),ctrs=weighted(rows,'clickRate');
     q('#drawerMeta').textContent=`${kind==='selling'?'Материал / тема':'Тип темы'} · ${rows.length} писем`;
     q('#drawerTitle').textContent=x.name;
     const prod=Object.entries(byKey(rows,r=>r.product)).map(([p,items])=>`<div>${esc(p)} <b>${items.length} пис.</b> · OR ${pct.format(weighted(items,'openRate'))}%${kind==='selling'?` · Green ${items.reduce((s,r)=>s+n(r.green),0)}`:''}</div>`).join('');
@@ -103,5 +103,33 @@
   renderAll=function(){previousRenderAll();renderEmailAnalytics()};
   if(state.data){renderWeek();renderEmailAnalytics()}
   if(location.hash==='#mailanalytics'){switchView('mailanalytics');renderEmailAnalytics()}
+})();
+</script>
+<script>
+(function(){
+  /* Обычные письма: АКТИВДЕМО здесь больше не показываем */
+  const activeOption=document.querySelector('#emailType option[value="active"]');
+  if(activeOption)activeOption.remove();
+
+  const baseFilteredEmails=filteredEmails;
+  filteredEmails=function(){
+    return baseFilteredEmails().filter(x=>!isActive(x));
+  };
+
+  const baseRenderEmails=renderEmails;
+  renderEmails=function(){
+    baseRenderEmails();
+    const rows=filteredEmails();
+    const metrics=document.querySelectorAll('#emailMetrics .metric');
+    if(metrics[3]){
+      metrics[3].innerHTML=`<span>Средний CTR</span><strong>${pct.format(weighted(rows,'clickRate'))}%</strong><small>без АКТИВДЕМО</small>`;
+    }
+    const title=document.querySelector('#emailsView .head h1');
+    const subtitle=document.querySelector('#emailsView .head p');
+    if(title)title.textContent='Все фактически отправленные письма';
+    if(subtitle)subtitle.textContent='Обычные DEMO и новостные рассылки. АКТИВДЕМО вынесено в отдельную вкладку.';
+  };
+
+  if(state.data)renderEmails();
 })();
 </script>
