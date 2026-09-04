@@ -10,7 +10,7 @@
 
   const head=emailsView.querySelector('.head');
   const box=document.createElement('div');
-  box.innerHTML=`<div class="ss-upload" id="ssDrop"><div><h2>Загрузить отчёты Sendsay</h2><p>Сначала файл сохраняется в подключённую папку Drive, затем единая синхронизация разбирает его и записывает результат или ошибку в служебный лист.</p></div><div class="ss-upload-actions"><label for="ssFiles">Выбрать файлы</label><input class="hidden" id="ssFiles" type="file" multiple accept=".webarchive,.mhtml,.mht,application/x-webarchive,multipart/related"><small>можно несколько</small></div></div><div class="ss-files hidden" id="ssFileList"></div>`;
+  box.innerHTML=`<div class="ss-upload" id="ssDrop"><div><h2>Загрузить отчёты Sendsay</h2><p>Сначала файлы сохраняются в подключённую папку Drive, затем единая синхронизация разбирает всю очередь до конца. Искусственного лимита по числу файлов нет.</p></div><div class="ss-upload-actions"><label for="ssFiles">Выбрать файлы</label><input class="hidden" id="ssFiles" type="file" multiple accept=".webarchive,.mhtml,.mht,application/x-webarchive,multipart/related"><small>можно сколько нужно</small></div></div><div class="ss-files hidden" id="ssFileList"></div>`;
   head.after(box);
 
   const q=s=>document.querySelector(s),drop=q('#ssDrop'),input=q('#ssFiles'),list=q('#ssFileList');
@@ -28,15 +28,16 @@
 
   async function syncUntilIdle(targetNames){
     const results={};
-    let processed=0;
-    for(let round=0;round<500;round++){
-      const r=await server('syncDriveReportsReliable',round===0);
+    let processed=0,first=true;
+    while(true){
+      const r=await server('syncDriveReportsReliable',first);
+      first=false;
       processed+=n(r&&r.processed);
       (r&&Array.isArray(r.items)?r.items:[]).forEach(item=>{
         if(item&&item.fileName)results[item.fileName]=item;
       });
       const allTargetsSeen=targetNames.every(name=>results[name]);
-      if(allTargetsSeen||!r||!r.remaining||!r.processed) break;
+      if(allTargetsSeen||!r||!r.remaining||!r.processed)break;
     }
     return {processed,results};
   }
@@ -55,7 +56,6 @@
     for(let i=0;i<files.length;i++){
       const file=files[i],card=q('#ssFile'+i),meta=card.querySelector('span'),bar=card.querySelector('.ss-progress i'),result=card.querySelector('.ss-result');
       try{
-        if(file.size>35*1024*1024)throw new Error('Файл больше 35 МБ. Для него используйте папку Drive.');
         meta.textContent='сохраняем в Drive…';bar.style.width='20%';
         const form=makeForm(file);
         let r;
