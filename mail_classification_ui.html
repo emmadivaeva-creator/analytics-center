@@ -1,0 +1,36 @@
+<script>
+(function(){
+  function norm(value){ return String(value || '').trim().toLowerCase(); }
+
+  function isActiveDemoMail(x){
+    const segment=norm(x && x.segment);
+    const campaign=String(x && x.campaign || '');
+    return segment==='дожим демо' || /activdemo/i.test(campaign) || norm(x && x.type)==='active';
+  }
+
+  function isNewsMailCanonical(x){
+    const type=norm(x && x.type);
+    const campaign=String(x && x.campaign || '');
+    return type==='news' || /letter_news|(?:^|[_\-. ])news(?:[_\-. ]|$)|digest/i.test(campaign);
+  }
+
+  window.mailType=function(x){
+    if(isActiveDemoMail(x))return'active';
+    if(isNewsMailCanonical(x))return'news';
+    return'direct';
+  };
+
+  function fixNewsCopy(){
+    const sub=document.querySelector('#newsView .head p');
+    if(sub)sub.textContent='Здесь учитываются фактически новостные отправки по данным Sendsay: серверный тип news или явный news/digest-маркер кампании. DEMO-результат не дорисовывается без точной UTM-связи.';
+  }
+
+  const previousRenderAll=window.renderAll;
+  window.renderAll=function(){
+    if(typeof previousRenderAll==='function')previousRenderAll();
+    fixNewsCopy();
+  };
+
+  fixNewsCopy();
+})();
+</script>
