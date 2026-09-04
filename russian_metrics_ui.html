@@ -1,0 +1,83 @@
+<script>
+(function(){
+  const EXACT = {
+    'OR': 'Открыли',
+    'CTR': 'Кликнули',
+    'CTOR': 'После открытия'
+  };
+
+  function humanizeText(value){
+    const source = String(value || '');
+    const trimmed = source.trim();
+    if (EXACT[trimmed]) {
+      return source.replace(trimmed, EXACT[trimmed]);
+    }
+
+    return source
+      .replace(/Средний OR/g, 'Средняя доля открытий')
+      .replace(/OR считается/g, 'Доля открытий считается')
+      .replace(/показатель OR/g, 'долю открытий')
+      .replace(/(\d+(?:[.,]\d+)?)%\s*OR\b/g, 'Открыли $1%')
+      .replace(/\bOR\s*(\d+(?:[.,]\d+)?)%/g, 'Открыли $1%')
+      .replace(/\bCTR\s*(\d+(?:[.,]\d+)?)%/g, 'Кликнули $1%')
+      .replace(/\bCTOR\s*(\d+(?:[.,]\d+)?)%/g, 'После открытия кликнули $1%')
+      .replace(/\bCTOR\b/g, 'клики после открытия')
+      .replace(/\bCTR\b/g, 'доля кликов')
+      .replace(/\bOR\b/g, 'доля открытий');
+  }
+
+  function applyRussianMetricLabels(root){
+    if (!root) return;
+
+    if (root.nodeType === Node.TEXT_NODE) {
+      const next = humanizeText(root.nodeValue);
+      if (next !== root.nodeValue) root.nodeValue = next;
+      return;
+    }
+
+    if (root.nodeType !== Node.ELEMENT_NODE && root.nodeType !== Node.DOCUMENT_NODE) return;
+    if (root.nodeType === Node.ELEMENT_NODE && /^(SCRIPT|STYLE|TEXTAREA)$/i.test(root.tagName)) return;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function(node){
+        const parent = node.parentElement;
+        if (!parent || /^(SCRIPT|STYLE|TEXTAREA)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        return /\b(?:OR|CTR|CTOR)\b/.test(node.nodeValue || '')
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT;
+      }
+    });
+
+    const nodes = [];
+    let node;
+    while ((node = walker.nextNode())) nodes.push(node);
+    nodes.forEach(function(textNode){
+      const next = humanizeText(textNode.nodeValue);
+      if (next !== textNode.nodeValue) textNode.nodeValue = next;
+    });
+  }
+
+  function run(){ applyRussianMetricLabels(document.body); }
+
+  run();
+  setTimeout(run, 0);
+  setTimeout(run, 250);
+  setTimeout(run, 1000);
+
+  if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver(function(mutations){
+      mutations.forEach(function(mutation){
+        if (mutation.type === 'characterData') {
+          applyRussianMetricLabels(mutation.target);
+        }
+        Array.prototype.forEach.call(mutation.addedNodes || [], applyRussianMetricLabels);
+      });
+    });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+})();
+</script>
