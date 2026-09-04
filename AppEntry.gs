@@ -1,14 +1,9 @@
 /**
- * Единственная рабочая точка входа Web App.
+ * Сборщик Web App UI.
  *
- * Важно: doGet должен быть объявленной функцией Apps Script, а не только
- * присваиванием глобальной переменной. Интерфейс собирается из index.html
- * и всех подключаемых UI-модулей, включая отдельную вкладку «Новостные».
+ * Важно: глобальная точка входа doGet объявлена только в Code.gs.
+ * Здесь остаётся только сборка index.html и подключаемых UI-модулей.
  */
-function doGet() {
-  return buildAnalyticsWebApp_();
-}
-
 function buildAnalyticsWebApp_() {
   const base = HtmlService.createHtmlOutputFromFile('index').getContent();
   const modules = [
