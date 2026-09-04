@@ -2,17 +2,16 @@
 (function(){
   function norm(v){return String(v||'').trim().toLowerCase()}
   function campaign(x){return String(x&&x.campaign||'').trim()}
-  function isNews(x){
-    const c=campaign(x);
-    return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(c)||/^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(c);
-  }
-  function isActive(x){
-    if(isNews(x))return false;
-    const c=campaign(x);
-    return norm(x&&x.segment)==='дожим демо'||/activdemo/i.test(c)||norm(x&&x.type)==='active';
-  }
+  function isNews(x){const c=campaign(x);return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(c)||/^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(c)}
+  function isActive(x){if(isNews(x))return false;const c=campaign(x);return norm(x&&x.segment)==='дожим демо'||/activdemo/i.test(c)||norm(x&&x.type)==='active'}
   window.isCanonicalNewsMail=isNews;
   window.mailType=function(x){if(isNews(x))return'news';if(isActive(x))return'active';return'direct'};
+  window.filteredEmails=function(){
+    const all=window.state&&state.data&&Array.isArray(state.data.emails)?state.data.emails:[];
+    const s=document.querySelector('#emailSearch'),p=document.querySelector('#emailProduct'),w=document.querySelector('#emailWeek');
+    const q=String(s&&s.value||'').trim().toLowerCase(),pv=String(p&&p.value||''),wv=String(w&&w.value||'');
+    return all.filter(x=>mailType(x)==='direct'&&(!q||(`${x.subject||''} ${x.campaign||''} ${x.segment||''}`).toLowerCase().includes(q))&&(!pv||x.product===pv)&&(!wv||String(x.week)===wv)).sort((a,b)=>`${b.date||''} ${b.time||''}`.localeCompare(`${a.date||''} ${a.time||''}`));
+  };
   function fix(){const p=document.querySelector('#newsView .head p');if(p)p.textContent='В NEWS попадают только штатные кампании Госфинансов Gosfinansi_letter_news_GF_digest и Госзаказа letter_news_goszakaz_regular_news_digest.'}
   const prev=window.renderAll;window.renderAll=function(){if(typeof prev==='function')prev();fix()};fix();
 })();
