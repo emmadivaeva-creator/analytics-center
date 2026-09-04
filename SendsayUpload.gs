@@ -41,14 +41,58 @@ function saveSendsayReportFile(formObject) {
  * Надёжная порционная синхронизация. Клиент вызывает её столько раз,
  * сколько нужно, пока remaining не станет 0. Общего лимита по числу файлов нет.
  */
-function syncDriveReportsReliable(retryErrors) {
+function syncDriveReportsReliable(firstPass) {
   assertAdmin_();
 
-  if (retryErrors === true) {
+  if (firstPass === true) {
+    prepareCanonicalReparseOnce_();
     prepareFailedSendsayRowsForRetry_();
   }
 
   return syncDriveReports();
+}
+
+/**
+ * После изменения канонических правил один раз заставляет перечитать весь архив.
+ * Это нужно, чтобы уже сохранённые строки получили новую классификацию NEWS/DEMO.
+ */
+function prepareCanonicalReparseOnce_() {
+  const props = PropertiesService.getScriptProperties();
+  const version = '2026-09-04-canonical-news-v1';
+  const key = 'ANALYTICS_CANONICAL_RULES_VERSION';
+  if (props.getProperty(key) === version) return 0;
+
+  const storage = openStorage_();
+  const sheet = ensureSendsaySheet_(storage);
+  if (sheet.getLastRow() < 2) {
+    props.setProperty(key, version);
+    return 0;
+  }
+
+  const values = sheet.getDataRange().getDisplayValues();
+  const headers = values[0].map(value => String(value || '').trim().toLowerCase());
+  const parserCol = headers.indexOf('parser version');
+  const statusCol = headers.indexOf('статус');
+  if (parserCol < 0) return 0;
+
+  const output = [];
+  let changed = 0;
+  for (let i = 1; i < values.length; i++) {
+    const status = statusCol >= 0 ? String(values[i][statusCol] || '') : '';
+    if (status === 'Удалено') {
+      output.push([values[i][parserCol]]);
+    } else {
+      output.push(['']);
+      changed++;
+    }
+  }
+
+  if (changed) {
+    sheet.getRange(2, parserCol + 1, output.length, 1).setValues(output);
+    SpreadsheetApp.flush();
+  }
+  props.setProperty(key, version);
+  return changed;
 }
 
 function prepareFailedSendsayRowsForRetry_() {
