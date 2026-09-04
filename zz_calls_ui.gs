@@ -1,6 +1,7 @@
 /**
  * Подмешивает дополнительные интерфейсные модули в текущий index.html.
- * doGet объявлен как обычная функция, чтобы Apps Script видел его как entry point.
+ * final_polish_ui грузится строго последним: он меняет только внешний вид и клиентскую аналитику,
+ * не трогая серверные данные и рабочую синхронизацию.
  */
 function doGet() {
   const base = HtmlService.createHtmlOutputFromFile('index').getContent();
