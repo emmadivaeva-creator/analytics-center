@@ -41,49 +41,57 @@ reportsFolder_ = function() {
   return folder;
 };
 
-// Large call files exceed the default 1000-row sheet grid. Grow it before every batch.
-function ensureCallsCapacity_(storage, incomingRows) {
-  callsEnsureSheets_(storage);
-  const sheet = storage.getSheetByName(CALLS_CFG.rawSheet);
-  const needRows = Math.max(2, sheet.getLastRow() + Math.max(0, Number(incomingRows || 0)) + 25);
-  if (sheet.getMaxRows() < needRows) {
-    sheet.insertRowsAfter(sheet.getMaxRows(), needRows - sheet.getMaxRows());
+// Calls fixes are guarded so the rest of Analytics Center still loads
+// even if Calls.gs has not yet been copied into Apps Script.
+if (typeof callsEnsureSheets_ === 'function' && typeof callsNormalizeRecord_ === 'function' && typeof importCallsBatch === 'function') {
+  function ensureCallsCapacity_(storage, incomingRows) {
+    callsEnsureSheets_(storage);
+    const sheet = storage.getSheetByName(CALLS_CFG.rawSheet);
+    const needRows = Math.max(2, sheet.getLastRow() + Math.max(0, Number(incomingRows || 0)) + 25);
+    if (sheet.getMaxRows() < needRows) {
+      sheet.insertRowsAfter(sheet.getMaxRows(), needRows - sheet.getMaxRows());
+    }
+    return sheet;
   }
-  return sheet;
+
+  const callsNormalizeRecordRuntimeBase_ = callsNormalizeRecord_;
+  callsNormalizeRecord_ = function(raw, sourceFile, batchId) {
+    const record = callsNormalizeRecordRuntimeBase_(raw, sourceFile, batchId);
+    if (record.transcript && record.transcript.length > 45000) {
+      record.transcript = record.transcript.slice(0, 45000) + '\n[Расшифровка обрезана при импорте: превышен лимит ячейки Google Sheets]';
+      record.fingerprint = callsFingerprint_(record);
+    }
+    return record;
+  };
+
+  const importCallsBatchRuntimeBase_ = importCallsBatch;
+  importCallsBatch = function(payload) {
+    const storage = openStorage_();
+    const rows = Array.isArray(payload && payload.records) ? payload.records : [];
+    ensureCallsCapacity_(storage, rows.length);
+    return importCallsBatchRuntimeBase_(payload);
+  };
 }
 
-// Keep transcripts under the Google Sheets single-cell limit.
-const callsNormalizeRecordRuntimeBase_ = callsNormalizeRecord_;
-callsNormalizeRecord_ = function(raw, sourceFile, batchId) {
-  const record = callsNormalizeRecordRuntimeBase_(raw, sourceFile, batchId);
-  if (record.transcript && record.transcript.length > 45000) {
-    record.transcript = record.transcript.slice(0, 45000) + '\n[Расшифровка обрезана при импорте: превышен лимит ячейки Google Sheets]';
-    record.fingerprint = callsFingerprint_(record);
-  }
-  return record;
-};
-
-const importCallsBatchRuntimeBase_ = importCallsBatch;
-importCallsBatch = function(payload) {
-  const storage = openStorage_();
-  const rows = Array.isArray(payload && payload.records) ? payload.records : [];
-  ensureCallsCapacity_(storage, rows.length);
-  return importCallsBatchRuntimeBase_(payload);
-};
-
-// Lightweight diagnostic used by the UI / manual checks.
+// Lightweight diagnostic used by manual checks.
 function getAnalyticsRuntimeStatus() {
   const storage = openStorage_();
-  callsEnsureSheets_(storage);
-  const callsSheet = storage.getSheetByName(CALLS_CFG.rawSheet);
   const folder = reportsFolder_();
+  let callsRows = 0;
+  let callsCapacity = 0;
+  if (typeof callsEnsureSheets_ === 'function') {
+    callsEnsureSheets_(storage);
+    const callsSheet = storage.getSheetByName(CALLS_CFG.rawSheet);
+    callsRows = Math.max(0, callsSheet.getLastRow() - 1);
+    callsCapacity = callsSheet.getMaxRows();
+  }
   return {
     ok: true,
     canImport: canAdmin_(),
     sendsayFolderName: folder.getName(),
     sendsayFolderId: folder.getId(),
-    callsRows: Math.max(0, callsSheet.getLastRow() - 1),
-    callsCapacity: callsSheet.getMaxRows(),
+    callsRows: callsRows,
+    callsCapacity: callsCapacity,
     storageUrl: storage.getUrl()
   };
 }
