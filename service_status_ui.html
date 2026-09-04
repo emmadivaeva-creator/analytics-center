@@ -1,0 +1,22 @@
+<script>
+(function(){
+  function escLocal(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+  function num(v){return Number(v)||0}
+  function fmtLocal(v){return typeof fmt!=='undefined'&&fmt.format?fmt.format(num(v)):String(num(v))}
+  window.renderService=function(){
+    if(!window.state||!state.data)return;
+    const i=state.data.meta&&state.data.meta.import||{};
+    const status=document.querySelector('#serviceStatus');
+    const loaded=num(i.filesLoaded||0),unique=num(i.uniqueSends!=null?i.uniqueSends:i.total);
+    if(status)status.textContent=loaded?`Загружено файлов ${fmtLocal(loaded)} · уникальных отправок ${fmtLocal(unique)} · последняя отправка ${i.latestSendDate||'—'} · последний импорт ${i.lastImportedAt||'—'}`:'Отчёты ещё не загружены';
+    const box=document.querySelector('#serviceStats');
+    if(box)box.innerHTML=[['Файлов загружено',loaded],['Уникальных отправок',unique],['Ошибки',i.errors||0],['Дубли',i.duplicates||0],['DEMO связано',i.demoMatched||0],['Без связи',i.demoUnmatched||0],['Удалено',i.removed||0]].map(x=>`<div class="sstat"><span>${x[0]}</span><b>${fmtLocal(x[1])}</b></div>`).join('');
+    const errors=document.querySelector('#serviceErrors'),failed=Array.isArray(i.failed)?i.failed:[];
+    if(errors)errors.innerHTML=failed.length?failed.map(x=>`<div class="err"><b>${escLocal(x.fileName)}</b><span>${escLocal(x.message||'Ошибка')}</span>${x.driveUrl?`<br><a href="${escLocal(x.driveUrl)}" target="_blank">Drive</a>`:''}${x.sendsayUrl?` &nbsp;<a href="${escLocal(x.sendsayUrl)}" target="_blank">Sendsay</a>`:''}</div>`).join(''):'';
+    const can=typeof apps==='function'&&apps()&&state.data.meta.canImport;
+    ['#syncBtn','#demoBtn','#folderBtn'].forEach(s=>{const e=document.querySelector(s);if(e)e.disabled=!can});
+  };
+  const prev=window.renderAll;window.renderAll=function(){if(typeof prev==='function')prev();renderService()};
+  if(window.state&&state.data)renderService();
+})();
+</script>
