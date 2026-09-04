@@ -7,33 +7,93 @@
 (function(){
   const emailsView=document.querySelector('#emailsView');
   if(!emailsView||document.querySelector('#ssDrop'))return;
+
   const head=emailsView.querySelector('.head');
   const box=document.createElement('div');
-  box.innerHTML=`<div class="ss-upload" id="ssDrop"><div><h2>Загрузить отчёты Sendsay</h2><p>Перетащите .webarchive, .mhtml или .mht сюда. Файлы сохранятся в подключённую папку Drive, статистика обновится сама.</p></div><div class="ss-upload-actions"><label for="ssFiles">Выбрать файлы</label><input class="hidden" id="ssFiles" type="file" multiple accept=".webarchive,.mhtml,.mht,application/x-webarchive,multipart/related"><small>можно несколько</small></div></div><div class="ss-files hidden" id="ssFileList"></div>`;
+  box.innerHTML=`<div class="ss-upload" id="ssDrop"><div><h2>Загрузить отчёты Sendsay</h2><p>Сначала файл сохраняется в подключённую папку Drive, затем единая синхронизация разбирает его и записывает результат или ошибку в служебный лист.</p></div><div class="ss-upload-actions"><label for="ssFiles">Выбрать файлы</label><input class="hidden" id="ssFiles" type="file" multiple accept=".webarchive,.mhtml,.mht,application/x-webarchive,multipart/related"><small>можно несколько</small></div></div><div class="ss-files hidden" id="ssFileList"></div>`;
   head.after(box);
+
   const q=s=>document.querySelector(s),drop=q('#ssDrop'),input=q('#ssFiles'),list=q('#ssFileList');
-  function fileCard(file,i){return `<div class="ss-file" id="ssFile${i}"><div><b>${esc(file.name)}</b><span>${(file.size/1024/1024).toFixed(1)} МБ · ожидает загрузки</span><div class="ss-progress"><i></i></div></div><div class="ss-result">—</div></div>`}
+
+  function fileCard(file,i){
+    return `<div class="ss-file" id="ssFile${i}"><div><b>${esc(file.name)}</b><span>${(file.size/1024/1024).toFixed(1)} МБ · ожидает сохранения</span><div class="ss-progress"><i></i></div></div><div class="ss-result">—</div></div>`;
+  }
+
+  function makeForm(file){
+    const form=document.createElement('form'),fi=document.createElement('input'),dt=new DataTransfer();
+    fi.type='file';fi.name='reportFile';dt.items.add(file);fi.files=dt.files;
+    form.className='hidden';form.appendChild(fi);document.body.appendChild(form);
+    return form;
+  }
+
+  async function syncUntilIdle(targetNames){
+    const results={};
+    let processed=0;
+    for(let round=0;round<500;round++){
+      const r=await server('syncDriveReports');
+      processed+=n(r&&r.processed);
+      (r&&Array.isArray(r.items)?r.items:[]).forEach(item=>{
+        if(item&&item.fileName)results[item.fileName]=item;
+      });
+      const allTargetsSeen=targetNames.every(name=>results[name]);
+      if(allTargetsSeen||!r||!r.remaining||!r.processed) break;
+    }
+    return {processed,results};
+  }
+
   async function upload(files){
     files=[...files].filter(f=>/\.(webarchive|mhtml|mht)$/i.test(f.name));
     if(!files.length)return toast('Нужен .webarchive, .mhtml или .mht');
     if(!apps())return toast('Загрузка работает в Apps Script');
-    list.classList.remove('hidden');list.innerHTML=files.map(fileCard).join('');
-    let ready=0,duplicates=0,failed=0;
+
+    list.classList.remove('hidden');
+    list.innerHTML=files.map(fileCard).join('');
+
+    const saved=[];
+    let saveErrors=0;
+
     for(let i=0;i<files.length;i++){
       const file=files[i],card=q('#ssFile'+i),meta=card.querySelector('span'),bar=card.querySelector('.ss-progress i'),result=card.querySelector('.ss-result');
       try{
         if(file.size>35*1024*1024)throw new Error('Файл больше 35 МБ. Для него используйте папку Drive.');
-        meta.textContent='загружаем и разбираем…';bar.style.width='15%';
-        const form=document.createElement('form'),fi=document.createElement('input'),dt=new DataTransfer();
-        fi.type='file';fi.name='reportFile';dt.items.add(file);fi.files=dt.files;form.className='hidden';form.appendChild(fi);document.body.appendChild(form);
-        let r;try{bar.style.width='45%';r=await server('uploadSendsayReport',form);bar.style.width='90%'}finally{form.remove()}
-        ready++;if(r.duplicate)duplicates++;bar.style.width='100%';result.className='ss-result ok';result.innerHTML=`<b>${r.duplicate?'Дубль не размножен':'Готово'}</b><br>${esc(r.product||'')} · ${esc(r.date||'')}<br>${esc(r.subject||'')}`;meta.textContent='файл сохранён и обработан';
-      }catch(e){failed++;bar.style.width='100%';bar.style.background='var(--red)';result.className='ss-result err';result.innerHTML='<b>Ошибка</b><br>'+esc(e.message||e);meta.textContent='не обработан'}
+        meta.textContent='сохраняем в Drive…';bar.style.width='20%';
+        const form=makeForm(file);
+        let r;
+        try{r=await server('saveSendsayReportFile',form)}finally{form.remove()}
+        saved.push({name:file.name,fileId:r.fileId,index:i});
+        bar.style.width='55%';meta.textContent='сохранён в Drive · ждёт разбора';
+        result.className='ss-result';result.innerHTML='<b>Сохранён</b><br>запускаем синхронизацию';
+      }catch(e){
+        saveErrors++;bar.style.width='100%';bar.style.background='var(--red)';
+        result.className='ss-result err';result.innerHTML='<b>Не сохранён</b><br>'+esc(e.message||e);meta.textContent='ошибка загрузки';
+      }
     }
-    try{if(ready){await server('syncDemoStats');await load(true)}}catch(e){toast(e.message||String(e))}
-    toast(`Загружено ${ready}${duplicates?` · дублей ${duplicates}`:''}${failed?` · ошибок ${failed}`:''}`);
+
+    let parsed=0,parseErrors=0;
+    try{
+      if(saved.length){
+        const sync=await syncUntilIdle(saved.map(x=>x.name));
+        saved.forEach(item=>{
+          const card=q('#ssFile'+item.index),meta=card.querySelector('span'),bar=card.querySelector('.ss-progress i'),result=card.querySelector('.ss-result');
+          const r=sync.results[item.name];
+          bar.style.width='100%';
+          if(r&&r.ok){
+            parsed++;result.className='ss-result ok';result.innerHTML=`<b>Готово</b><br>${esc(r.product||'')}<br>${esc(r.subject||'')}`;meta.textContent='есть в Drive и в листе синхронизации';
+          }else if(r&&r.ok===false){
+            parseErrors++;bar.style.background='var(--red)';result.className='ss-result err';result.innerHTML='<b>Ошибка разбора</b><br>'+esc(r.error||'Смотрите служебный лист');meta.textContent='файл сохранён в Drive · ошибка записана в синхронизацию';
+          }else{
+            result.className='ss-result';result.innerHTML='<b>Сохранён в Drive</b><br>ещё не дошёл до очереди импорта';meta.textContent='файл не потерян · повторите синхронизацию';
+          }
+        });
+        await server('syncDemoStats');
+        await load(true);
+      }
+    }catch(e){toast(e.message||String(e))}
+
+    toast(`Сохранено в Drive ${saved.length} · разобрано ${parsed}${parseErrors?` · ошибок разбора ${parseErrors}`:''}${saveErrors?` · не сохранено ${saveErrors}`:''}`);
     input.value='';
   }
+
   input.onchange=e=>upload(e.target.files);
   ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));
   ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
