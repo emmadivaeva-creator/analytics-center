@@ -197,7 +197,32 @@ html,body{background:var(--bg)}
   }
 
   function ensureAnalyticsLayout(){
-    const view=q('#mailanalyticsView');if(!view)return;
+    let view=q('#mailanalyticsView');
+    if(!view){
+      const app=q('#app');
+      if(!app)return null;
+      let navBtn=document.querySelector('[data-view="mailanalytics"]');
+      if(!navBtn){
+        navBtn=document.createElement('button');
+        navBtn.className='navbtn';
+        navBtn.dataset.view='mailanalytics';
+        navBtn.textContent='Аналитика';
+        const serviceBtn=document.querySelector('[data-view="service"]');
+        if(serviceBtn)serviceBtn.before(navBtn);else{const nav=q('#nav');if(nav)nav.appendChild(navBtn);}
+      }
+      view=document.createElement('section');
+      view.className='view';
+      view.id='mailanalyticsView';
+      view.innerHTML=`
+        <div class="head"><div><div class="eyebrow">Рассылки + DEMO</div><h1>Аналитика рассылок</h1><p>Живые, АКТИВДЕМО и Клики считаются отдельно.</p></div></div>
+        <div class="ea-filter"><label>Продукт:</label><select class="control" id="eaProduct"><option value="">Все продукты</option></select></div>
+        <div class="ea-grid">
+          <section class="panel"><div class="panelhead"><h2>Темы и материалы, которые продают</h2><p>Только Живые + точная DEMO-связь.</p></div><div class="ea-list" id="eaSelling"></div></section>
+          <section class="panel"><div class="panelhead"><h2 id="eaModeThemeTitle">Какие темы работают</h2><p id="eaModeThemeSub"></p></div><div class="ea-list" id="eaThemes"></div></section>
+        </div>`;
+      const serviceView=q('#serviceView');
+      if(serviceView)serviceView.before(view);else app.appendChild(view);
+    }
     const head=view.querySelector('.head h1');
     const sub=view.querySelector('.head p');
     if(head)head.textContent='Аналитика рассылок';
@@ -239,7 +264,7 @@ html,body{background:var(--bg)}
     if(!q('#eaV3Kpis')){
       const k=document.createElement('div');k.className='ea-v3-kpis';k.id='eaV3Kpis';
       const firstGrid=view.querySelector('.ea-grid');
-      if(firstGrid)firstGrid.before(k);
+      if(firstGrid)firstGrid.before(k);else view.appendChild(k);
     }
     if(!q('#eaV3Extra')){
       const extra=document.createElement('div');extra.className='ea-v3-grid';extra.id='eaV3Extra';
@@ -248,6 +273,7 @@ html,body{background:var(--bg)}
       const firstGrid=view.querySelector('.ea-grid');
       if(firstGrid)firstGrid.after(extra);else view.appendChild(extra);
     }
+    return true;
   }
 
   function renderFilters(){
@@ -290,7 +316,8 @@ html,body{background:var(--bg)}
     const gRate=delivered?green/delivered*1000:0;
     const label=currentMode==='live'?'Живые':currentMode==='active'?'АКТИВДЕМО':'Клики';
 
-    q('#eaV3Kpis').innerHTML=[
+    const kpiBox=q('#eaV3Kpis');
+    if(kpiBox)kpiBox.innerHTML=[
       ['Писем',fmt.format(rows.length),label],
       ['OR',pct.format(weighted(rows,'openRate'))+'%','взвешенный'],
       ['CTR',pct.format(weighted(rows,'clickRate'))+'%','взвешенный'],
@@ -333,20 +360,24 @@ html,body{background:var(--bg)}
 
   function openSelling(index){
     const box=q('#eaSelling'),x=box&&box._v3rows?box._v3rows[Number(index)]:null;if(!x)return;
-    q('#drawerMeta').textContent='Живые · '+x.items.length+' писем';
-    q('#drawerTitle').textContent=x.name;
+    const drawerMeta=q('#drawerMeta'),drawerTitle=q('#drawerTitle'),drawerBody=q('#drawerBody'),drawerBack=q('#drawerBack'),drawer=q('#drawer');
+    if(!drawerMeta||!drawerTitle||!drawerBody||!drawerBack||!drawer)return;
+    drawerMeta.textContent='Живые · '+x.items.length+' писем';
+    drawerTitle.textContent=x.name;
     const mails=x.items.slice().sort((a,b)=>n(b.green)-n(a.green)).slice(0,15).map(r=>`<div class="calls-fragment"><b>${esc(r.product)} · ${dRu(r.date)} ${esc(r.time||'')}</b><br>${esc(r.subject)}<br><span style="color:var(--muted)">Green ${fmt.format(r.green||0)} · OR ${pct.format(r.openRate||0)}% · CTR ${pct.format(r.clickRate||0)}%</span></div>`).join('');
-    q('#drawerBody').innerHTML=`<div class="drawerstats"><div class="dstat"><span>Green</span><b class="g">${fmt.format(x.green)}</b></div><div class="dstat"><span>Yellow</span><b>${fmt.format(x.yellow)}</b></div><div class="dstat"><span>G / 1000</span><b>${pct.format(x.rate)}</b></div></div><div class="dsection"><h3>Только живые письма</h3>${mails}</div>`;
-    q('#drawerBack').classList.add('open');q('#drawer').classList.add('open');
+    drawerBody.innerHTML=`<div class="drawerstats"><div class="dstat"><span>Green</span><b class="g">${fmt.format(x.green)}</b></div><div class="dstat"><span>Yellow</span><b>${fmt.format(x.yellow)}</b></div><div class="dstat"><span>G / 1000</span><b>${pct.format(x.rate)}</b></div></div><div class="dsection"><h3>Только живые письма</h3>${mails}</div>`;
+    drawerBack.classList.add('open');drawer.classList.add('open');
   }
 
   function openGroup(box,index){
     const g=box&&box._v3groups?box._v3groups[Number(index)]:null;if(!g)return;
-    q('#drawerMeta').textContent=(currentMode==='live'?'Живые':currentMode==='active'?'АКТИВДЕМО':'Клики')+' · '+g.count+' писем';
-    q('#drawerTitle').textContent=g.name;
+    const drawerMeta=q('#drawerMeta'),drawerTitle=q('#drawerTitle'),drawerBody=q('#drawerBody'),drawerBack=q('#drawerBack'),drawer=q('#drawer');
+    if(!drawerMeta||!drawerTitle||!drawerBody||!drawerBack||!drawer)return;
+    drawerMeta.textContent=(currentMode==='live'?'Живые':currentMode==='active'?'АКТИВДЕМО':'Клики')+' · '+g.count+' писем';
+    drawerTitle.textContent=g.name;
     const mails=g.items.slice().sort((a,b)=>n(b.openRate)-n(a.openRate)).slice(0,15).map(r=>`<div class="calls-fragment"><b>${esc(r.product)} · ${dRu(r.date)} ${esc(r.time||'')}</b><br>${esc(r.subject)}<br><span style="color:var(--muted)">OR ${pct.format(r.openRate||0)}% · CTR ${pct.format(r.clickRate||0)}% · Green ${fmt.format(r.hasDemoData===true?n(r.green):0)}</span></div>`).join('');
-    q('#drawerBody').innerHTML=`<div class="drawerstats"><div class="dstat"><span>Писем</span><b>${g.count}</b></div><div class="dstat"><span>OR</span><b>${pct.format(g.or)}%</b></div><div class="dstat"><span>CTR</span><b>${pct.format(g.ctr)}%</b></div><div class="dstat"><span>Green</span><b>${fmt.format(g.green)}</b></div></div><div class="dsection"><h3>Конкретные письма</h3>${mails}</div>`;
-    q('#drawerBack').classList.add('open');q('#drawer').classList.add('open');
+    drawerBody.innerHTML=`<div class="drawerstats"><div class="dstat"><span>Писем</span><b>${g.count}</b></div><div class="dstat"><span>OR</span><b>${pct.format(g.or)}%</b></div><div class="dstat"><span>CTR</span><b>${pct.format(g.ctr)}%</b></div><div class="dstat"><span>Green</span><b>${fmt.format(g.green)}</b></div></div><div class="dsection"><h3>Конкретные письма</h3>${mails}</div>`;
+    drawerBack.classList.add('open');drawer.classList.add('open');
   }
 
   function renderNewsRule(){
@@ -356,7 +387,7 @@ html,body{background:var(--bg)}
 
   function renderV3(){
     if(!state.data)return;
-    ensureAnalyticsLayout();
+    if(!ensureAnalyticsLayout())return;
     renderFilters();
     renderSelling();
     renderModeAnalytics();
@@ -390,12 +421,21 @@ html,body{background:var(--bg)}
     }
   });
 
+  /* Создаём базовую разметку сразу, до первого renderAll. Это защищает старые
+     обёртки аналитики, если они ожидают эти элементы раньше загрузки данных. */
+  ensureAnalyticsLayout();
+
   const prevRenderAllV3=window.renderAll;
   window.renderAll=function(){
-    if(typeof prevRenderAllV3==='function')prevRenderAllV3();
-    renderV3();
+    /* Ни одна косметическая/аналитическая надстройка больше не должна валить весь сайт. */
+    try{
+      if(typeof prevRenderAllV3==='function')prevRenderAllV3();
+    }catch(err){
+      console.error('Предыдущий UI-модуль не отрисовался:',err);
+    }
+    try{renderV3();}catch(err){console.error('UI refresh v3 не отрисовался:',err);}
   };
 
-  if(state.data)renderV3();
+  if(state.data){try{renderV3();}catch(err){console.error('UI refresh v3 init:',err);}}
 })();
 </script>
