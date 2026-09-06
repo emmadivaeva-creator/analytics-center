@@ -6,7 +6,8 @@
     'CTOR': 'Кликнули из открывших',
     'Green': 'Зелёные демо',
     'Yellow': 'Жёлтые демо',
-    'Red': 'Красные демо'
+    'Red': 'Красные демо',
+    'Y': 'Жёлтые демо'
   };
 
   function humanizeText(value){
@@ -31,6 +32,8 @@
       .replace(/\bGreen\b/g, 'зелёные демо')
       .replace(/\bYellow\b/g, 'жёлтые демо')
       .replace(/\bRed\b/g, 'красные демо')
+      .replace(/\bY\b/g, 'жёлтые демо')
+      .replace(/\bG\s*\/\s*1000\b/g, 'зелёных демо на 1000')
       .replace(/\bsubject\b/gi, 'тема письма')
       .replace(/\bcampaign\b/gi, 'кампания');
   }
@@ -51,7 +54,7 @@
       acceptNode: function(node){
         const parent = node.parentElement;
         if (!parent || /^(SCRIPT|STYLE|TEXTAREA)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
-        return /\b(?:OR|CTR|CTOR|Green|Yellow|Red|subject|campaign)\b/i.test(node.nodeValue || '')
+        return /\b(?:OR|CTR|CTOR|Green|Yellow|Red|Y|subject|campaign)\b|\bG\s*\/\s*1000\b/i.test(node.nodeValue || '')
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT;
       }
