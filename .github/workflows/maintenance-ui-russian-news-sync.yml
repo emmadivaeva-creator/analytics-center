@@ -1,0 +1,190 @@
+name: One-shot UI Russian/news/sync cleanup
+
+on:
+  push:
+    paths:
+      - '.github/workflows/maintenance-ui-russian-news-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch UI
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          def read(name):
+              return Path(name).read_text(encoding='utf-8')
+
+          def write(name, text):
+              Path(name).write_text(text, encoding='utf-8')
+
+          def replace_once(text, old, new, label):
+              if old not in text:
+                  raise SystemExit(f'Pattern not found: {label}')
+              return text.replace(old, new, 1)
+
+          # ---- index.html: native News tab, ordinary DEMO only, reliable sync, Russian labels ----
+          name='index.html'
+          t=read(name)
+          t=replace_once(t,
+              '<button class="navbtn" data-view="emails">Письма</button>\n    <button class="navbtn" data-view="active">АКТИВДЕМО</button>',
+              '<button class="navbtn" data-view="emails">Письма</button>\n    <button class="navbtn" data-view="news">Новости</button>\n    <button class="navbtn" data-view="active">АКТИВДЕМО</button>',
+              'news nav button')
+          t=t.replace('grid-template-columns:minmax(220px,1fr) 190px 150px 150px auto','grid-template-columns:minmax(220px,1fr) 190px 150px auto',1)
+          t=t.replace('<div class="head"><div><div class="eyebrow">Факт Sendsay</div><h1>Письма</h1><p>Здесь просто факт: когда отправили, что написали и как аудитория отреагировала.</p></div><div class="week" id="emailCount">0 писем</div></div>',
+                      '<div class="head"><div><div class="eyebrow">Факт Sendsay</div><h1>Обычные DEMO-рассылки</h1><p>Здесь только обычные DEMO-письма. Дожим DEMO и новостные рассылки вынесены в отдельные вкладки.</p></div><div class="week" id="emailCount">0 писем</div></div>',1)
+          t=t.replace('placeholder="Поиск по теме или campaign"','placeholder="Поиск по теме или названию кампании"',1)
+          old_select='<select class="control" id="emailType"><option value="">Все письма</option><option value="active">АКТИВДЕМО</option><option value="news">Новости</option><option value="direct">Обычные DEMO</option></select>'
+          new_select='<select class="control hidden" id="emailType"><option value="direct" selected>Обычные DEMO</option></select>'
+          t=replace_once(t,old_select,new_select,'email type select')
+          old_head='<th>Когда</th><th>Продукт</th><th>Тип</th><th>Тема</th><th class="num">Доставлено</th><th class="num">OR</th><th class="num">CTR</th><th class="num">CTOR</th><th class="num">Green</th>'
+          new_head='<th>Когда</th><th>Продукт</th><th>Тема</th><th class="num">Доставлено</th><th class="num">Открыли</th><th class="num">Кликнули</th><th class="num">Кликнули из открывших</th><th class="num">Зелёные демо</th>'
+          t=replace_once(t,old_head,new_head,'email table headings')
+
+          # Replace base email filtering/rendering so it is correct even if addon scripts fail.
+          pat=re.compile(r"function filteredEmails\(\)\{.*?\}\nfunction renderEmails\(\)\{.*?\}\nfunction theme",re.S)
+          new_block="""function filteredEmails(){const q=$('#emailSearch').value.trim().toLowerCase(),p=$('#emailProduct').value,w=$('#emailWeek').value;return (state.data.emails||[]).filter(x=>mailType(x)==='direct'&&(!q||`${x.subject} ${x.campaign} ${x.segment}`.toLowerCase().includes(q))&&(!p||x.product===p)&&(!w||String(x.week)===w)).sort((a,b)=>`${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`))}
+function renderEmails(){const rows=filteredEmails(),del=rows.reduce((s,x)=>s+n(x.delivered),0),greenTotal=rows.reduce((s,x)=>s+n(x.green),0);$('#emailCount').textContent=fmt.format(rows.length)+' писем';$('#emailMetrics').innerHTML=[['Писем',fmt.format(rows.length),'обычные DEMO'],['Доставлено',fmt.format(del),'суммарно'],['Средняя открываемость',pct.format(weighted(rows,'openRate'))+'%','взвешено по доставке'],['Зелёные демо',fmt.format(greenTotal),'по этим письмам']].map(x=>`<div class=\"metric\"><span>${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></div>`).join('');$('#emailRows').innerHTML=rows.length?rows.slice(0,700).map(x=>`<tr class=\"click\" data-email=\"${attr(x.id)}\"><td>${dRu(x.date)}<br><small>${esc(x.time||'—')}</small></td><td><b>${esc(x.product)}</b></td><td class=\"subject\"><b>${esc(x.subject)}</b><small>${esc(x.segment||x.campaign||'')}</small></td><td class=\"num\">${x.delivered?fmt.format(x.delivered):'—'}</td><td class=\"num\">${x.openRate?pct.format(x.openRate)+'%':'—'}</td><td class=\"num\">${x.clickRate?pct.format(x.clickRate)+'%':'—'}</td><td class=\"num\">${x.ctor?pct.format(x.ctor)+'%':'—'}</td><td class=\"num g\">${x.hasDemoData!==false?fmt.format(x.green||0):'—'}</td></tr>`).join(''):'<tr><td colspan=\"8\"><div class=\"empty\"><b>Письма не найдены</b>Измените фильтры.</div></td></tr>';$$('#emailRows [data-email]').forEach(r=>r.onclick=()=>openEmail(r.dataset.email))}
+function theme"""
+          t,nsub=pat.subn(new_block,t,count=1)
+          if nsub!=1: raise SystemExit('Could not replace base email renderer')
+
+          # Human-readable action labels.
+          t=t.replace("return'Ждать Yellow'","return'Ждать жёлтые демо'")
+          t=t.replace("['Ждём Yellow',wait]","['Ждём жёлтые демо',wait]")
+          t=t.replace('Green ${p.green}/${p.plan}. До плана ${gap}. По темпу к пятнице ${pace(p)}. Green + текущий Yellow = ${potential(p)}.',
+                      'Зелёные демо ${p.green}/${p.plan}. До плана ${gap}. По темпу к пятнице ${pace(p)}. Зелёные + текущие жёлтые = ${potential(p)}.')
+          t=t.replace('<span>Yellow <b>${p.yellow}</b></span><span>Red <b>${p.red}</b></span>',
+                      '<span>Жёлтые демо <b>${p.yellow}</b></span><span>Красные демо <b>${p.red}</b></span>')
+          t=t.replace('Лучший subject','Лучшая тема письма')
+          t=t.replace('% OR','% открыли')
+          t=t.replace(' · CTR ',' · кликнули ')
+          t=t.replace('<span>OR</span>','<span>Открыли</span>')
+          t=t.replace('<span>CTR</span>','<span>Кликнули</span>')
+          t=t.replace('<span>CTOR</span>','<span>Кликнули из открывших</span>')
+          t=t.replace('<span>Green</span>','<span>Зелёные демо</span>')
+          t=t.replace('<span>Yellow</span>','<span>Жёлтые демо</span>')
+
+          # Base sync button now uses the same reliable server path as the canonical addon.
+          sync_pat=re.compile(r"async function syncAll\(\)\{.*?\}async function syncDemo\(\)",re.S)
+          sync_new="""async function syncAll(){if(state.busy)return;if(!apps())return toast('Синхронизация доступна только в веб-приложении Apps Script');setBusy(true);let done=0,first=true;try{while(true){const r=await server('syncDriveReportsReliable',first);first=false;done+=n(r&&r.processed);$('#serviceStatus').textContent=r&&r.remaining?`Обработано ${done}, осталось ${r.remaining}…`:`Письма обработаны: ${done}`;if(!r||!r.remaining||!r.processed)break}$('#serviceStatus').textContent='Пересчитываем DEMO…';const d=await server('syncDemoStats');await load(true);toast(`Готово · DEMO связано ${d.matched||0}`)}catch(e){toast('Ошибка синхронизации: '+(e.message||String(e)))}finally{setBusy(false)}}async function syncDemo()"""
+          t,nsub=sync_pat.subn(sync_new,t,count=1)
+          if nsub!=1: raise SystemExit('Could not replace syncAll')
+          t=t.replace("const can=apps()&&state.data.meta.canImport;['#syncBtn','#demoBtn','#folderBtn'].forEach(s=>$(s).disabled=!can)",
+                      "const can=apps();['#syncBtn','#demoBtn','#folderBtn'].forEach(s=>$(s).disabled=!can)",1)
+          t=t.replace("if(['week','actions','emails','active','service'].includes(start))","if(['week','actions','emails','news','active','service'].includes(start))",1)
+          write(name,t)
+
+          # ---- news_ui.html: reuse native News tab, no email-tab monkey patching, Russian metrics ----
+          name='news_ui.html'; t=read(name)
+          t=t.replace("if(document.querySelector('[data-view=\"news\"]'))return;","if(document.querySelector('#newsView'))return;",1)
+          # Remove the old block that rewrote the Emails tab; base index now owns that behavior.
+          t,nsub=re.subn(r"\n  /\* Во вкладке «Письма» оставляем только обычные DEMO\. \*/.*?\n  /\* Отдельная вкладка новостных рассылок\. \*/",
+                         "\n  /* Отдельная вкладка новостных рассылок. */",t,count=1,flags=re.S)
+          if nsub!=1: raise SystemExit('Could not remove news email override')
+          old_btn="""  const activeBtn=document.querySelector('[data-view=\"active\"]');
+  const btn=document.createElement('button');btn.className='navbtn';btn.dataset.view='news';btn.textContent='Новостные';
+  if(activeBtn)activeBtn.before(btn);else q('#nav').appendChild(btn);"""
+          new_btn="""  const activeBtn=document.querySelector('[data-view=\"active\"]');
+  let btn=document.querySelector('[data-view=\"news\"]');
+  if(!btn){btn=document.createElement('button');btn.className='navbtn';btn.dataset.view='news';btn.textContent='Новости';if(activeBtn)activeBtn.before(btn);else q('#nav').appendChild(btn);}else{btn.textContent='Новости';}"""
+          t=replace_once(t,old_btn,new_btn,'news button reuse')
+          t=t.replace('OR и CTR по фактическому часу отправки. n показывает размер выборки.','Открываемость и клики по фактическому часу отправки. Показываем и размер выборки.')
+          t=t.replace('Рейтинг отдельных выпусков по OR.','Рейтинг отдельных выпусков по открываемости.')
+          t=t.replace('<th class="num">OR</th><th class="num">CTR</th><th class="num">CTOR</th>',
+                      '<th class="num">Открыли</th><th class="num">Кликнули</th><th class="num">Кликнули из открывших</th>')
+          t=t.replace('Средний OR','Средняя открываемость').replace('Средний CTR','Средняя кликабельность')
+          t=t.replace('% OR','% открыли').replace(' · CTR ',' · кликнули ').replace(' · CTOR ',' · кликнули из открывших ')
+          t=t.replace('n=${x.count} · ','писем ${x.count} · ')
+          t=t.replace('<span>OR</span>','<span>Открыли</span>').replace('<span>CTR</span>','<span>Кликнули</span>')
+          write(name,t)
+
+          # ---- runtime_fixes_ui.html: no technical English labels and sync button always clickable in Apps Script ----
+          name='runtime_fixes_ui.html'; t=read(name)
+          for a,b in [
+              ('Yellow считаем переходящим потенциалом','жёлтые демо считаем переходящим потенциалом'),
+              ('В Yellow уже ${y}','Жёлтых демо уже ${y}'),
+              ('Yellow ${y}','жёлтые демо ${y}'),
+              ('</b> Green','</b> зелёных демо'),
+              ('Green = итог недели','Зелёные демо = итог недели'),
+              ('Yellow = переходящий потенциал','Жёлтые демо = переходящий потенциал'),
+              ('Green = факт','Зелёные демо = факт'),
+              ('Yellow = уже запущенный потенциал','Жёлтые демо = уже запущенный потенциал'),
+              ("const yLabel=friday?'Y переходящий':'Y';","const yLabel=friday?'Жёлтые, переходящие':'Жёлтые';"),
+              ('<span>Средний CTR</span>','<span>Средняя кликабельность</span>')
+          ]: t=t.replace(a,b)
+          # The fourth card on Emails should stay useful and Russian.
+          t=t.replace("if(metrics[3]) metrics[3].innerHTML=`<span>Средняя кликабельность</span><strong>${pct.format(weighted(rows,'clickRate'))}%</strong><small>обычные DEMO</small>`;",
+                      "if(metrics[3]) metrics[3].innerHTML=`<span>Зелёные демо</span><strong>${fmt.format(rows.reduce((s,x)=>s+n(x.green),0))}</strong><small>по обычным DEMO</small>`;")
+          write(name,t)
+
+          # ---- service status: do not silently disable sync just because cached canImport is stale ----
+          name='service_status_ui.html'; t=read(name)
+          t=t.replace("const can=typeof apps==='function'&&apps()&&state.data.meta.canImport;","const can=typeof apps==='function'&&apps();",1)
+          write(name,t)
+
+          # ---- email analytics: human labels (variables remain unchanged) ----
+          name='email_analytics_ui.html'; t=read(name)
+          replacements={
+              ' Green<br>':' зелёных демо<br>',
+              'Green = факт':'Зелёные демо = факт',
+              'Yellow = может дозреть':'Жёлтые демо = может дозреть',
+              'Сортировка по Green на 1000 доставленных.':'Сортировка по зелёным демо на 1000 доставленных.',
+              'реальные примеры subject.':'реальные примеры тем писем.',
+              ' G / 1000':' зелёных на 1000',
+              ' Green · ':' зелёных · ',
+              ' Yellow · ':' жёлтых · ',
+              '% OR':'% открыли',
+              ' · CTR ':' · кликнули ',
+              ' · OR ':' · открыли ',
+              '<span>OR</span>':'<span>Открыли</span>',
+              '<span>CTR</span>':'<span>Кликнули</span>',
+              '<span>Green</span>':'<span>Зелёные демо</span>',
+              '<span>Yellow</span>':'<span>Жёлтые демо</span>'
+          }
+          for a,b in replacements.items(): t=t.replace(a,b)
+          write(name,t)
+
+          # ---- Russian fallback transformer: also catches dynamic strings created by later modules ----
+          name='russian_metrics_ui.html'; t=read(name)
+          t=t.replace("'CTOR': 'После открытия'","'CTOR': 'После открытия',\n    'Green': 'Зелёные демо',\n    'Yellow': 'Жёлтые демо',\n    'Red': 'Красные демо'",1)
+          t=t.replace(".replace(/\\bOR\\b/g, 'доля открытий');",
+                      ".replace(/\\bOR\\b/g, 'доля открытий')\n      .replace(/\\bGreen\\b/g, 'зелёные демо')\n      .replace(/\\bYellow\\b/g, 'жёлтые демо')\n      .replace(/\\bRed\\b/g, 'красные демо')\n      .replace(/\\bsubject\\b/gi, 'тема письма')\n      .replace(/\\bcampaign\\b/gi, 'кампания');",1)
+          t=t.replace("/\\b(?:OR|CTR|CTOR)\\b/.test(node.nodeValue || '')","/\\b(?:OR|CTR|CTOR|Green|Yellow|Red|subject|campaign)\\b/i.test(node.nodeValue || '')",1)
+          write(name,t)
+
+          # Sanity checks.
+          idx=read('index.html'); news=read('news_ui.html'); service=read('service_status_ui.html')
+          checks=[
+              ('native news tab','data-view="news">Новости</button>' in idx),
+              ('reliable sync',"server('syncDriveReportsReliable',first)" in idx),
+              ('old 25-loop removed','for(let i=0;i<25;i++)' not in idx),
+              ('emails direct only',"mailType(x)==='direct'" in idx),
+              ('active option removed','option value="active"' not in idx),
+              ('news option removed','option value="news"' not in idx),
+              ('news module creates view','id=\'newsView\'' in news or 'id="newsView"' in news or "section.id='newsView'" in news),
+              ('sync not cache-disabled',"&&state.data.meta.canImport" not in service),
+          ]
+          bad=[name for name,ok in checks if not ok]
+          if bad: raise SystemExit('Sanity checks failed: '+', '.join(bad))
+          PY
+      - name: Commit patched UI
+        shell: bash
+        run: |
+          git config user.name actions
+          git config user.email actions@github.com
+          git add index.html news_ui.html runtime_fixes_ui.html service_status_ui.html email_analytics_ui.html russian_metrics_ui.html
+          if git diff --cached --quiet; then
+            echo 'No changes'
+            exit 0
+          fi
+          git commit -m 'Fix sync button, separate NEWS and Russianize UI'
+          git push
