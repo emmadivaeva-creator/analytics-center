@@ -16,7 +16,8 @@ function buildAnalyticsWebApp_() {
     'final_polish_ui',
     'mail_classification_ui',
     'russian_metrics_ui',
-    'service_status_ui'
+    'service_status_ui',
+    'editorial_ui'
   ].map(function(name) {
     return HtmlService.createHtmlOutputFromFile(name).getContent();
   }).join('\n');
