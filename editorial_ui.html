@@ -7,39 +7,38 @@
 </style>
 <script>
 (function(){
-  if(window.__analyticsEditorialUiV1)return;
-  window.__analyticsEditorialUiV1=true;
+  if(window.__analyticsEditorialUiV2)return;
+  window.__analyticsEditorialUiV2=true;
 
   const BUILD='06.09.2026 · RU';
   const q=s=>document.querySelector(s);
-  const qa=s=>Array.from(document.querySelectorAll(s));
   const num=v=>Number(v)||0;
-  const fmtLocal=v=>window.fmt&&fmt.format?fmt.format(num(v)):String(num(v));
-  const pctLocal=v=>window.pct&&pct.format?pct.format(num(v)):num(v).toFixed(1);
-  const escLocal=v=>window.esc?esc(v):String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const attrLocal=v=>window.attr?attr(v):escLocal(v);
-  const dateLocal=v=>window.dRu?dRu(v):String(v||'');
+  const hasData=()=>typeof state!=='undefined'&&state&&state.data;
+  const fmtLocal=v=>typeof fmt!=='undefined'&&fmt&&fmt.format?fmt.format(num(v)):String(num(v));
+  const pctLocal=v=>typeof pct!=='undefined'&&pct&&pct.format?pct.format(num(v)):num(v).toFixed(1);
+  const escLocal=v=>typeof esc==='function'?esc(v):String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const attrLocal=v=>typeof attr==='function'?attr(v):escLocal(v);
+  const dateLocal=v=>typeof dRu==='function'?dRu(v):String(v||'');
 
   function isNewsStrict(x){
     const c=String(x&&x.campaign||'').trim();
-    return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(c) ||
+    return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(c)||
       /^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(c);
   }
   function isActiveStrict(x){
-    return /activdemo/i.test(String(x&&x.campaign||'')) ||
+    return /activdemo/i.test(String(x&&x.campaign||''))||
       String(x&&x.segment||'').trim().toLowerCase()==='дожим демо';
   }
-  function allEmails(){return window.state&&state.data&&Array.isArray(state.data.emails)?state.data.emails:[];}
+  function allEmails(){return hasData()&&Array.isArray(state.data.emails)?state.data.emails:[];}
   function weightedLocal(rows,key){
-    if(window.weighted)return weighted(rows,key);
+    if(typeof weighted==='function')return weighted(rows,key);
     const d=rows.reduce((s,x)=>s+num(x.delivered),0);
     return d?rows.reduce((s,x)=>s+num(x.delivered)*num(x[key]),0)/d:0;
   }
 
   function ensureBuildBadge(){
     if(q('#buildBadge'))return;
-    const right=q('.topright');
-    if(!right)return;
+    const right=q('.topright');if(!right)return;
     const badge=document.createElement('div');
     badge.id='buildBadge';badge.className='build-badge';badge.textContent='Сборка '+BUILD;
     right.insertBefore(badge,right.firstChild);
@@ -50,9 +49,9 @@
     const text=String(search&&search.value||'').trim().toLowerCase();
     const p=String(product&&product.value||''),w=String(week&&week.value||'');
     return allEmails().filter(x=>
-      !isActiveStrict(x) && !isNewsStrict(x) &&
-      (!text||`${x.subject||''} ${x.campaign||''} ${x.segment||''}`.toLowerCase().includes(text)) &&
-      (!p||x.product===p) && (!w||String(x.week)===w)
+      !isActiveStrict(x)&&!isNewsStrict(x)&&
+      (!text||`${x.subject||''} ${x.campaign||''} ${x.segment||''}`.toLowerCase().includes(text))&&
+      (!p||x.product===p)&&(!w||String(x.week)===w)
     ).sort((a,b)=>`${b.date||''} ${b.time||''}`.localeCompare(`${a.date||''} ${a.time||''}`));
   }
 
@@ -64,13 +63,12 @@
     const search=q('#emailSearch');if(search)search.placeholder='Поиск по теме или названию кампании';
     const type=q('#emailType');
     if(type){type.innerHTML='<option value="direct" selected>Обычные DEMO</option>';type.value='direct';type.classList.add('hidden');}
-    const head=q('#emailRows')&&q('#emailRows').closest('table')&&q('#emailRows').closest('table').querySelector('thead tr');
+    const body=q('#emailRows'),table=body&&body.closest('table'),head=table&&table.querySelector('thead tr');
     if(head)head.innerHTML='<th>Когда</th><th>Продукт</th><th>Тема</th><th class="num">Доставлено</th><th class="num">Открыли</th><th class="num">Кликнули</th><th class="num">Кликнули из открывших</th><th class="num">Зелёные демо</th>';
   }
 
   function renderEmailsEditorial(){
-    ensureEmailsShell();
-    if(!window.state||!state.data)return;
+    ensureEmailsShell();if(!hasData())return;
     const rows=ordinaryRows(),del=rows.reduce((s,x)=>s+num(x.delivered),0),green=rows.reduce((s,x)=>s+num(x.green),0);
     const count=q('#emailCount');if(count)count.textContent=fmtLocal(rows.length)+' писем';
     const metrics=q('#emailMetrics');
@@ -100,45 +98,33 @@
     }
     view.innerHTML=`
       <div class="head"><div><div class="eyebrow">Новостные рассылки</div><h1>Новости</h1><p>Здесь отдельно собраны все штатные новостные рассылки Госфинансов и Госзаказа.</p></div><div class="week" id="editorialNewsCount">0 писем</div></div>
-      <div class="editorial-news-filters">
-        <select class="control" id="editorialNewsProduct"><option value="">Все продукты</option></select>
-        <select class="control" id="editorialNewsWeek"><option value="">Все недели</option></select>
-        <button class="softbtn" id="editorialNewsReset">Сбросить</button>
-      </div>
+      <div class="editorial-news-filters"><select class="control" id="editorialNewsProduct"><option value="">Все продукты</option></select><select class="control" id="editorialNewsWeek"><option value="">Все недели</option></select><button class="softbtn" id="editorialNewsReset">Сбросить</button></div>
       <div class="metrics" id="editorialNewsMetrics"></div>
       <div class="tablepanel"><div class="tablewrap"><table><thead><tr><th>Когда</th><th>Продукт</th><th>Тема</th><th class="num">Доставлено</th><th class="num">Открыли</th><th class="num">Кликнули</th><th class="num">Кликнули из открывших</th></tr></thead><tbody id="editorialNewsRows"></tbody></table></div></div>`;
-    btn.onclick=function(){if(window.switchView)switchView('news');renderNewsEditorial();};
+    btn.onclick=function(){if(typeof switchView==='function')switchView('news');renderNewsEditorial();};
     return view;
   }
 
   function renderNewsEditorial(){
-    const view=ensureNewsShell();if(!view||!window.state||!state.data)return;
-    const all=allEmails().filter(isNewsStrict);
-    const ps=[...new Set(all.map(x=>x.product).filter(Boolean))].sort();
-    const ws=[...new Set(all.map(x=>x.week).filter(Boolean))].sort((a,b)=>b-a);
+    const view=ensureNewsShell();if(!view||!hasData())return;
+    const all=allEmails().filter(isNewsStrict),ps=[...new Set(all.map(x=>x.product).filter(Boolean))].sort(),ws=[...new Set(all.map(x=>x.week).filter(Boolean))].sort((a,b)=>b-a);
     const pSel=q('#editorialNewsProduct'),wSel=q('#editorialNewsWeek');
     const prevP=pSel&&pSel.value||'',prevW=wSel&&wSel.value||'';
     if(pSel){pSel.innerHTML='<option value="">Все продукты</option>'+ps.map(x=>`<option value="${attrLocal(x)}">${escLocal(x)}</option>`).join('');if(ps.includes(prevP))pSel.value=prevP;}
     if(wSel){wSel.innerHTML='<option value="">Все недели</option>'+ws.map(x=>`<option value="${attrLocal(x)}">W${escLocal(x)}</option>`).join('');if(ws.map(String).includes(String(prevW)))wSel.value=prevW;}
     const p=pSel&&pSel.value||'',w=wSel&&wSel.value||'';
     const rows=all.filter(x=>(!p||x.product===p)&&(!w||String(x.week)===String(w))).sort((a,b)=>`${b.date||''} ${b.time||''}`.localeCompare(`${a.date||''} ${a.time||''}`));
-    const del=rows.reduce((s,x)=>s+num(x.delivered),0);
-    const count=q('#editorialNewsCount');if(count)count.textContent=fmtLocal(rows.length)+' писем';
-    const metrics=q('#editorialNewsMetrics');if(metrics)metrics.innerHTML=[
-      ['Писем',fmtLocal(rows.length),'новостные'],
-      ['Доставлено',fmtLocal(del),'суммарно'],
-      ['Средняя открываемость',pctLocal(weightedLocal(rows,'openRate'))+'%','взвешено'],
-      ['Средняя кликабельность',pctLocal(weightedLocal(rows,'clickRate'))+'%','взвешено']
-    ].map(x=>`<div class="metric"><span>${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></div>`).join('');
+    const del=rows.reduce((s,x)=>s+num(x.delivered),0),count=q('#editorialNewsCount');if(count)count.textContent=fmtLocal(rows.length)+' писем';
+    const metrics=q('#editorialNewsMetrics');if(metrics)metrics.innerHTML=[['Писем',fmtLocal(rows.length),'новостные'],['Доставлено',fmtLocal(del),'суммарно'],['Средняя открываемость',pctLocal(weightedLocal(rows,'openRate'))+'%','взвешено'],['Средняя кликабельность',pctLocal(weightedLocal(rows,'clickRate'))+'%','взвешено']].map(x=>`<div class="metric"><span>${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></div>`).join('');
     const body=q('#editorialNewsRows');if(body)body.innerHTML=rows.length?rows.slice(0,700).map(x=>`<tr class="click" data-editorial-email="${attrLocal(x.id)}"><td>${dateLocal(x.date)}<br><small>${escLocal(x.time||'—')}</small></td><td><b>${escLocal(x.product)}</b></td><td class="subject"><b>${escLocal(x.subject)}</b><small>${escLocal(x.campaign||'')}</small></td><td class="num">${fmtLocal(x.delivered||0)}</td><td class="num">${pctLocal(x.openRate||0)}%</td><td class="num">${pctLocal(x.clickRate||0)}%</td><td class="num">${pctLocal(x.ctor||0)}%</td></tr>`).join(''):'<tr><td colspan="7"><div class="empty"><b>Новостных рассылок пока нет</b>После синхронизации они появятся здесь.</div></td></tr>';
     if(pSel)pSel.onchange=renderNewsEditorial;if(wSel)wSel.onchange=renderNewsEditorial;
     const reset=q('#editorialNewsReset');if(reset)reset.onclick=()=>{if(pSel)pSel.value='';if(wSel)wSel.value='';renderNewsEditorial();};
   }
 
   async function syncAllEditorial(){
-    if(window.state&&state.busy)return;
-    if(typeof window.apps==='function'&&!apps()){if(window.toast)toast('Синхронизация работает в веб-приложении Apps Script');return;}
-    if(window.setBusy)setBusy(true);
+    if(typeof state!=='undefined'&&state.busy)return;
+    if(typeof apps==='function'&&!apps()){if(typeof toast==='function')toast('Синхронизация работает в веб-приложении Apps Script');return;}
+    if(typeof setBusy==='function')setBusy(true);
     let done=0,first=true;
     try{
       while(true){
@@ -147,56 +133,37 @@
         if(!r||!r.remaining||!r.processed)break;
       }
       const status=q('#serviceStatus');if(status)status.textContent='Пересчитываем DEMO…';
-      const d=await server('syncDemoStats');
-      await load(true);
-      if(window.toast)toast(`Синхронизация завершена · DEMO связано ${num(d&&d.matched)}`);
-    }catch(e){if(window.toast)toast('Ошибка синхронизации: '+(e.message||String(e)));else console.error(e);}
-    finally{if(window.setBusy)setBusy(false);const b=q('#syncBtn');if(b)b.disabled=false;}
+      const d=await server('syncDemoStats');await load(true);
+      if(typeof toast==='function')toast(`Синхронизация завершена · DEMO связано ${num(d&&d.matched)}`);
+    }catch(e){if(typeof toast==='function')toast('Ошибка синхронизации: '+(e.message||String(e)));else console.error(e);}
+    finally{if(typeof setBusy==='function')setBusy(false);const b=q('#syncBtn');if(b)b.disabled=false;}
   }
 
-  function translateText(value){
-    return String(value||'')
-      .replace(/Green\s*\/\s*план/g,'Зелёные демо / план')
-      .replace(/\bGreen\b/g,'Зелёные демо')
-      .replace(/Y переходящий/g,'Жёлтые, переходящие')
-      .replace(/\bYellow\b/g,'Жёлтые демо')
-      .replace(/\bRed\b/g,'Красные демо')
-      .replace(/Средний OR/g,'Средняя открываемость')
-      .replace(/Средний CTR/g,'Средняя кликабельность')
-      .replace(/\bCTOR\b/g,'кликнули из открывших')
-      .replace(/\bCTR\b/g,'кликабельность')
-      .replace(/\bOR\b/g,'открываемость')
-      .replace(/Лучший subject/g,'Лучшая тема письма');
-  }
+  function translateText(value){return String(value||'').replace(/Green\s*\/\s*план/g,'Зелёные демо / план').replace(/\bGreen\b/g,'Зелёные демо').replace(/Y переходящий/g,'Жёлтые, переходящие').replace(/\bYellow\b/g,'Жёлтые демо').replace(/\bRed\b/g,'Красные демо').replace(/Средний OR/g,'Средняя открываемость').replace(/Средний CTR/g,'Средняя кликабельность').replace(/\bCTOR\b/g,'кликнули из открывших').replace(/\bCTR\b/g,'кликабельность').replace(/\bOR\b/g,'открываемость').replace(/Лучший subject/g,'Лучшая тема письма');}
   function translateRoot(root){
-    if(!root)return;
-    const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){const p=node.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/i.test(p.tagName))return NodeFilter.FILTER_REJECT;return /Green|Yellow|\bRed\b|\bOR\b|\bCTR\b|\bCTOR\b|subject|Y переходящий/.test(node.nodeValue||'')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});
-    const nodes=[];let n1;while((n1=walker.nextNode()))nodes.push(n1);nodes.forEach(node=>{const next=translateText(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next;});
+    if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){const p=node.parentElement;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/i.test(p.tagName))return NodeFilter.FILTER_REJECT;return /Green|Yellow|\bRed\b|\bOR\b|\bCTR\b|\bCTOR\b|subject|Y переходящий/.test(node.nodeValue||'')?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}}),nodes=[];let t;while((t=walker.nextNode()))nodes.push(t);nodes.forEach(node=>{const next=translateText(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next;});
   }
 
-  function bindEditorialEvents(){
+  function bindEvents(){
     ['#emailSearch','#emailProduct','#emailWeek'].forEach(sel=>{const el=q(sel);if(el&&!el.dataset.editorialBound){el.dataset.editorialBound='1';el.addEventListener(sel==='#emailSearch'?'input':'change',()=>setTimeout(renderEmailsEditorial,0));}});
     const reset=q('#emailReset');if(reset&&!reset.dataset.editorialBound){reset.dataset.editorialBound='1';reset.addEventListener('click',()=>setTimeout(renderEmailsEditorial,0));}
-    document.addEventListener('click',e=>{const row=e.target.closest('[data-editorial-email]');if(row&&window.openEmail)openEmail(row.dataset.editorialEmail);});
+    if(!document.documentElement.dataset.editorialRowsBound){document.documentElement.dataset.editorialRowsBound='1';document.addEventListener('click',e=>{const row=e.target.closest('[data-editorial-email]');if(row&&typeof openEmail==='function')openEmail(row.dataset.editorialEmail);});}
   }
 
   function applyEditorialUi(){
-    ensureBuildBadge();ensureEmailsShell();ensureNewsShell();bindEditorialEvents();
+    ensureBuildBadge();ensureEmailsShell();ensureNewsShell();bindEvents();
     const sync=q('#syncBtn');if(sync){sync.disabled=false;sync.onclick=syncAllEditorial;}
-    if(window.state&&state.data){renderEmailsEditorial();renderNewsEditorial();}
+    if(hasData()){renderEmailsEditorial();renderNewsEditorial();}
     translateRoot(document.body);
   }
 
-  window.filteredEmails=ordinaryRows;
-  window.renderEmails=renderEmailsEditorial;
-  window.syncAll=syncAllEditorial;
-  const previousRenderAll=window.renderAll;
-  window.renderAll=function(){if(typeof previousRenderAll==='function')previousRenderAll();applyEditorialUi();};
+  if(typeof filteredEmails==='function')filteredEmails=ordinaryRows;
+  if(typeof renderEmails==='function')renderEmails=renderEmailsEditorial;
+  if(typeof syncAll==='function')syncAll=syncAllEditorial;
+  const previousRenderAll=typeof renderAll==='function'?renderAll:null;
+  if(previousRenderAll)renderAll=function(){previousRenderAll();applyEditorialUi();};
 
-  applyEditorialUi();
-  setTimeout(applyEditorialUi,0);setTimeout(applyEditorialUi,400);setTimeout(applyEditorialUi,1200);
-  if(typeof MutationObserver!=='undefined'){
-    new MutationObserver(muts=>muts.forEach(m=>Array.from(m.addedNodes||[]).forEach(node=>{if(node.nodeType===1||node.nodeType===9)translateRoot(node);}))).observe(document.documentElement,{childList:true,subtree:true});
-  }
+  applyEditorialUi();setTimeout(applyEditorialUi,0);setTimeout(applyEditorialUi,400);setTimeout(applyEditorialUi,1200);
+  if(typeof MutationObserver!=='undefined')new MutationObserver(muts=>muts.forEach(m=>Array.from(m.addedNodes||[]).forEach(node=>{if(node.nodeType===1||node.nodeType===9)translateRoot(node);}))).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
