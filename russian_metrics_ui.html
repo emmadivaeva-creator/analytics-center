@@ -3,7 +3,10 @@
   const EXACT = {
     'OR': 'Открыли',
     'CTR': 'Кликнули',
-    'CTOR': 'После открытия'
+    'CTOR': 'Кликнули из открывших',
+    'Green': 'Зелёные демо',
+    'Yellow': 'Жёлтые демо',
+    'Red': 'Красные демо'
   };
 
   function humanizeText(value){
@@ -14,16 +17,22 @@
     }
 
     return source
-      .replace(/Средний OR/g, 'Средняя доля открытий')
-      .replace(/OR считается/g, 'Доля открытий считается')
-      .replace(/показатель OR/g, 'долю открытий')
-      .replace(/(\d+(?:[.,]\d+)?)%\s*OR\b/g, 'Открыли $1%')
-      .replace(/\bOR\s*(\d+(?:[.,]\d+)?)%/g, 'Открыли $1%')
-      .replace(/\bCTR\s*(\d+(?:[.,]\d+)?)%/g, 'Кликнули $1%')
-      .replace(/\bCTOR\s*(\d+(?:[.,]\d+)?)%/g, 'После открытия кликнули $1%')
-      .replace(/\bCTOR\b/g, 'клики после открытия')
-      .replace(/\bCTR\b/g, 'доля кликов')
-      .replace(/\bOR\b/g, 'доля открытий');
+      .replace(/Средний OR/g, 'Средняя открываемость')
+      .replace(/Средний CTR/g, 'Средняя кликабельность')
+      .replace(/OR считается/g, 'Открываемость считается')
+      .replace(/показатель OR/g, 'открываемость')
+      .replace(/(\d+(?:[.,]\d+)?)%\s*OR\b/g, 'открыли $1%')
+      .replace(/\bOR\s*(\d+(?:[.,]\d+)?)%/g, 'открыли $1%')
+      .replace(/\bCTR\s*(\d+(?:[.,]\d+)?)%/g, 'кликнули $1%')
+      .replace(/\bCTOR\s*(\d+(?:[.,]\d+)?)%/g, 'из открывших кликнули $1%')
+      .replace(/\bCTOR\b/g, 'кликнули из открывших')
+      .replace(/\bCTR\b/g, 'кликнули')
+      .replace(/\bOR\b/g, 'открыли')
+      .replace(/\bGreen\b/g, 'зелёные демо')
+      .replace(/\bYellow\b/g, 'жёлтые демо')
+      .replace(/\bRed\b/g, 'красные демо')
+      .replace(/\bsubject\b/gi, 'тема письма')
+      .replace(/\bcampaign\b/gi, 'кампания');
   }
 
   function applyRussianMetricLabels(root){
@@ -42,7 +51,7 @@
       acceptNode: function(node){
         const parent = node.parentElement;
         if (!parent || /^(SCRIPT|STYLE|TEXTAREA)$/i.test(parent.tagName)) return NodeFilter.FILTER_REJECT;
-        return /\b(?:OR|CTR|CTOR)\b/.test(node.nodeValue || '')
+        return /\b(?:OR|CTR|CTOR|Green|Yellow|Red|subject|campaign)\b/i.test(node.nodeValue || '')
           ? NodeFilter.FILTER_ACCEPT
           : NodeFilter.FILTER_REJECT;
       }
