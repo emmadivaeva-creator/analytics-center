@@ -1,33 +1,21 @@
 /**
- * Сборщик Web App UI.
+ * Analytics Center V2.
  *
- * Важно: глобальная точка входа doGet объявлена только в Code.gs.
- * Здесь остаётся только сборка index.html и подключаемых UI-модулей.
+ * Важно: единственный doGet() остаётся в Code.gs.
+ * Здесь нет сборки из десятка UI-патчей: Web App отдаёт один index.html.
  */
 function buildAnalyticsWebApp_() {
-  const base = HtmlService.createHtmlOutputFromFile('index').getContent();
-  const modules = [
-    'compat_ui',
-    'calls_ui',
-    'sendsay_ui',
-    'email_analytics_ui',
-    'news_ui',
-    'runtime_fixes_ui',
-    'final_polish_ui',
-    'mail_classification_ui',
-    'russian_metrics_ui',
-    'service_status_ui',
-    'editorial_ui'
-  ].map(function(name) {
-    return HtmlService.createHtmlOutputFromFile(name).getContent();
-  }).join('\n');
-
-  const html = base.indexOf('</body>') >= 0
-    ? base.replace('</body>', modules + '\n</body>')
-    : base + modules;
-
-  return HtmlService.createHtmlOutput(html)
-    .setTitle('DEMO Analytics')
+  return HtmlService.createHtmlOutputFromFile('index')
+    .setTitle('Analytics Center')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/** Лёгкая проверка, что открыта именно V2 и Apps Script отвечает. */
+function v2HealthCheck() {
+  return {
+    ok: true,
+    build: 'v2-shell-2026-09-06-01',
+    checkedAt: new Date().toISOString()
+  };
 }
