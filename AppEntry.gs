@@ -15,7 +15,7 @@ function buildAnalyticsWebApp_() {
 function v2HealthCheck() {
   return {
     ok: true,
-    build: 'v2-pulse-2026-09-06-02',
+    build: 'v2-pulse-2026-09-09-03',
     checkedAt: new Date().toISOString()
   };
 }
