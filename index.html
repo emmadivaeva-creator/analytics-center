@@ -42,7 +42,7 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
     <button class="navbtn" data-page="calls">Звонки / Что продает</button>
     <button class="navbtn" data-page="service">Служебное</button>
   </nav>
-  <div class="asidefoot"><b>v2-github-live-2026-09-09-07</b>Интерфейс загружается напрямую из GitHub. DEMO-факт читается из «Статистики по ДЕМО».</div>
+  <div class="asidefoot"><b>v2-pages-bridge-2026-09-09-08</b>Интерфейс живёт на GitHub Pages. Apps Script используется только как серверный мост к данным.</div>
 </aside>
 <main>
   <div class="topline">
@@ -84,7 +84,7 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 <script>
 (function(){
 'use strict';
-const BUILD='v2-github-live-2026-09-09-07';
+const BUILD='v2-pages-bridge-2026-09-09-08';
 const buttons=[...document.querySelectorAll('.navbtn')];
 const pages=[...document.querySelectorAll('.page')];
 let appData=null;
@@ -104,15 +104,21 @@ function dateRu(v){if(!v)return'';const d=new Date(v);return Number.isNaN(d.getT
 function isoMonday(year,week){const jan4=new Date(Date.UTC(year,0,4));const jan4day=jan4.getUTCDay()||7;const monday=new Date(jan4);monday.setUTCDate(jan4.getUTCDate()-(jan4day-1)+(week-1)*7);return monday}
 function rangeLabel(year,week){const start=isoMonday(year,week),end=new Date(start);end.setUTCDate(start.getUTCDate()+6);const m=['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];return start.getUTCMonth()===end.getUTCMonth()?`${start.getUTCDate()}–${end.getUTCDate()} ${m[end.getUTCMonth()]}`:`${start.getUTCDate()} ${m[start.getUTCMonth()]}–${end.getUTCDate()} ${m[end.getUTCMonth()]}`}
 
+const RPC_PENDING=new Map();
+window.addEventListener('message',e=>{const m=e.data||{};if(m.type!=='analytics-rpc-result'||!m.id)return;const p=RPC_PENDING.get(m.id);if(!p)return;RPC_PENDING.delete(m.id);m.ok?p.resolve(m.result):p.reject(new Error(m.error||'Ошибка сервера'));});
+function rpc(method,...args){
+ if(window.google&&google.script&&google.script.run){return new Promise((resolve,reject)=>{const r=google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(new Error(e&&e.message?e.message:String(e))));r[method](...args);});}
+ if(window.parent!==window){return new Promise((resolve,reject)=>{const id='rpc-'+Date.now()+'-'+Math.random().toString(36).slice(2);RPC_PENDING.set(id,{resolve,reject});window.parent.postMessage({type:'analytics-rpc',id,method,args},'*');setTimeout(()=>{if(RPC_PENDING.has(id)){RPC_PENDING.delete(id);reject(new Error('Сервер не ответил вовремя'));}},30000);});}
+ return Promise.reject(new Error('Нет соединения с Apps Script'));
+}
 function checkServer(){
- if(!(window.google&&google.script&&google.script.run)){setHealth(false,'Открыта не Apps Script Web App');return}
- google.script.run.withSuccessHandler(r=>{const source=String(window.__ANALYTICS_FRONTEND_SOURCE__||'');const src=source.indexOf('github')===0?'GitHub UI · '+source:'Резервный UI';setHealth(Boolean(r&&r.ok),r&&r.ok?src+' · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил');}).withFailureHandler(e=>setHealth(false,'Ошибка сервера: '+(e&&e.message?e.message:'неизвестно'))).v2HealthCheck();
+ rpc('v2HealthCheck').then(r=>setHealth(Boolean(r&&r.ok),r&&r.ok?'GitHub Pages UI · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил')).catch(e=>setHealth(false,'Ошибка сервера: '+e.message));
 }
 
 function loadData(){
  const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='Читаю источник…';
  document.getElementById('pulseError').classList.add('hidden');
- google.script.run.withSuccessHandler(data=>{btn.disabled=false;btn.textContent='Обновить факт';appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();}).withFailureHandler(err=>{btn.disabled=false;btn.textContent='Обновить факт';showError(err&&err.message?err.message:String(err));}).getPulseDataFresh();
+ rpc('getPulseDataFresh').then(data=>{btn.disabled=false;btn.textContent='Обновить факт';appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();}).catch(err=>{btn.disabled=false;btn.textContent='Обновить факт';showError(err&&err.message?err.message:String(err));});
 }
 function showError(msg){document.getElementById('pulseLoading').classList.add('hidden');document.getElementById('pulseContent').classList.add('hidden');const b=document.getElementById('pulseError');b.textContent='Не удалось загрузить Пульс: '+msg;b.classList.remove('hidden')}
 function setupWeeks(){
