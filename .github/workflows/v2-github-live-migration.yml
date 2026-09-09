@@ -1,0 +1,39 @@
+name: V2 GitHub-live UI migration
+
+on:
+  push:
+    branches: [v2-rebuild]
+    paths:
+      - '.github/workflows/v2-github-live-migration.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v2-rebuild
+      - name: Patch index
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('v2-pulse-layout-2026-09-09-05', 'v2-github-live-2026-09-09-06')
+          old = "google.script.run.withSuccessHandler(r=>setHealth(Boolean(r&&r.ok&&r.build===BUILD),r&&r.build===BUILD?'V2 подключена · '+r.build:'Ответ сервера не соответствует сборке')).withFailureHandler(e=>setHealth(false,'Ошибка сервера: '+(e&&e.message?e.message:'неизвестно'))).v2HealthCheck();"
+          new = "google.script.run.withSuccessHandler(r=>{const src=window.__ANALYTICS_FRONTEND_SOURCE__==='github'?'GitHub UI':'Резервный UI';setHealth(Boolean(r&&r.ok),r&&r.ok?src+' · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил');}).withFailureHandler(e=>setHealth(false,'Ошибка сервера: '+(e&&e.message?e.message:'неизвестно'))).v2HealthCheck();"
+          if old not in s:
+              raise SystemExit('health-check snippet not found')
+          s = s.replace(old, new)
+          s = s.replace('Пульс читает DEMO-факт напрямую из «Статистики по ДЕМО».', 'Интерфейс загружается напрямую из GitHub. DEMO-факт читается из «Статистики по ДЕМО».')
+          p.write_text(s, encoding='utf-8')
+      - name: Commit migration
+        run: |
+          git config user.name "analytics-center-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "Decouple V2 frontend from backend deployments"
+          git push origin v2-rebuild
