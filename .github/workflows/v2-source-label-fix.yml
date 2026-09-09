@@ -1,0 +1,38 @@
+name: V2 source label fix
+
+on:
+  push:
+    branches: [v2-rebuild]
+    paths:
+      - '.github/workflows/v2-source-label-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v2-rebuild
+      - name: Patch source label and build marker
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('v2-github-live-2026-09-09-06', 'v2-github-live-2026-09-09-07')
+          old = "const src=window.__ANALYTICS_FRONTEND_SOURCE__==='github'?'GitHub UI':'Резервный UI';"
+          new = "const source=String(window.__ANALYTICS_FRONTEND_SOURCE__||'');const src=source.indexOf('github')===0?'GitHub UI · '+source:'Резервный UI';"
+          if old not in s:
+              raise SystemExit('source label snippet not found')
+          s = s.replace(old, new)
+          p.write_text(s, encoding='utf-8')
+      - name: Commit
+        run: |
+          git config user.name "analytics-center-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix GitHub frontend source label"
+          git push origin v2-rebuild
