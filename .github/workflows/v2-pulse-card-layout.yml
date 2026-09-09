@@ -1,0 +1,57 @@
+name: V2 pulse card layout migration
+
+on:
+  push:
+    branches: [v2-rebuild]
+    paths:
+      - '.github/workflows/v2-pulse-card-layout.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v2-rebuild
+      - name: Patch pulse layout
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+
+          old_css = ".progressline{display:flex;align-items:baseline;gap:6px;margin-top:12px}.progressline strong{font-size:29px;line-height:1}.progressline span{color:var(--muted);font-size:11px}.triplet{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}"
+          new_css = ".metricrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}.metricbox{border-radius:12px;padding:10px 11px;background:#f7f9fb;border:1px solid #edf0f4}.metricbox span{display:block;color:var(--muted);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.metricbox strong{display:block;font-size:24px;line-height:1.05;margin-top:4px;letter-spacing:-.03em}.metricbox small{display:block;color:var(--muted);font-size:8px;margin-top:3px}.metricbox.fact strong{color:var(--ok)}.metricbox.plan{background:#f4f7ff;border-color:#dbe3ff}.metricbox.plan strong{color:var(--accent)}.metricbox.progress strong{color:var(--ink)}.triplet{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}"
+          if old_css not in s:
+              raise SystemExit('CSS target not found')
+          s = s.replace(old_css, new_css, 1)
+
+          old_products = "const products=detail.products||[],summary=detail.summary||{};"
+          new_products = "const productOrder=['ГЗ Периодика','ГФ Периодика','ГЗ Система','ГФ Система','ГЗ Школа','ГФ Школа'];\n const products=(detail.products||[]).slice().sort((a,b)=>productOrder.indexOf(a.product)-productOrder.indexOf(b.product)),summary=detail.summary||{};"
+          if old_products not in s:
+              raise SystemExit('Products target not found')
+          s = s.replace(old_products, new_products, 1)
+
+          old_markup = "<div class=\"progressline\"><strong>${fmt(p.green)}</strong><span>зелёных из плана ${fmt(p.plan)}</span></div><div class=\"bar\"><i style=\"width:${Math.min(100,n(p.progress))}%\"></i></div><div class=\"gapline\"><span>Выполнено <b>${pct(p.progress)}</b></span><span>До плана <b>${fmt(gap)}</b></span></div>"
+          new_markup = "<div class=\"metricrow\"><div class=\"metricbox fact\"><span>Факт</span><strong>${fmt(p.green)}</strong><small>зелёных демо</small></div><div class=\"metricbox plan\"><span>План</span><strong>${fmt(p.plan)}</strong><small>зелёных демо</small></div><div class=\"metricbox progress\"><span>Выполнение</span><strong>${pct(p.progress)}</strong><small>до плана ${fmt(gap)}</small></div></div><div class=\"bar\"><i style=\"width:${Math.min(100,n(p.progress))}%\"></i></div><div class=\"gapline\"><span>Факт <b>${fmt(p.green)}</b> из <b>${fmt(p.plan)}</b></span><span>До плана <b>${fmt(gap)}</b></span></div>"
+          if old_markup not in s:
+              raise SystemExit('Product markup target not found')
+          s = s.replace(old_markup, new_markup, 1)
+
+          s = s.replace('v2-pulse-source-2026-09-09-04', 'v2-pulse-layout-2026-09-09-05')
+          p.write_text(s)
+
+          a = Path('AppEntry.gs')
+          t = a.read_text().replace('v2-pulse-source-2026-09-09-04', 'v2-pulse-layout-2026-09-09-05')
+          a.write_text(t)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'analytics-center-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html AppEntry.gs
+          git commit -m 'Refine pulse product grouping and KPI emphasis'
+          git push origin HEAD:v2-rebuild
