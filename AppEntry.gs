@@ -3,73 +3,33 @@
  *
  * Архитектура:
  * - единственный doGet() остаётся в Code.gs;
- * - UI живёт в GitHub, ветка v2-rebuild;
- * - Apps Script при каждом открытии Web App забирает свежий index.html с GitHub;
- * - локальный index.html остаётся аварийным fallback, если GitHub временно недоступен.
+ * - интерфейс публикуется как app.css + app.js на GitHub Pages;
+ * - Apps Script Web App отдаёт только лёгкую HTML-оболочку;
+ * - внешний JS выполняется внутри Apps Script-страницы и использует google.script.run напрямую;
+ * - UI можно менять в GitHub без нового Apps Script deployment.
  */
-const V2_FRONTEND_API_URL_ = 'https://api.github.com/repos/emmadivaeva-creator/analytics-center/contents/index.html?ref=v2-rebuild';
-const V2_FRONTEND_RAW_URL_ = 'https://raw.githubusercontent.com/emmadivaeva-creator/analytics-center/v2-rebuild/index.html';
-const V2_BACKEND_BUILD_ = 'v2-backend-2026-09-09-02';
+const V2_ASSET_BASE_ = 'https://emmadivaeva-creator.github.io/analytics-center/';
+const V2_BACKEND_BUILD_ = 'v2-backend-assets-2026-09-09-04';
 
 function buildAnalyticsWebApp_() {
-  let html = '';
-  let frontendSource = 'github-api';
-  let lastError = '';
+  const cacheBust = Date.now();
+  const cssUrl = V2_ASSET_BASE_ + 'app.css?v=' + cacheBust;
+  const jsUrl = V2_ASSET_BASE_ + 'app.js?v=' + cacheBust;
 
-  // Основной путь: официальный GitHub Contents API в raw-режиме.
-  try {
-    const response = UrlFetchApp.fetch(V2_FRONTEND_API_URL_ + '&ts=' + Date.now(), {
-      muteHttpExceptions: true,
-      followRedirects: true,
-      headers: {
-        'Accept': 'application/vnd.github.raw+json',
-        'User-Agent': 'analytics-center-apps-script',
-        'Cache-Control': 'no-cache'
-      }
-    });
-    if (response.getResponseCode() !== 200) {
-      throw new Error('GitHub API вернул HTTP ' + response.getResponseCode());
-    }
-    html = response.getContentText('UTF-8');
-    assertAnalyticsHtml_(html, 'GitHub API');
-  } catch (err) {
-    lastError = String(err);
-    html = '';
-  }
-
-  // Запасной путь: raw.githubusercontent.com.
-  if (!html) {
-    frontendSource = 'github-raw';
-    try {
-      const response = UrlFetchApp.fetch(V2_FRONTEND_RAW_URL_ + '?ts=' + Date.now(), {
-        muteHttpExceptions: true,
-        followRedirects: true,
-        headers: {
-          'User-Agent': 'analytics-center-apps-script',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      });
-      if (response.getResponseCode() !== 200) {
-        throw new Error('GitHub raw вернул HTTP ' + response.getResponseCode());
-      }
-      html = response.getContentText('UTF-8');
-      assertAnalyticsHtml_(html, 'GitHub raw');
-    } catch (err) {
-      lastError += (lastError ? ' | ' : '') + String(err);
-      html = '';
-    }
-  }
-
-  // Аварийный fallback: локальная копия из Apps Script.
-  if (!html) {
-    frontendSource = 'local-fallback';
-    html = HtmlService.createHtmlOutputFromFile('index').getContent();
-    console.error('Не удалось загрузить V2 UI из GitHub, использован локальный fallback: ' + lastError);
-  }
-
-  const marker = '<script>window.__ANALYTICS_FRONTEND_SOURCE__=' + JSON.stringify(frontendSource) + ';<\/script>';
-  html = html.indexOf('</head>') >= 0 ? html.replace('</head>', marker + '\n</head>') : marker + html;
+  const html = '<!doctype html>' +
+    '<html lang="ru">' +
+    '<head>' +
+      '<meta charset="utf-8">' +
+      '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>Analytics Center</title>' +
+      '<link rel="stylesheet" href="' + cssUrl + '">' +
+      '<style>html,body{margin:0;min-height:100%;background:#f4f6f9}#boot{padding:32px;font:14px Arial,sans-serif;color:#667085}</style>' +
+    '</head>' +
+    '<body>' +
+      '<div id="boot">Загружаю Analytics Center…</div>' +
+      '<script src="' + jsUrl + '"></script>' +
+    '</body>' +
+    '</html>';
 
   return HtmlService.createHtmlOutput(html)
     .setTitle('Analytics Center')
@@ -77,18 +37,12 @@ function buildAnalyticsWebApp_() {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-function assertAnalyticsHtml_(html, source) {
-  if (!html || html.indexOf('<title>Analytics Center</title>') === -1) {
-    throw new Error(source + ' вернул неожиданный HTML');
-  }
-}
-
-/** Проверка backend. UI-версия больше не обязана совпадать с backend-версией. */
+/** Проверка backend. */
 function v2HealthCheck() {
   return {
     ok: true,
     backendBuild: V2_BACKEND_BUILD_,
-    frontendMode: 'github-live',
+    frontendMode: 'github-pages-assets',
     checkedAt: new Date().toISOString()
   };
 }
