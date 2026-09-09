@@ -42,7 +42,7 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
     <button class="navbtn" data-page="calls">Звонки / Что продает</button>
     <button class="navbtn" data-page="service">Служебное</button>
   </nav>
-  <div class="asidefoot"><b>v2-pulse-layout-2026-09-09-05</b>Пульс читает DEMO-факт напрямую из «Статистики по ДЕМО».</div>
+  <div class="asidefoot"><b>v2-github-live-2026-09-09-06</b>Интерфейс загружается напрямую из GitHub. DEMO-факт читается из «Статистики по ДЕМО».</div>
 </aside>
 <main>
   <div class="topline">
@@ -84,7 +84,7 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 <script>
 (function(){
 'use strict';
-const BUILD='v2-pulse-layout-2026-09-09-05';
+const BUILD='v2-github-live-2026-09-09-06';
 const buttons=[...document.querySelectorAll('.navbtn')];
 const pages=[...document.querySelectorAll('.page')];
 let appData=null;
@@ -106,7 +106,7 @@ function rangeLabel(year,week){const start=isoMonday(year,week),end=new Date(sta
 
 function checkServer(){
  if(!(window.google&&google.script&&google.script.run)){setHealth(false,'Открыта не Apps Script Web App');return}
- google.script.run.withSuccessHandler(r=>setHealth(Boolean(r&&r.ok&&r.build===BUILD),r&&r.build===BUILD?'V2 подключена · '+r.build:'Ответ сервера не соответствует сборке')).withFailureHandler(e=>setHealth(false,'Ошибка сервера: '+(e&&e.message?e.message:'неизвестно'))).v2HealthCheck();
+ google.script.run.withSuccessHandler(r=>{const src=window.__ANALYTICS_FRONTEND_SOURCE__==='github'?'GitHub UI':'Резервный UI';setHealth(Boolean(r&&r.ok),r&&r.ok?src+' · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил');}).withFailureHandler(e=>setHealth(false,'Ошибка сервера: '+(e&&e.message?e.message:'неизвестно'))).v2HealthCheck();
 }
 
 function loadData(){
