@@ -1,21 +1,59 @@
 /**
  * Analytics Center V2.
  *
- * Важно: единственный doGet() остаётся в Code.gs.
- * Web App отдаёт один index.html без цепочки UI-патчей.
+ * Архитектура:
+ * - единственный doGet() остаётся в Code.gs;
+ * - UI живёт в GitHub, ветка v2-rebuild;
+ * - Apps Script при каждом открытии Web App забирает свежий index.html с GitHub;
+ * - локальный index.html остаётся аварийным fallback, если GitHub временно недоступен.
  */
+const V2_FRONTEND_URL_ = 'https://raw.githubusercontent.com/emmadivaeva-creator/analytics-center/v2-rebuild/index.html';
+const V2_BACKEND_BUILD_ = 'v2-backend-2026-09-09-01';
+
 function buildAnalyticsWebApp_() {
-  return HtmlService.createHtmlOutputFromFile('index')
+  let html = '';
+  let frontendSource = 'github';
+
+  try {
+    const response = UrlFetchApp.fetch(V2_FRONTEND_URL_ + '?ts=' + Date.now(), {
+      muteHttpExceptions: true,
+      followRedirects: true,
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+
+    if (response.getResponseCode() !== 200) {
+      throw new Error('GitHub вернул HTTP ' + response.getResponseCode());
+    }
+
+    html = response.getContentText('UTF-8');
+    if (!html || html.indexOf('<title>Analytics Center</title>') === -1) {
+      throw new Error('GitHub вернул неожиданный HTML');
+    }
+  } catch (err) {
+    frontendSource = 'local-fallback';
+    html = HtmlService.createHtmlOutputFromFile('index').getContent();
+    console.error('Не удалось загрузить V2 UI из GitHub, использован локальный fallback: ' + err);
+  }
+
+  // Передаём UI технический источник загрузки без отдельного API-вызова.
+  const marker = '<script>window.__ANALYTICS_FRONTEND_SOURCE__=' + JSON.stringify(frontendSource) + ';<\/script>';
+  html = html.indexOf('</head>') >= 0 ? html.replace('</head>', marker + '\n</head>') : marker + html;
+
+  return HtmlService.createHtmlOutput(html)
     .setTitle('Analytics Center')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.DEFAULT)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
-/** Лёгкая проверка, что открыта именно актуальная V2 и Apps Script отвечает. */
+/** Проверка backend. UI-версия больше не обязана совпадать с backend-версией. */
 function v2HealthCheck() {
   return {
     ok: true,
-    build: 'v2-pulse-layout-2026-09-09-05',
+    backendBuild: V2_BACKEND_BUILD_,
+    frontendMode: 'github-live',
     checkedAt: new Date().toISOString()
   };
 }
