@@ -1,0 +1,45 @@
+name: V2 bridge migration
+
+on:
+  push:
+    branches: [v2-rebuild]
+    paths:
+      - '.github/workflows/v2-bridge-migration.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v2-rebuild
+      - name: Patch frontend for Apps Script bridge
+        shell: python
+        run: |
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('v2-github-live-2026-09-09-07','v2-pages-bridge-2026-09-09-08')
+          anchor="function checkServer(){\n if(!(window.google&&google.script&&google.script.run)){setHealth(false,'Открыта не Apps Script Web App');return}\n google.script.run.withSuccessHandler(r=>{const source=String(window.__ANALYTICS_FRONTEND_SOURCE__||'');const src=source.indexOf('github')===0?'GitHub UI · '+source:'Резервный UI';setHealth(Boolean(r&&r.ok),r&&r.ok?src+' · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил');}).withFailureHandler(e=>setHealth(false,'Ошибка сервера: '+(e&&e.message?e.message:'неизвестно'))).v2HealthCheck();\n}\n"
+          repl="""const RPC_PENDING=new Map();\nwindow.addEventListener('message',e=>{const m=e.data||{};if(m.type!=='analytics-rpc-result'||!m.id)return;const p=RPC_PENDING.get(m.id);if(!p)return;RPC_PENDING.delete(m.id);m.ok?p.resolve(m.result):p.reject(new Error(m.error||'Ошибка сервера'));});\nfunction rpc(method,...args){\n if(window.google&&google.script&&google.script.run){return new Promise((resolve,reject)=>{const r=google.script.run.withSuccessHandler(resolve).withFailureHandler(e=>reject(new Error(e&&e.message?e.message:String(e))));r[method](...args);});}\n if(window.parent!==window){return new Promise((resolve,reject)=>{const id='rpc-'+Date.now()+'-'+Math.random().toString(36).slice(2);RPC_PENDING.set(id,{resolve,reject});window.parent.postMessage({type:'analytics-rpc',id,method,args},'*');setTimeout(()=>{if(RPC_PENDING.has(id)){RPC_PENDING.delete(id);reject(new Error('Сервер не ответил вовремя'));}},30000);});}\n return Promise.reject(new Error('Нет соединения с Apps Script'));\n}\nfunction checkServer(){\n rpc('v2HealthCheck').then(r=>setHealth(Boolean(r&&r.ok),r&&r.ok?'GitHub Pages UI · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил')).catch(e=>setHealth(false,'Ошибка сервера: '+e.message));\n}\n"""
+          if anchor not in s:
+              raise SystemExit('checkServer block not found')
+          s=s.replace(anchor,repl)
+          old="google.script.run.withSuccessHandler(data=>{btn.disabled=false;btn.textContent='Обновить факт';appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();}).withFailureHandler(err=>{btn.disabled=false;btn.textContent='Обновить факт';showError(err&&err.message?err.message:String(err));}).getPulseDataFresh();"
+          new="rpc('getPulseDataFresh').then(data=>{btn.disabled=false;btn.textContent='Обновить факт';appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();}).catch(err=>{btn.disabled=false;btn.textContent='Обновить факт';showError(err&&err.message?err.message:String(err));});"
+          if old not in s:
+              raise SystemExit('loadData rpc block not found')
+          s=s.replace(old,new)
+          s=s.replace('Интерфейс загружается напрямую из GitHub. DEMO-факт читается из «Статистики по ДЕМО».','Интерфейс живёт на GitHub Pages. Apps Script используется только как серверный мост к данным.')
+          p.write_text(s,encoding='utf-8')
+          Path('.nojekyll').write_text('',encoding='utf-8')
+      - name: Commit bridge frontend
+        run: |
+          git config user.name "analytics-center-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html .nojekyll
+          git commit -m "Make V2 frontend work through Apps Script RPC bridge"
+          git push origin v2-rebuild
