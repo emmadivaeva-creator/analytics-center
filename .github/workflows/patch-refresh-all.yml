@@ -1,6 +1,8 @@
 name: Patch refresh all
 on:
-  workflow_dispatch:
+  push:
+    branches: [v2-rebuild]
+    paths: ['.github/workflows/patch-refresh-all.yml']
 permissions:
   contents: write
 jobs:
