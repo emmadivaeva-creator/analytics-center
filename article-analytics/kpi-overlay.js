@@ -1,14 +1,23 @@
 (()=>{
- const base=renderKpis;
+ const baseRenderKpis=renderKpis;
+ const baseSwitchView=switchView;
+
  renderKpis=function(){
    const box=document.getElementById('kpis');
-   if(state.view!=='overview'){
+   if(!box)return;
+   if(state.view==='overview'){
+     box.style.display='grid';
+     baseRenderKpis();
+   }else{
      box.innerHTML='';
      box.style.display='none';
-     return;
    }
-   box.style.display='grid';
-   return base();
  };
+
+ switchView=function(v){
+   baseSwitchView(v);
+   renderKpis();
+ };
+
  renderKpis();
 })();
