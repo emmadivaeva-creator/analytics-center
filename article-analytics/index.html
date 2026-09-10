@@ -18,13 +18,17 @@ html,body,#frame{margin:0;width:100%;height:100%;border:0;overflow:hidden;backgr
  const f=document.getElementById('frame'),l=document.getElementById('loading');
  try{
   let [source,weeklyOverlay]=await Promise.all([
-   fetch('app.html?v=20260910-fix4',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить приложение: '+r.status);return r.text()}),
-   fetch('weekly-progos-overlay.js?v=20260910-fix4',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить недельный модуль: '+r.status);return r.text()})
+   fetch('app.html?v=20260910-fix5',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить приложение: '+r.status);return r.text()}),
+   fetch('weekly-progos-overlay.js?v=20260910-fix5',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить недельный модуль: '+r.status);return r.text()})
   ]);
 
   const init="refreshFilterOptions();renderAll();switchView('overview');";
   if(!source.includes(init)) throw new Error('Не найдена точка подключения недельного отчёта');
   weeklyOverlay=weeklyOverlay.replace('(async()=>{','await (async()=>{');
+  weeklyOverlay=weeklyOverlay.replace(
+   "const pt=all.reduce((s,x)=>s+x.prev,0),ct=all.reduce((s,x)=>s+x.curr,0),chg=pt?(ct-pt)/pt:null;",
+   "const siteTotals=WD.totals?.[state.site]||[];const pt=siteTotals.at(-2)||0,ct=siteTotals.at(-1)||0,chg=pt?(ct-pt)/pt:null;"
+  );
   source=source.replace(init,weeklyOverlay+'\n'+init);
 
   const kpiLine="document.getElementById('filterbar').style.display=(v==='nontarget'||v==='kpiexclude'||v==='cleanup'||v==='method')?'none':'grid';";
