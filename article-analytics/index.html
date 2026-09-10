@@ -17,10 +17,11 @@ html,body,#frame{margin:0;width:100%;height:100%;border:0;overflow:hidden;backgr
 (async()=>{
  const f=document.getElementById('frame'),l=document.getElementById('loading');
  try{
-  let [source,weeklyOverlay,pairOverlay]=await Promise.all([
-   fetch('app.html?v=20260910-fix7',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить приложение: '+r.status);return r.text()}),
-   fetch('weekly-progos-overlay.js?v=20260910-fix7',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить недельный модуль: '+r.status);return r.text()}),
-   fetch('pair-overlay.js?v=20260910-fix7',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить модуль сравнения: '+r.status);return r.text()})
+  let [source,weeklyOverlay,pairOverlay,problemsOverlay]=await Promise.all([
+   fetch('app.html?v=20260911-fix8',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить приложение: '+r.status);return r.text()}),
+   fetch('weekly-progos-overlay.js?v=20260911-fix8',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить недельный модуль: '+r.status);return r.text()}),
+   fetch('pair-overlay.js?v=20260911-fix8',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить модуль сравнения: '+r.status);return r.text()}),
+   fetch('problems-overlay.js?v=20260911-fix8',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('Не удалось загрузить счётчики проблемных статей: '+r.status);return r.text()})
   ]);
 
   const init="refreshFilterOptions();renderAll();switchView('overview');";
@@ -33,7 +34,8 @@ html,body,#frame{margin:0;width:100%;height:100%;border:0;overflow:hidden;backgr
   );
   const safeWeekly="try{\n"+weeklyOverlay+"\n}catch(e){console.error('Недельный модуль не загрузился:',e);}\n";
   const safePairs="try{\n"+pairOverlay+"\n}catch(e){console.error('Модуль сравнения не загрузился:',e);}\n";
-  source=source.replace(init,safePairs+safeWeekly+init);
+  const safeProblems="try{\n"+problemsOverlay+"\n}catch(e){console.error('Счётчики проблемных статей не загрузились:',e);}\n";
+  source=source.replace(init,safePairs+safeProblems+safeWeekly+init);
 
   const kpiLine="document.getElementById('filterbar').style.display=(v==='nontarget'||v==='kpiexclude'||v==='cleanup'||v==='method')?'none':'grid';";
   const kpiPatched=kpiLine+"\n document.getElementById('kpis').style.display=(v==='overview')?'grid':'none';";
