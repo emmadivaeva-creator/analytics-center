@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded',function(){
-  document.body.innerHTML="<div class=\"app\">\n<aside>\n  <div class=\"brand\"><b>Analytics Center</b><span>Чистая сборка V2</span></div>\n  <nav>\n    <button class=\"navbtn active\" data-page=\"pulse\">Пульс</button>\n    <button class=\"navbtn\" data-page=\"mail\">Письма</button>\n    <button class=\"navbtn\" data-page=\"news\">Новости</button>\n    <button class=\"navbtn\" data-page=\"demo\">Дожим демо</button>\n    <button class=\"navbtn\" data-page=\"vika\">План для Вики</button>\n    <button class=\"navbtn\" data-page=\"calls\">Звонки / Что продает</button>\n    <button class=\"navbtn\" data-page=\"service\">Служебное</button>\n  </nav>\n  <div class=\"asidefoot\"><b>v2-static-assets-2026-09-09-09</b>Интерфейс живёт на GitHub Pages. Apps Script используется только как серверный мост к данным.</div>\n</aside>\n<main>\n  <div class=\"topline\">\n    <div class=\"build\"><span id=\"serverDot\" class=\"dot\"></span><span id=\"serverStatus\">Проверяем сервер…</span></div>\n    <div class=\"topactions\"><button class=\"health\" id=\"healthBtn\">Проверить сервер</button><button class=\"refresh\" id=\"refreshBtn\">Обновить факт</button></div>\n  </div>\n\n  <section class=\"page active\" id=\"page-pulse\">\n    <div class=\"head\">\n      <div><div class=\"eyebrow\">Главный экран</div><h1>Пульс</h1><p>Факт читается напрямую из «Статистики по ДЕМО». План считаем только по зелёным; жёлтые — резерв для дожима; красные — диагностика.</p></div>\n      <div class=\"weekmeta\">\n        <div class=\"weekbadge current\" id=\"currentWeekBadge\">Сейчас: неделя —</div>\n        <select class=\"weekselect\" id=\"weekSelect\"><option>Загружаю недели…</option></select>\n      </div>\n    </div>\n    <div id=\"pulseError\" class=\"errorbox hidden\"></div>\n    <div id=\"pulseLoading\" class=\"loading\">Читаю свежий DEMO-факт из исходной таблицы…</div>\n    <div id=\"pulseContent\" class=\"hidden\">\n      <div class=\"freshnote\" id=\"freshNote\"></div>\n      <div class=\"summary\" id=\"summary\"></div>\n      <div class=\"sectiontitle\"><div><h2>Шесть продуктов</h2><p>Факт выбранной недели и решение на следующий шаг.</p></div><p id=\"sourceStamp\"></p></div>\n      <div class=\"productgrid\" id=\"products\"></div>\n      <div class=\"twocol\">\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Что делать сейчас</h2><p>Решение по каждому продукту.</p></div><div class=\"decisionlist\" id=\"decisions\"></div></section>\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Динамика по неделям</h2><p>Номер недели, даты и зелёные относительно плана.</p></div><div class=\"weeks\" id=\"weeks\"></div></section>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"page\" id=\"page-mail\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 2</div><h1>Письма</h1><p>Только обычные DEMO-рассылки. Новости и дожим демо сюда не попадут.</p></div></div><div class=\"placeholder\"><h2>Следующая страница</h2><p>Соберём после фиксации Пульса.</p></div></section>\n  <section class=\"page\" id=\"page-news\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 3</div><h1>Новости</h1><p>Отдельная страница фактических новостных рассылок ГФ и ГЗ.</p></div></div><div class=\"placeholder\"><h2>Строгий NEWS-классификатор</h2><p>Только утверждённые Campaign-префиксы.</p></div></section>\n  <section class=\"page\" id=\"page-demo\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 4</div><h1>Дожим демо</h1><p>Жёлтые сначала, зелёных исключаем.</p></div></div><div class=\"placeholder\"><h2>Решение, а не отчёт</h2></div></section>\n  <section class=\"page\" id=\"page-vika\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 5</div><h1>План для Вики</h1><p>Каждое письмо отдельной строкой.</p></div></div><div class=\"placeholder\"><h2>Операционный план</h2></div></section>\n  <section class=\"page\" id=\"page-calls\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 6</div><h1>Звонки / Что продает</h1><p>Накопительный анализ звонков.</p></div></div><div class=\"placeholder\"><h2>После основных DEMO-страниц</h2></div></section>\n  <section class=\"page\" id=\"page-service\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 7</div><h1>Служебное</h1><p>Источники, синхронизация, ошибки и дубли.</p></div></div><div class=\"placeholder\"><h2>Служебный экран</h2></div></section>\n</main>\n</div>";
+  document.body.innerHTML="<div class=\"app\">\n<aside>\n  <div class=\"brand\"><b>Analytics Center</b><span>Чистая сборка V2</span></div>\n  <nav>\n    <button class=\"navbtn active\" data-page=\"pulse\">Пульс</button>\n    <button class=\"navbtn\" data-page=\"mail\">Письма</button>\n    <button class=\"navbtn\" data-page=\"news\">Новости</button>\n    <button class=\"navbtn\" data-page=\"demo\">Дожим демо</button>\n    <button class=\"navbtn\" data-page=\"vika\">План для Вики</button>\n    <button class=\"navbtn\" data-page=\"calls\">Звонки / Что продает</button>\n    <button class=\"navbtn\" data-page=\"service\">Служебное</button>\n  </nav>\n  <div class=\"asidefoot\"><b>v2-full-refresh-2026-09-10-10</b>Интерфейс живёт на GitHub Pages. Apps Script используется только как серверный мост к данным.</div>\n</aside>\n<main>\n  <div class=\"topline\">\n    <div class=\"build\"><span id=\"serverDot\" class=\"dot\"></span><span id=\"serverStatus\">Проверяем сервер…</span></div>\n    <div class=\"topactions\"><button class=\"health\" id=\"healthBtn\">Проверить сервер</button><button class=\"refresh\" id=\"refreshBtn\">Обновить всё</button></div>\n  </div>\n\n  <section class=\"page active\" id=\"page-pulse\">\n    <div class=\"head\">\n      <div><div class=\"eyebrow\">Главный экран</div><h1>Пульс</h1><p>Факт читается напрямую из «Статистики по ДЕМО». План считаем только по зелёным; жёлтые — резерв для дожима; красные — диагностика.</p></div>\n      <div class=\"weekmeta\">\n        <div class=\"weekbadge current\" id=\"currentWeekBadge\">Сейчас: неделя —</div>\n        <select class=\"weekselect\" id=\"weekSelect\"><option>Загружаю недели…</option></select>\n      </div>\n    </div>\n    <div id=\"pulseError\" class=\"errorbox hidden\"></div>\n    <div id=\"pulseLoading\" class=\"loading\">Читаю свежий DEMO-факт из исходной таблицы…</div>\n    <div id=\"pulseContent\" class=\"hidden\">\n      <div class=\"freshnote\" id=\"freshNote\"></div>\n      <div class=\"summary\" id=\"summary\"></div>\n      <div class=\"sectiontitle\"><div><h2>Шесть продуктов</h2><p>Факт выбранной недели и решение на следующий шаг.</p></div><p id=\"sourceStamp\"></p></div>\n      <div class=\"productgrid\" id=\"products\"></div>\n      <div class=\"twocol\">\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Что делать сейчас</h2><p>Решение по каждому продукту.</p></div><div class=\"decisionlist\" id=\"decisions\"></div></section>\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Динамика по неделям</h2><p>Номер недели, даты и зелёные относительно плана.</p></div><div class=\"weeks\" id=\"weeks\"></div></section>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"page\" id=\"page-mail\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 2</div><h1>Письма</h1><p>Только обычные DEMO-рассылки. Новости и дожим демо сюда не попадут.</p></div></div><div class=\"placeholder\"><h2>Следующая страница</h2><p>Соберём после фиксации Пульса.</p></div></section>\n  <section class=\"page\" id=\"page-news\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 3</div><h1>Новости</h1><p>Отдельная страница фактических новостных рассылок ГФ и ГЗ.</p></div></div><div class=\"placeholder\"><h2>Строгий NEWS-классификатор</h2><p>Только утверждённые Campaign-префиксы.</p></div></section>\n  <section class=\"page\" id=\"page-demo\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 4</div><h1>Дожим демо</h1><p>Жёлтые сначала, зелёных исключаем.</p></div></div><div class=\"placeholder\"><h2>Решение, а не отчёт</h2></div></section>\n  <section class=\"page\" id=\"page-vika\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 5</div><h1>План для Вики</h1><p>Каждое письмо отдельной строкой.</p></div></div><div class=\"placeholder\"><h2>Операционный план</h2></div></section>\n  <section class=\"page\" id=\"page-calls\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 6</div><h1>Звонки / Что продает</h1><p>Накопительный анализ звонков.</p></div></div><div class=\"placeholder\"><h2>После основных DEMO-страниц</h2></div></section>\n  <section class=\"page\" id=\"page-service\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 7</div><h1>Служебное</h1><p>Источники, синхронизация, ошибки и дубли.</p></div></div><div class=\"placeholder\"><h2>Служебный экран</h2></div></section>\n</main>\n</div>";
 (function(){
 'use strict';
-const BUILD='v2-static-assets-2026-09-09-09';
+const BUILD='v2-full-refresh-2026-09-10-10';
 const buttons=[...document.querySelectorAll('.navbtn')];
 const pages=[...document.querySelectorAll('.page')];
 let appData=null;
@@ -33,10 +33,50 @@ function checkServer(){
  rpc('v2HealthCheck').then(r=>setHealth(Boolean(r&&r.ok),r&&r.ok?'GitHub Pages UI · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил')).catch(e=>setHealth(false,'Ошибка сервера: '+e.message));
 }
 
-function loadData(){
- const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='Читаю источник…';
+async function loadData(){
+ const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='Читаю DEMO…';
  document.getElementById('pulseError').classList.add('hidden');
- rpc('getPulseDataFresh').then(data=>{btn.disabled=false;btn.textContent='Обновить факт';appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();}).catch(err=>{btn.disabled=false;btn.textContent='Обновить факт';showError(err&&err.message?err.message:String(err));});
+ try{
+   const data=await rpc('getPulseDataFresh');
+   appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
+ }catch(err){showError(err&&err.message?err.message:String(err));}
+ finally{btn.disabled=false;btn.textContent='Обновить всё';}
+}
+function showRefreshError(msg){
+ const b=document.getElementById('pulseError');
+ b.textContent='Не удалось обновить все данные: '+msg;
+ b.classList.remove('hidden');
+}
+async function refreshAllData(){
+ const btn=document.getElementById('refreshBtn');
+ btn.disabled=true;
+ document.getElementById('pulseError').classList.add('hidden');
+ let first=true,totalProcessed=0;
+ try{
+   while(true){
+     btn.textContent=first?'Проверяю Sendsay…':'Обновляю Sendsay…';
+     const r=await rpc('syncDriveReportsReliable',first);
+     first=false;
+     totalProcessed+=n(r&&r.processed);
+     const remaining=n(r&&r.remaining);
+     btn.textContent='Sendsay: '+totalProcessed+' · осталось '+remaining;
+     if(remaining<=0) break;
+     if(n(r&&r.processed)<=0) throw new Error('Очередь Sendsay не уменьшается. Осталось файлов: '+remaining);
+   }
+   btn.textContent='Пересчитываю DEMO…';
+   await rpc('syncDemoStats');
+   btn.textContent='Пересобираю данные…';
+   await rpc('refreshAppData');
+   btn.textContent='Обновляю Пульс…';
+   const data=await rpc('getPulseDataFresh');
+   appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
+   setHealth(true,'Данные обновлены · Sendsay обработано '+totalProcessed);
+ }catch(err){
+   showRefreshError(err&&err.message?err.message:String(err));
+   setHealth(false,'Ошибка обновления данных');
+ }finally{
+   btn.disabled=false;btn.textContent='Обновить всё';
+ }
 }
 function showError(msg){document.getElementById('pulseLoading').classList.add('hidden');document.getElementById('pulseContent').classList.add('hidden');const b=document.getElementById('pulseError');b.textContent='Не удалось загрузить Пульс: '+msg;b.classList.remove('hidden')}
 function setupWeeks(){
@@ -66,7 +106,7 @@ function renderSelectedWeek(){
 }
 
 document.getElementById('healthBtn').addEventListener('click',checkServer);
-document.getElementById('refreshBtn').addEventListener('click',loadData);
+document.getElementById('refreshBtn').addEventListener('click',refreshAllData);
 checkServer();loadData();
 })();
 });
