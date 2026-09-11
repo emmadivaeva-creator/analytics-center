@@ -4,16 +4,20 @@
   const logGap=(a,b)=>Math.abs(Math.log(Math.max(+a||1,1)/Math.max(+b||1,1)));
   const ratio=(a,b)=>(+a>0&&+b>0)?(+b/+a):null;
 
-  function tier(a,b){
-    const r=ratio(a.visits,b.visits), same=(a.topic||'')===(b.topic||'');
-    const close=r!==null&&r>=.5&&r<=2, broad=r!==null&&r>=.25&&r<=4;
-    if(same&&close)return 0;
-    if(close)return 1;
-    if(same&&broad)return 2;
-    if(broad)return 3;
-    if(same)return 4;
-    return 5;
-  }
+ function tier(a,b){
+  const r=ratio(a.visits,b.visits);
+  const sameTopic=(a.topic||'')===(b.topic||'');
+  const sameIntent=(a.intent||'')===(b.intent||'');
+  const close=r!==null&&r>=0.5&&r<=2;
+
+  if(!sameIntent)return 99;
+  if(!sameTopic)return 99;
+
+  if(close && (+b.demos||0)>=2)return 0;
+  if(close && (+b.demos||0)>0)return 1;
+
+  return 99;
+}
   function basis(a,b){
     if(!b)return 'Внутри интента нет второй статьи';
     const r=ratio(a.visits,b.visits),same=(a.topic||'')===(b.topic||''),close=r!==null&&r>=.5&&r<=2;
@@ -29,12 +33,21 @@
     if(t<=2)return 'Среднее';
     return 'Базовое';
   }
-  function choose(a,candidates){
-    if(!candidates.length)return null;
-    const successful=candidates.filter(x=>(+x.demos||0)>0);
-    const pool=successful.length?successful:candidates;
-    return [...pool].sort((x,y)=>tier(a,x)-tier(a,y)||logGap(a.visits,x.visits)-logGap(a.visits,y.visits)||(+y.demos||0)-(+x.demos||0)||(+y.demo_1000||0)-(+x.demo_1000||0))[0]||null;
-  }
+ function choose(a,candidates){
+  const good=candidates.filter(x=>{
+    const t=tier(a,x);
+    return t<99;
+  });
+
+  if(!good.length)return null;
+
+  return [...good].sort(
+    (x,y)=>
+      tier(a,x)-tier(a,y) ||
+      logGap(a.visits,x.visits)-logGap(a.visits,y.visits) ||
+      (+y.demos||0)-(+x.demos||0)
+  )[0]||null;
+}
   function alternatives(a,candidates,primary){
     return [...candidates].filter(x=>!primary||String(x.id)!==String(primary.id)).sort((x,y)=>tier(a,x)-tier(a,y)||((+y.demos||0)>0)-((+x.demos||0)>0)||logGap(a.visits,x.visits)-logGap(a.visits,y.visits)).slice(0,2);
   }
@@ -67,8 +80,16 @@
     articles.forEach(a=>{const k=a.intent||'Не определён';if(!byIntent.has(k))byIntent.set(k,[]);byIntent.get(k).push(a)});
     const rows=[],use={};
     articles.forEach(a=>{
-      const candidates=(byIntent.get(a.intent||'Не определён')||[]).filter(b=>String(b.id)!==String(a.id)&&(+b.visits||0)>0);
-      const p=choose(a,candidates),alts=alternatives(a,candidates,p),d0=diagnose(a,p);
+const candidates=(byIntent.get(a.intent||'Не определён')||[])
+.filter(
+ b=>String(b.id)!==String(a.id)
+ &&(+b.visits||0)>0
+);      if(!p){
+  a.no_pair_reason =
+    candidates.length===0
+      ? 'Нет других статей внутри интента'
+      : 'Нет качественной статьи для сравнения';
+},alts=alternatives(a,candidates,p),d0=diagnose(a,p);
       Object.assign(a,{diagnosis:d0.diagnosis,reason:d0.reason,action:d0.action,priority:d0.priority});
       const shown=[p,...alts].filter(Boolean),success=shown.filter(x=>(+x.demos||0)>0),better=success.filter(x=>(+a.demo_1000||0)<.7*(+x.demo_1000||0)).length;
       const stability=better>=2?`Сигнал подтверждают ${better} статьи из ${success.length} показанных ориентиров.`:better===1?'Сигнал есть только по одному из показанных ориентиров.':'Сильный разрыв дополнительными ориентирами не подтверждён.';
