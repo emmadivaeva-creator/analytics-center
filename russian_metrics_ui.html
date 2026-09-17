@@ -42,6 +42,7 @@
     if (!root) return;
 
     if (root.nodeType === Node.TEXT_NODE) {
+      if (root.parentElement && /^(SCRIPT|STYLE|TEXTAREA)$/i.test(root.parentElement.tagName)) return;
       const next = humanizeText(root.nodeValue);
       if (next !== root.nodeValue) root.nodeValue = next;
       return;
