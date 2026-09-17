@@ -33,3 +33,26 @@ function requireDashboardOwner_() {
   const owner=String(Session.getEffectiveUser().getEmail()||'').toLowerCase();
   if(!viewer||viewer!==owner)throw new Error('Войдите в аккаунт владельца аналитики для доступа к плану и расшифровкам.');
 }
+
+function getMailRegistryUi() {
+  requireDashboardOwner_();
+  const storage=openStorage_();
+  const emails=readImportedEmails_(storage);
+  const sheet=storage.getSheetByName(APP.sendsaySheet);
+  const values=sheet?sheet.getDataRange().getDisplayValues():[];
+  if(values.length>1){
+    const headers=values[0];
+    const col=name=>headers.indexOf(name);
+    const byId={};
+    values.slice(1).forEach((row,i)=>{byId['import-'+(row[col('File ID')]||i+1)]=row;});
+    emails.forEach(mail=>{
+      const row=byId[mail.id];if(!row)return;
+      const count=name=>{const value=row[col(name)];return value==null||String(value).trim()===''?null:number_(value);};
+      const delivered=count('Доставлено'),opens=count('Уник. открытия'),clicks=count('Уник. клики');
+      mail.openRate=delivered>0&&opens!==null?round_(opens/delivered*100,2):null;
+      mail.clickRate=delivered>0&&clicks!==null?round_(clicks/delivered*100,2):null;
+      mail.ctor=opens>0&&clicks!==null?round_(clicks/opens*100,2):null;
+    });
+  }
+  return {emails:emails};
+}

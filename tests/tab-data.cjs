@@ -12,3 +12,4 @@ const parsed=ctx.parseSheet(sheet);assert.equal(parsed.records.length,1);assert.
 const s=fs.readFileSync('DashboardTabs.gs','utf8');new vm.Script(s);
 assert(!source.includes('data-page=\\"demo\\"'));
 console.log('PASS: strict NEWS, newest-first ordering, XLSX import mapping, source syntax, removed tab');
+const server=vm.createContext({Session:{getActiveUser:()=>({getEmail:()=> 'owner@example.com'}),getEffectiveUser:()=>({getEmail:()=> 'owner@example.com'})},APP:{sendsaySheet:'data'},openStorage_:()=>({getSheetByName:()=>({getDataRange:()=>({getDisplayValues:()=>[['File ID','Доставлено','Уник. открытия','Уник. клики'],['a','10000','99','19']]})})}),readImportedEmails_:()=>[{id:'import-a'}],number_:Number,round_:(v,d)=>Math.round(v*10**d)/10**d});vm.runInContext(s,server);const rates=server.getMailRegistryUi().emails[0];assert.equal(rates.openRate,.99);assert.equal(rates.clickRate,.19);console.log('PASS: sub-one-percent rates are not multiplied by 100');

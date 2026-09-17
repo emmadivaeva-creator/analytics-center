@@ -66,7 +66,8 @@ async function refreshAllData(){
    btn.textContent='Пересчитываю DEMO…';
    await rpc('syncDemoStats');
    btn.textContent='Пересобираю данные…';
-   const refreshed=await rpc('refreshAppData');
+   await rpc('refreshAppData');
+   const refreshed=await rpc('getMailRegistryUi');
    registryData=(refreshed.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));renderRegistries();
    btn.textContent='Обновляю Пульс…';
    const data=await rpc('getPulseDataFresh');
@@ -115,7 +116,7 @@ async function loadRegistry(force=false){
  if(registryData&&!force){renderRegistries();return;}
  ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Загружаю письма…');
  registryPromise=(async()=>{try{
- const data=await rpc(force?'refreshAppData':'getAppData');
+ const data=await rpc('getMailRegistryUi');
  registryData=(data.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
  for(const key of ['mail','news']){const el=document.getElementById(key+'Product'),prev=el.value;const products=[...new Set(registryData.filter(x=>key==='mail'||isNewsMail(x)).map(x=>x.product).filter(Boolean))].sort();el.innerHTML='<option value="">Все продукты</option>'+products.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');el.value=products.includes(prev)?prev:'';}
  renderRegistries();
@@ -125,7 +126,7 @@ function renderRegistries(){for(const key of ['mail','news']){
  const query=document.getElementById(key+'Search').value.trim().toLowerCase(),product=document.getElementById(key+'Product').value;
  const rows=(registryData||[]).filter(x=>(key==='mail'||isNewsMail(x))&&(!product||x.product===product)&&(!query||[x.subject,x.campaign,x.segment].join(' ').toLowerCase().includes(query)));
  document.getElementById(key+'Status').textContent='Писем: '+fmt(rows.length)+' · от новых к старым';
- document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Тема и кампания</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>Зелёные демо</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}</small></td><td><b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(x.note||x.maturity||'')}</p></details></td><td>${fmt(x.delivered)}</td><td>${pct(x.openRate)}</td><td>${pct(x.clickRate)}</td><td>${x.hasDemoData===true?fmt(x.green):'Не сопоставлено'}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
+ document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Тема и кампания</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>Зелёные демо</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}</small></td><td><b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(x.note||x.maturity||'')}</p></details></td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${x.hasDemoData===true?fmt(x.green):'Не сопоставлено'}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
  document.getElementById(key+'More').classList.toggle('hidden',rows.length<=registryLimits[key]);
 }}
 for(const key of ['mail','news']){
@@ -149,6 +150,7 @@ async function loadCalls(){if(callsBusy||callsLoading)return;callsLoading=true;c
 function renderCalls(){
  const meta=callsData.meta||{};callState(meta.gptConfigured?'Ожидают анализа: '+fmt(meta.pending):'Загрузка доступна. Для смыслового анализа нужно настроить API-ключ на сервере.');
  document.getElementById('callsAnalyze').disabled=callsBusy||!meta.gptConfigured||!meta.pending;
+ const setup=document.getElementById('callsSetup');if(setup)setup.classList.toggle('hidden',Boolean(meta.gptConfigured));
  document.getElementById('callsMetrics').textContent=`Звонков: ${fmt(meta.total)} · Проанализировано: ${fmt(meta.analyzed)} · С продажей: ${fmt(meta.sales)}`;
  const topics=callsData.allTopics||[];
  document.getElementById('callsTopics').innerHTML=topics.length?`<table><thead><tr><th>Тема разговора</th><th>Звонков</th><th>С продажей</th><th>Надёжность</th></tr></thead><tbody>${topics.map((x,i)=>`<tr><td><button data-topic="${i}">${esc(x.name)}</button></td><td>${fmt(x.calls)}</td><td>${fmt(x.sales)}</td><td>${x.lowSample?'Мало наблюдений':'Достаточно для сравнения'}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Пока нет результатов анализа. Загрузите расшифровки и запустите обработку.</div>';
@@ -172,6 +174,11 @@ async function uploadCalls(files){if(callsBusy)return;setCallsBusy(true);const l
  }}catch(e){failed=true;label.textContent='Ошибка загрузки: '+e.message;}finally{setCallsBusy(false);document.getElementById('callFiles').value='';await loadCalls();}
 }
 async function analyzeCalls(){if(callsBusy||!callsData?.meta?.gptConfigured)return;stopCalls=false;setCallsBusy(true);document.getElementById('callsStop').classList.remove('hidden');let total=0,message='';try{while(!stopCalls){const r=await rpc('analyzeCallsBatch',4);if(!r.configured)throw new Error('На сервере не настроен API-ключ.');total+=n(r.analyzed);callState('Разобрано '+total+' · осталось '+n(r.pending));if(r.errors)throw new Error('Сервер не смог обработать '+r.errors+' звонков. Проверьте настройки анализа.');if(!r.pending)break;if(!r.analyzed)throw new Error('Обработка не продвигается.');}message=stopCalls?'Обработка остановлена. Готово: '+total:'Обработка завершена. Разобрано: '+total;}catch(e){message='Обработка остановлена: '+e.message;}finally{setCallsBusy(false);document.getElementById('callsStop').classList.add('hidden');await loadCalls();callState(message);}}
+
+const callsSetup=document.createElement('details');callsSetup.id='callsSetup';callsSetup.className='calls-box hidden';callsSetup.innerHTML='<summary>Подключить анализ звонков</summary><p>Введите API-ключ OpenAI. Он сохранится на сервере и не будет отображаться в результатах.</p><input id="callsKey" type="password" autocomplete="off" placeholder="API-ключ"><button id="callsSaveKey">Сохранить ключ</button>';
+document.getElementById('callsStatus').after(callsSetup);
+document.getElementById('callsSaveKey').onclick=async()=>{const input=document.getElementById('callsKey'),key=input.value.trim();if(!key||callsBusy)return;setCallsBusy(true);try{await rpc('saveCallsOpenAIKey',key);input.value='';setCallsBusy(false);await loadCalls();}catch(e){callState('Не удалось сохранить ключ: '+e.message);}finally{setCallsBusy(false);}};
+
 document.getElementById('callFiles').onchange=e=>uploadCalls([...e.target.files]);
 document.getElementById('callsReload').onclick=loadCalls;
 document.getElementById('callsAnalyze').onclick=analyzeCalls;
