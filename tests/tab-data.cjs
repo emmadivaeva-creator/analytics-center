@@ -22,3 +22,11 @@ const demand=vm.createContext({n:Number});vm.runInContext(source.slice(source.in
 const sample={subject:'Образец документа',date:'2026-09-01',campaign:'campaign',hasDemoData:true,demoEvidence:[{sourceUrl:'https://example.test/#row=1',product:'ГЗ Система',red:3,yellow:2,green:1}]};
 const demandTopics=demand.demandMailTopics([sample,sample,{...sample,demoEvidence:[{...sample.demoEvidence[0],sourceUrl:'https://example.test/#row=2',green:2}]}]);
 assert.equal(demandTopics.length,1);assert.equal(demandTopics[0].green,3);assert.equal(demandTopics[0].letters.length,2);console.log('PASS: demand grouping does not double-count repeated campaign reports');
+const materials=attribution.dashboardMaterials_('<a href="https://www.budgetnik.ru/news/125090-example?x=1">Нейросеть</a><a href="https://www.budgetnik.ru/art/125090-example">Статья</a><a href="https://www.pro-goszakaz.ru/news/125090-example">Закупки</a>');
+assert.equal(materials.length,3);assert.equal(materials[0].title,'Нейросеть');
+const mr=attribution.dashboardMaterialRows_({product:'ГФ Периодика'},materials,[{product:'ГФ Периодика',key:'news',term:'125090',sourceUrl:'source',weeks:[{week:36,red:1,yellow:2,green:3},{week:37,red:0,yellow:1,green:1}]},{product:'ГЗ Периодика',key:'news',term:'125090',weeks:[]}]);
+assert.equal(mr.length,1);assert.equal(mr[0].values.green,4);
+const news={campaign:'Gosfinansi_letter_news_GF_digest_u',date:'2026-09-01',materialData:{rows:mr}};
+assert.equal(demand.demandMailTopics([news,news])[0].green,4);
+assert(!JSON.parse(source.match(/document.body.innerHTML=(".*");/)[1]).includes('data-page="calls"'));
+console.log('PASS: material ID, type and domain matching, full-period totals, repeated material deduplication, calls hidden');

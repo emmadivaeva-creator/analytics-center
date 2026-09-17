@@ -96,16 +96,41 @@ function dashboardMatchMails_(emails,facts) {
   });
   return emails;
 }
+function dashboardMaterials_(raw) {
+  raw=raw.replace(/=\r?\n/g,'').replace(/=3D/gi,'=').replace(/&amp;/g,'&');
+  const materials={};
+  function add(url,title){
+    const m=url.match(/^https?:\/\/(?:www\.)?(budgetnik\.ru|pro-goszakaz\.ru)\/(art|news)\/(\d+)(?:-|[/?#]|$)/i);
+    if(!m)return;
+    const key=m[1].toLowerCase()+'|'+m[2].toLowerCase()+'|'+m[3];
+    title=String(title||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+    if(/=[A-F0-9]{2}/i.test(title)){try{title=decodeURIComponent(title.replace(/%/g,'%25').replace(/=([A-F0-9]{2})/gi,'%$1'));}catch(e){title='';}}
+    title=title.replace(/&nbsp;/g,' ').replace(/&quot;/g,'"').replace(/&amp;/g,'&');
+    if(!materials[key]||title.length>(materials[key].title||'').length)materials[key]={id:m[3],kind:m[2].toLowerCase(),domain:m[1].toLowerCase(),url:url.split(/[?#]/)[0],title:title||m[2]+' / '+m[3]};
+  }
+  const anchors=/<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  let a;while((a=anchors.exec(raw)))add(a[1],a[2]);
+  (raw.match(/https?:\/\/[^\s<>"']+/g)||[]).forEach(url=>add(url,''));
+  return Object.values(materials);
+}
+function dashboardMaterialRows_(mail,materials,facts){
+  const group=String(mail.product).split(' ')[0];
+  return facts.filter(r=>r.product.split(' ')[0]===group).flatMap(r=>{
+    const kind=/^(?:art|article)$/i.test(r.key)?'art':/^news$/i.test(r.key)?'news':'';
+    const material=materials.find(m=>m.id===r.term&&m.kind===kind&&m.domain===(group==='ГФ'?'budgetnik.ru':'pro-goszakaz.ru'));
+    if(!material)return [];
+    const totals={red:0,yellow:0,green:0};r.weeks.forEach(w=>['red','yellow','green'].forEach(k=>totals[k]+=w[k]));
+    return [{product:r.product,content:r.key,term:r.term,title:material.title,url:material.url,source:r.source,sourceUrl:r.sourceUrl,weeks:r.weeks,values:totals}];
+  });
+}
 function getMailDemoDetailsUi(id) {
   requireDashboardOwner_();
   const mail=readImportedEmails_(openStorage_()).find(m=>m.id===id);
   if(!mail)throw new Error('Письмо не найдено');
-  const fileId=String(id).replace(/^import-/,'');
-  const raw=DriveApp.getFileById(fileId).getBlob().getDataAsString('UTF-8').replace(/=\r?\n/g,'').replace(/=([a-f0-9]{2})/gi,(_,h)=>String.fromCharCode(parseInt(h,16))).replace(/&amp;/g,'&');
-  const links=raw.match(/https?:\/\/[^\s<>"']+/g)||[];
-  const materials={};
-  links.forEach(url=>{const m=url.match(/^https?:\/\/(?:www\.)?(?:budgetnik\.ru|pro-goszakaz\.ru)\/(art|news)\/(\d+)(?:-|[/?#]|$)/i);if(m)materials[m[2]]={id:m[2],kind:m[1].toLowerCase(),url:url};});
-  const group=String(mail.product).split(' ')[0];
-  const rows=dashboardDemoRows_(true).filter(r=>r.product.split(' ')[0]===group&&materials[r.term]&&(/^(?:art|article)$/i.test(r.key)?materials[r.term].kind==='art':/^news$/i.test(r.key)&&materials[r.term].kind==='news')).map(r=>({product:r.product,content:r.key,term:r.term,url:materials[r.term].url,source:r.source,sourceUrl:r.sourceUrl,values:r.weeks.find(w=>w.week===mail.week)||null}));
-  return {week:mail.week,materials:Object.values(materials),rows,note:'Результат материалов за неделю отправки по всем реферам в исходном листе. Это связь письма с материалом; общий результат материала не является отдельным результатом каждого письма.'};
+  const file=DriveApp.getFileById(String(id).replace(/^import-/,''));
+  const cache=CacheService.getScriptCache(),key='materials-v2-'+file.getId()+'-'+file.getLastUpdated().getTime();
+  let materials;try{materials=JSON.parse(cache.get(key)||'null');}catch(e){}
+  if(!materials){materials=dashboardMaterials_(file.getBlob().getDataAsString('UTF-8'));try{cache.put(key,JSON.stringify(materials),21600);}catch(e){}}
+  const rows=dashboardMaterialRows_(mail,materials,dashboardDemoRows_(true));
+  return {week:mail.week,materials,rows,note:'Демо материалов по Content / Term за все доступные недели источника. Результат включает все реферы материала, а не только переходы из этого письма. Повтор материала в письмах не умножает его результат в «Спросе».'};
 }
