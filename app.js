@@ -187,7 +187,14 @@ document.getElementById('callsStop').onclick=()=>{stopCalls=true;callState('Ос
 
 let vikaData=null,vikaLoading=false;
 async function loadVika(id){if(vikaLoading)return;vikaLoading=true;const status=document.getElementById('vikaStatus');status.textContent='Читаю рабочий план…';try{vikaData=await rpc('getVikaPlanUi',id||null);document.getElementById('vikaPeriod').innerHTML=vikaData.plans.slice().sort((a,b)=>b.week-a.week).map(p=>`<option value="${p.id}" ${p.id===vikaData.selected.id?'selected':''}>${esc(p.name)}</option>`).join('');document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть исходную таблицу');renderVika();}catch(e){status.textContent='Не удалось загрузить план: '+e.message;}finally{vikaLoading=false;}}
-function renderVika(){if(!vikaData)return;const q=document.getElementById('vikaSearch').value.toLowerCase().trim();const rows=vikaData.rows.filter(r=>!q||r.join(' ').toLowerCase().includes(q));document.getElementById('vikaStatus').textContent=vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt);document.getElementById('vikaRows').innerHTML=rows.length?`<table><thead><tr><th>Дата</th><th>Продукт / сегмент</th><th>Тема и полный текст</th><th>Готовность</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}<small>${esc(r[2])}</small></td><td><b>${esc(r[3])}</b><details><summary>Полное письмо и основание</summary>${r.slice(4).map((v,i)=>v?`<h4>${esc(vikaData.headers[i+4]||'Дополнительно')}</h4><p style="white-space:pre-wrap">${i+4===7?safeLink(v,'Открыть материал')||esc(v):esc(v)}</p>`:'').join('')}</details></td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';}
+function renderVika(){
+  if(!vikaData)return;
+  const q=document.getElementById('vikaSearch').value.toLowerCase().trim();
+  const rows=vikaData.rows.filter(r=>!q||r.join(' ').toLowerCase().includes(q));
+  document.getElementById('vikaStatus').textContent=vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt);
+  const fields=(r,indices)=>indices.map(i=>r[i]?`<div class="vika-field"><h4>${esc(vikaData.headers[i]||'Дополнительно')}</h4><p>${i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i])}</p></div>`:'').join('');
+  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b><details><summary>Полный текст письма</summary>${fields(r,[4,5,6,7])}</details></td><td class="vika-comments">${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
+}
 document.getElementById('vikaPeriod').onchange=e=>loadVika(e.target.value);
 document.getElementById('vikaSearch').oninput=renderVika;
 document.getElementById('vikaReload').onclick=()=>loadVika(vikaData?.selected?.id);
