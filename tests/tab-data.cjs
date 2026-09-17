@@ -30,3 +30,6 @@ const news={campaign:'Gosfinansi_letter_news_GF_digest_u',date:'2026-09-01',mate
 assert.equal(demand.demandMailTopics([news,news])[0].green,4);
 assert(!JSON.parse(source.match(/document.body.innerHTML=(".*");/)[1]).includes('data-page="calls"'));
 console.log('PASS: material ID, type and domain matching, full-period totals, repeated material deduplication, calls hidden');
+const wrapped=attribution.dashboardMaterials_(`<a href="https://app.sendsay.ru/[%%20action_autologin_utm('https://www.budgetnik.ru/news/124482-example')%20%]">=D0=90=D0=BA=D1=82 0510460</a>`);
+assert.equal(wrapped[0].title,'Акт 0510460');assert.equal(wrapped[0].url,'https://www.budgetnik.ru/news/124482-example');
+console.log('PASS: Sendsay template links preserve Russian material titles');

@@ -100,6 +100,7 @@ function dashboardMaterials_(raw) {
   raw=raw.replace(/=\r?\n/g,'').replace(/=3D/gi,'=').replace(/&amp;/g,'&');
   const materials={};
   function add(url,title){
+    url=(url.match(/https?:\/\/(?:www\.)?(?:budgetnik\.ru|pro-goszakaz\.ru)\/[^\s"'<>)]*/i)||[])[0]||'';
     const m=url.match(/^https?:\/\/(?:www\.)?(budgetnik\.ru|pro-goszakaz\.ru)\/(art|news)\/(\d+)(?:-|[/?#]|$)/i);
     if(!m)return;
     const key=m[1].toLowerCase()+'|'+m[2].toLowerCase()+'|'+m[3];
@@ -108,8 +109,8 @@ function dashboardMaterials_(raw) {
     title=title.replace(/&nbsp;/g,' ').replace(/&quot;/g,'"').replace(/&amp;/g,'&');
     if(!materials[key]||title.length>(materials[key].title||'').length)materials[key]={id:m[3],kind:m[2].toLowerCase(),domain:m[1].toLowerCase(),url:url.split(/[?#]/)[0],title:title||m[2]+' / '+m[3]};
   }
-  const anchors=/<a\b[^>]*href\s*=\s*["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
-  let a;while((a=anchors.exec(raw)))add(a[1],a[2]);
+  const anchors=/<a\b[^>]*href\s*=\s*(["'])([\s\S]*?)\1[^>]*>([\s\S]*?)<\/a>/gi;
+  let a;while((a=anchors.exec(raw)))add(a[2],a[3]);
   (raw.match(/https?:\/\/[^\s<>"']+/g)||[]).forEach(url=>add(url,''));
   return Object.values(materials);
 }
@@ -128,7 +129,7 @@ function getMailDemoDetailsUi(id) {
   const mail=readImportedEmails_(openStorage_()).find(m=>m.id===id);
   if(!mail)throw new Error('Письмо не найдено');
   const file=DriveApp.getFileById(String(id).replace(/^import-/,''));
-  const cache=CacheService.getScriptCache(),key='materials-v2-'+file.getId()+'-'+file.getLastUpdated().getTime();
+  const cache=CacheService.getScriptCache(),key='materials-v3-'+file.getId()+'-'+file.getLastUpdated().getTime();
   let materials;try{materials=JSON.parse(cache.get(key)||'null');}catch(e){}
   if(!materials){materials=dashboardMaterials_(file.getBlob().getDataAsString('UTF-8'));try{cache.put(key,JSON.stringify(materials),21600);}catch(e){}}
   const rows=dashboardMaterialRows_(mail,materials,dashboardDemoRows_(true));
