@@ -33,3 +33,9 @@ console.log('PASS: material ID, type and domain matching, full-period totals, re
 const wrapped=attribution.dashboardMaterials_(`<a href="https://app.sendsay.ru/[%%20action_autologin_utm('https://www.budgetnik.ru/news/124482-example')%20%]">=D0=90=D0=BA=D1=82 0510460</a>`);
 assert.equal(wrapped[0].title,'Акт 0510460');assert.equal(wrapped[0].url,'https://www.budgetnik.ru/news/124482-example');
 console.log('PASS: Sendsay template links preserve Russian material titles');
+const editorial=attribution.dashboardEditorialSections_('18 сентября\nТема 18\nТекст\u000b17 сент\nТема 17\nПолный текст\nдополнительная рассылка 17.09.\nДополнительное письмо\n16 сентября\nТема 16');
+assert.equal(attribution.dashboardEditorialMatch_(['17.09.2026','','','Тема 17'],editorial).text,'Тема 17\nПолный текст');
+assert.equal(attribution.dashboardEditorialMatch_(['17.09.2026','','','Другая тема'],editorial).subjectMatches,false);
+assert(attribution.dashboardEditorialMatch_(['15.09.2026','','','Нет'],editorial).error);
+assert(attribution.dashboardEditorialMatch_(['17.09.2026','','','Тема'],[...editorial,editorial[1]]).error);
+console.log('PASS: editorial date matching, extra-mail exclusion, missing/ambiguous originals, changed subjects');

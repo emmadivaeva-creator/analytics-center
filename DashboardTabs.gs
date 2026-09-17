@@ -135,3 +135,41 @@ function getMailDemoDetailsUi(id) {
   const rows=dashboardMaterialRows_(mail,materials,dashboardDemoRows_(true));
   return {week:mail.week,materials,rows,note:'Демо материалов по Content / Term за все доступные недели источника. Результат включает все реферы материала, а не только переходы из этого письма. Повтор материала в письмах не умножает его результат в «Спросе».'};
 }
+
+/** Read editorial originals without changing the approved plan sheet. */
+function dashboardEditorialSections_(text) {
+  const months=['янв','фев','мар','апр','ма','июн','июл','авг','сен','окт','ноя','дек'];
+  const sections=[];let current=null;
+  String(text).replace(/\r\n?/g,'\n').replace(/\u000b/g,'\n').split('\n').forEach(line=>{
+    const m=line.trim().match(/^(?:(основная|дополнительная)(?:\s+рассылка)?\s+)?(\d{1,2})(?:\.(\d{1,2})\.?|\s+([а-яё]+)\.?)(?:\s+(20\d{2})(?:\s*г\.?)?)?\s*$/i);
+    const month=m?(m[3]?Number(m[3]):months.findIndex(x=>m[4].toLowerCase().startsWith(x))+1):0;
+    if(m&&month){current={day:Number(m[2]),month,year:m[5]?Number(m[5]):null,kind:m[1]||'',lines:[]};sections.push(current);}else if(current)current.lines.push(line);
+  });
+  return sections.map(s=>({...s,text:s.lines.join('\n').trim()}));
+}
+function dashboardEditorialMatch_(row,sections) {
+  const d=String(row[0]).match(/^(\d{1,2})\.(\d{1,2})\.(20\d{2})$/);if(!d)return null;
+  const found=sections.filter(s=>s.day===Number(d[1])&&s.month===Number(d[2])&&(!s.year||s.year===Number(d[3]))&&!/дополнительная/i.test(s.kind));
+  if(found.length!==1)return {error:found.length?'На дату найдено несколько редакционных писем. Откройте источник.':'На эту дату в документе нет основного письма.'};
+  const text=found[0].text;if(!text)return {error:'Раздел на эту дату пока пуст.'};
+  const clean=v=>String(v).toLowerCase().replace(/ё/g,'е').replace(/[^а-яa-z0-9]/g,'');
+  return {text,subjectMatches:clean(text).includes(clean(row[3])),date:row[0]};
+}
+function getVikaEditorialUi(sheetId) {
+  requireDashboardOwner_();
+  const plan=getVikaPlanUi(sheetId);
+  const docId='1Z5xX0To-Q-9f9R0RzIuDQsSTkrv3mfLJlceiWzT0rF4';
+  const response=UrlFetchApp.fetch('https://docs.googleapis.com/v1/documents/'+docId+'?includeTabsContent=true',{headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},muteHttpExceptions:true});
+  if(response.getResponseCode()!==200)throw new Error('Не удалось прочитать редакционный Google Документ (HTTP '+response.getResponseCode()+').');
+  const doc=JSON.parse(response.getContentText()),tabs=[];
+  function walk(items){(items||[]).forEach(t=>{tabs.push(t);walk(t.childTabs);});}walk(doc.tabs);
+  function bodyText(items){return (items||[]).map(e=>e.paragraph?(e.paragraph.elements||[]).map(x=>{const run=x.textRun;if(!run)return '';const link=run.textStyle&&run.textStyle.link&&run.textStyle.link.url;return run.content+(link&&!run.content.includes(link)?' ('+link+')':'');}).join(''):e.table?(e.table.tableRows||[]).map(r=>(r.tableCells||[]).map(c=>bodyText(c.content)).join('\n')).join('\n'):'').join('');}
+  const mapping={'ГЗ Периодика':'t.0','ГЗ Система':'t.f0e9uysqbhge','ГЗ Школа':'t.z5vc00fi70ow'},byTab={};
+  tabs.forEach(t=>byTab[t.tabProperties.tabId]=dashboardEditorialSections_(bodyText(t.documentTab&&t.documentTab.body&&t.documentTab.body.content)));
+  const rows={};plan.rows.forEach((r,i)=>{
+    if(!/MAIN/.test(r[2]||'')||/АПФАС|ГЗВИО/.test(r[1]||''))return;
+    const product=Object.keys(mapping).find(p=>String(r[1]).startsWith(p));if(!product)return;
+    const tabId=mapping[product],match=dashboardEditorialMatch_(r,byTab[tabId]||[]);if(match)rows[i]={...match,sourceUrl:'https://docs.google.com/document/d/'+docId+'/edit?tab='+tabId,tabTitle:(tabs.find(t=>t.tabProperties.tabId===tabId)||{tabProperties:{title:product}}).tabProperties.title};
+  });
+  return {rows,readAt:new Date().toISOString(),documentTitle:doc.title};
+}

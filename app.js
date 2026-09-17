@@ -68,11 +68,13 @@ async function refreshAllData(){
    btn.textContent='Пересобираю данные…';
    await rpc('refreshAppData');
    const refreshed=await rpc('getMailRegistryUi');
-   registryData=(refreshed.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));renderRegistries();startMaterialMatching();
+   registryData=(refreshed.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));renderRegistries();renderDemand();startMaterialMatching();
    btn.textContent='Обновляю Пульс…';
    const data=await rpc('getPulseDataFresh');
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
-   setHealth(true,'Данные обновлены · Sendsay обработано '+totalProcessed);
+   btn.textContent='Обновляю план для Вики…';
+   await loadVika(vikaData?.selected?.id);
+   setHealth(true,'Факт и письма обновлены · Sendsay обработано '+totalProcessed+' · Новости сопоставляются постепенно; статус плана — во вкладке Вики');
  }catch(err){
    showRefreshError(err&&err.message?err.message:String(err));
    setHealth(false,'Ошибка обновления данных');
@@ -241,14 +243,16 @@ document.getElementById('demandReload').onclick=async()=>{registryData=null;awai
 document.getElementById('demandSearch').oninput=renderDemand;
 
 let vikaData=null,vikaLoading=false;
-async function loadVika(id){if(vikaLoading)return;vikaLoading=true;const status=document.getElementById('vikaStatus');status.textContent='Читаю рабочий план…';try{vikaData=await rpc('getVikaPlanUi',id||null);document.getElementById('vikaPeriod').innerHTML=vikaData.plans.slice().sort((a,b)=>b.week-a.week).map(p=>`<option value="${p.id}" ${p.id===vikaData.selected.id?'selected':''}>${esc(p.name)}</option>`).join('');document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть исходную таблицу');renderVika();}catch(e){status.textContent='Не удалось загрузить план: '+e.message;}finally{vikaLoading=false;}}
+async function loadVika(id){if(vikaLoading)return;vikaLoading=true;const status=document.getElementById('vikaStatus');status.textContent='Читаю рабочий план…';try{vikaData=await rpc('getVikaPlanUi',id||null);document.getElementById('vikaPeriod').innerHTML=vikaData.plans.slice().sort((a,b)=>b.week-a.week).map(p=>`<option value="${p.id}" ${p.id===vikaData.selected.id?'selected':''}>${esc(p.name)}</option>`).join('');document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть исходную таблицу');renderVika();loadVikaEditorial(vikaData);}catch(e){status.textContent='Не удалось загрузить план: '+e.message;}finally{vikaLoading=false;}}
+async function loadVikaEditorial(plan){try{const result=await rpc('getVikaEditorialUi',plan.selected.id);if(vikaData!==plan)return;plan.editorial=result;}catch(e){if(vikaData!==plan)return;plan.editorialError='Редакционный оригинал не загружен: '+e.message;}renderVika();}
+function vikaEditorialHtml(i){const e=vikaData.editorial?.rows?.[i];if(!e)return '';return `<div class="vika-editorial"><p>${safeLink(e.sourceUrl,'Оригинал редакции · '+e.tabTitle)}</p>${e.error?`<p>${esc(e.error)}</p>`:`<p>${e.subjectMatches?'Тема совпадает с планом':'Тема редакции отличается от подготовленной версии — проверьте перед постановкой'}</p><details><summary>Полный текст из Google Документа</summary><p class="editorial-original">${esc(e.text)}</p></details>`}</div>`;}
 function renderVika(){
   if(!vikaData)return;
   const q=document.getElementById('vikaSearch').value.toLowerCase().trim();
-  const rows=vikaData.rows.filter(r=>!q||r.join(' ').toLowerCase().includes(q));
-  document.getElementById('vikaStatus').textContent=vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt);
+  const rows=vikaData.rows.map((r,i)=>({r,i})).filter(({r,i})=>!q||(r.join(' ')+' '+(vikaData.editorial?.rows?.[i]?.text||'')).toLowerCase().includes(q));
+  document.getElementById('vikaStatus').textContent=vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt)+(vikaData.editorial?' · Оригиналы редакции обновлены':vikaData.editorialError?' · '+vikaData.editorialError:' · Читаю оригиналы редакции…');
   const fields=(r,indices)=>indices.map(i=>r[i]?`<div class="vika-field"><h4>${esc(vikaData.headers[i]||'Дополнительно')}</h4><p>${i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i])}</p></div>`:'').join('');
-  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b><details><summary>Полный текст письма</summary>${fields(r,[4,5,6,7])}</details></td><td class="vika-comments">${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
+  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b>${vikaEditorialHtml(i)}<details><summary>Подготовленный текст плана</summary>${fields(r,[4,5,6,7])}</details></td><td class="vika-comments">${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
 }
 document.getElementById('vikaPeriod').onchange=e=>loadVika(e.target.value);
 document.getElementById('vikaSearch').oninput=renderVika;

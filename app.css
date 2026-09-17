@@ -32,3 +32,5 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 @media(min-width:1400px){.demand-panels{grid-template-columns:1fr;align-items:start}.demand-panels>section{min-width:0}}
 
 .green-share{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#eff8f3}.green-share span{font-size:12px;color:var(--muted)}.green-share strong{font-size:23px;color:#16845e}.green-share small{grid-column:1/-1;color:var(--muted);font-size:11px}
+
+.vika-editorial{padding:10px;margin:10px 0;background:#f1f5ff;border-radius:10px}.editorial-original{white-space:pre-wrap;overflow-wrap:anywhere}
