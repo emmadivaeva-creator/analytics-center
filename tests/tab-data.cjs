@@ -18,3 +18,7 @@ const facts=[{key:'letter_demo_2026.09.01_letter_demo_example_01.09.2026',produc
 const matched=attribution.dashboardMatchMails_([{campaign:'letter_demo_example_01.09.2026',week:36},{campaign:'letter_demo_example_01.09.2026',week:36},{campaign:'other',week:36}],facts);
 assert.equal(matched[0].green,3);assert.equal(matched[0].red,3);assert.equal(matched[0].demoEvidence[0].product,'ГЗ Система');assert.match(matched[0].note,/общий/);assert.equal(matched[2].hasDemoData,false);
 console.log('PASS: fresh campaign attribution, later weeks, shared tags, unmatched facts');
+const demand=vm.createContext({n:Number});vm.runInContext(source.slice(source.indexOf('function demandMailTopics('),source.indexOf('async function loadDemand(')),demand);
+const sample={subject:'Образец документа',date:'2026-09-01',campaign:'campaign',hasDemoData:true,demoEvidence:[{sourceUrl:'https://example.test/#row=1',product:'ГЗ Система',red:3,yellow:2,green:1}]};
+const demandTopics=demand.demandMailTopics([sample,sample,{...sample,demoEvidence:[{...sample.demoEvidence[0],sourceUrl:'https://example.test/#row=2',green:2}]}]);
+assert.equal(demandTopics.length,1);assert.equal(demandTopics[0].green,3);assert.equal(demandTopics[0].letters.length,2);console.log('PASS: demand grouping does not double-count repeated campaign reports');
