@@ -15,24 +15,45 @@
     button.disabled = !client;
   }
   const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi']);
-  function publicRead(method, parameters) {
-    return new Promise((resolve,reject) => {
-      const callback = 'analyticsJsonp_'+crypto.randomUUID().replace(/-/g,'');
-      const script = document.createElement('script');
-      const url = new URL(config.publicReadUrl);
-      url.searchParams.set('method',method);
-      url.searchParams.set('args',JSON.stringify(parameters));
-      url.searchParams.set('callback',callback);
-      const cleanup=()=>{clearTimeout(timer);script.remove();delete window[callback];};
-      const timer=setTimeout(()=>{cleanup();reject(new Error('Данные загружаются слишком долго. Повторите попытку.'));},120000);
-      window[callback]=data=>{cleanup();data.ok?resolve(data.result):reject(new Error(data.error||'Не удалось прочитать данные.'));};
-      script.onerror=()=>{cleanup();reject(new Error('Не удалось подключиться к данным аналитики.'));};
-      script.src=url.href;document.head.append(script);
-    });
+  async function publicRead(method, parameters) {
+    const url = new URL(config.publicReadUrl);
+    url.searchParams.set('method', method);
+    url.searchParams.set('args', JSON.stringify(parameters));
+    // Anonymous CORS reads avoid account redirects and cross-site script blocking.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 120000);
+      let data;
+      try {
+        const response = await fetch(url.href, {
+          method: 'GET', credentials: 'omit', redirect: 'follow',
+          cache: 'no-store', signal: controller.signal
+        });
+        if (!response.ok) {
+          const error = new Error('Сервер аналитики временно недоступен (' + response.status + ').');
+          error.retryable = response.status === 429 || response.status >= 500;
+          throw error;
+        }
+        data = await response.json();
+      } catch (error) {
+        if (attempt === 2 || error.retryable === false) {
+          throw new Error(error.name === 'AbortError'
+            ? 'Данные загружаются слишком долго. Повторите попытку.'
+            : 'Не удалось подключиться к данным аналитики. Нажмите «Проверить сервер» или обновите страницу.');
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        continue;
+      } finally {
+        clearTimeout(timer);
+      }
+      // Application errors are not network failures and must not be retried.
+      if (!data || data.ok !== true) throw new Error(data?.error || 'Не удалось прочитать данные.');
+      return data.result;
+    }
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js';
+    const script=document.createElement('script');script.src='app.js?v=20260918-transport-filter';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
@@ -70,7 +91,7 @@
       return;
     }
     if (!window.google?.accounts?.oauth2) {
-      showGate('Не удалось загрузить вход Google. Обновите страницу.');
+      if (!config?.publicReadUrl) showGate('Не удалось загрузить вход Google. Обновите страницу.');
       return;
     }
     client = google.accounts.oauth2.initTokenClient({
