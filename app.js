@@ -8,7 +8,28 @@ const pages=[...document.querySelectorAll('.page')];
 let appData=null;
 let activeWeek=null;
 
-function openPage(name){if(name==='demand')loadDemand();if(name==='vika'&&!vikaData)loadVika();if(name==='calls')loadCalls();if(['mail','news'].includes(name))loadRegistry();buttons.forEach(b=>b.classList.toggle('active',b.dataset.page===name));pages.forEach(p=>p.classList.toggle('active',p.id==='page-'+name));}
+const PAGE_STORAGE_KEY='analytics-active-page';
+function validPage(name){return buttons.some(b=>b.dataset.page===name);}
+function rememberedPage(){
+ const hash=decodeURIComponent(String(location.hash||'').replace(/^#/,''));
+ if(validPage(hash))return hash;
+ try{const saved=localStorage.getItem(PAGE_STORAGE_KEY);if(validPage(saved))return saved;}catch(e){}
+ return 'pulse';
+}
+function rememberPage(name){
+ try{localStorage.setItem(PAGE_STORAGE_KEY,name);}catch(e){}
+ if(location.hash!=='#'+name)history.replaceState(null,'','#'+name);
+}
+function openPage(name,persist=true){
+ if(!validPage(name))name='pulse';
+ if(name==='demand')loadDemand();
+ if(name==='vika'&&!vikaData)loadVika();
+ if(name==='calls')loadCalls();
+ if(['mail','news'].includes(name))loadRegistry();
+ buttons.forEach(b=>b.classList.toggle('active',b.dataset.page===name));
+ pages.forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
+ if(persist)rememberPage(name);
+}
 buttons.forEach(b=>b.addEventListener('click',()=>openPage(b.dataset.page)));
 function setHealth(ok,text){document.getElementById('serverDot').className='dot '+(ok?'ok':'bad');document.getElementById('serverStatus').textContent=text;}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -346,6 +367,8 @@ document.getElementById('vikaReload').onclick=()=>loadVika(vikaData?.selected?.i
 
 document.getElementById('healthBtn').addEventListener('click',checkServer);
 document.getElementById('refreshBtn').addEventListener('click',refreshAllData);
+window.addEventListener('hashchange',()=>openPage(rememberedPage(),false));
+openPage(rememberedPage());
 checkServer();loadData();
 })();
 }
