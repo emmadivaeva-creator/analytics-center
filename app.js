@@ -25,7 +25,8 @@ function openPage(name,persist=true){
  if(name==='demand')loadDemand();
  if(name==='vika'&&!vikaData)loadVika();
  if(name==='calls')loadCalls();
- if(['mail','news'].includes(name))loadRegistry();
+ if(name==='mail')loadRegistry();
+ if(name==='news')loadRegistry().then(()=>startMaterialMatching());
  buttons.forEach(b=>b.classList.toggle('active',b.dataset.page===name));
  pages.forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
  if(persist)rememberPage(name);
@@ -90,7 +91,7 @@ async function refreshAllData(){
    btn.textContent='Пересобираю данные…';
    await rpc('refreshAppData');
    const refreshed=await rpc('getMailRegistryUi');
-   registryData=(refreshed.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));renderRegistries();renderDemand();startMaterialMatching();
+   registryData=(refreshed.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));renderRegistries();renderDemand();
    btn.textContent='Обновляю Пульс…';
    const data=await rpc('getPulseDataFresh');
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
@@ -143,7 +144,7 @@ async function loadRegistry(force=false){
  const data=await rpc('getMailRegistryUi');
  registryData=(data.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
  for(const key of ['mail','news']){const el=document.getElementById(key+'Product'),prev=el.value;const products=[...new Set(registryData.filter(x=>key==='news'?isNewsMail(x):!isNewsMail(x)).map(x=>x.product).filter(Boolean))].sort();el.innerHTML='<option value="">Все продукты</option>'+products.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');el.value=products.includes(prev)?prev:'';}
- renderRegistries();startMaterialMatching();
+ renderRegistries();
  }catch(e){['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Не удалось загрузить письма: '+e.message);}finally{registryPromise=null;}})();return registryPromise;
 }
 function renderRegistries(){for(const key of ['mail','news']){
@@ -302,22 +303,27 @@ function demandLinksHtml(topic){
 }
 let demandPrefetchBusy=false;
 async function loadDemandLinks(ids){
- let changed=false;
  for(const id of [...new Set(ids||[])]){
   const existing=demandMaterialLinks.get(id);if(existing&&!existing.error)continue;
   demandMaterialLinks.set(id,{loading:true});
+  renderDemand();
   try{const mail=registryData.find(m=>m.id===id);const data=mail?.materialData||await rpc('getMailDemoDetailsUi',id);demandMaterialLinks.set(id,{materials:data.materials||[]});}
   catch(e){demandMaterialLinks.set(id,{error:e.message});}
-  changed=true;
+  renderDemand();
  }
- if(changed)renderDemand();
 }
 function prefetchDemandLinks(topics){
  if(demandPrefetchBusy)return;
- const ids=[...new Set((topics||[]).flatMap(t=>t.materialUrl?[]:t.letters.map(m=>m.id).filter(Boolean)))].filter(id=>!demandMaterialLinks.has(id));
- if(!ids.length)return;
+ const unresolved=[];
+ for(const topic of topics||[]){
+  if(topic.materialUrl)continue;
+  const id=topic.letters.map(m=>m.id).find(id=>id&&!demandMaterialLinks.has(id));
+  if(id&&!unresolved.includes(id))unresolved.push(id);
+  if(unresolved.length>=4)break;
+ }
+ if(!unresolved.length)return;
  demandPrefetchBusy=true;
- Promise.resolve().then(()=>loadDemandLinks(ids)).finally(()=>{demandPrefetchBusy=false;});
+ Promise.resolve().then(()=>loadDemandLinks(unresolved)).finally(()=>{demandPrefetchBusy=false;setTimeout(()=>renderDemand(),0);});
 }
 async function loadDemand(){
  if(demandBusy)return;demandBusy=true;document.getElementById('demandReload').disabled=true;document.getElementById('demandStatus').textContent='Сопоставляю темы с результатами DEMO…';
