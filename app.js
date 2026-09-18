@@ -251,10 +251,11 @@ document.getElementById('callsStop').onclick=()=>{stopCalls=true;callState('Ос
 
 
 let demandBusy=false,demandShowAll=false;
+const demandMaterialLinks=new Map();
 function demandMailTopics(emails){
  const seen=new Set(),groups=new Map();
  for(const mail of emails){
-  if(mail.materialData){for(const r of mail.materialData.rows){const key=r.sourceUrl;if(seen.has(key))continue;seen.add(key);const groupKey=r.product+'|'+r.url; if(!groups.has(groupKey))groups.set(groupKey,{title:r.title,product:r.product,red:0,yellow:0,green:0,letters:[],lastDate:mail.date});const item=groups.get(groupKey);for(const k of ['red','yellow','green'])item[k]+=n(r.values[k]);item.letters.push({date:'Все доступные недели',campaign:'Content '+r.content+' / Term '+r.term,url:r.sourceUrl,sendsay:r.url,material:true});}}
+  if(mail.materialData){for(const r of mail.materialData.rows){const key=r.sourceUrl;if(seen.has(key))continue;seen.add(key);const groupKey=r.product+'|'+r.url; if(!groups.has(groupKey))groups.set(groupKey,{title:r.title,materialUrl:r.url,product:r.product,red:0,yellow:0,green:0,letters:[],lastDate:mail.date});const item=groups.get(groupKey);for(const k of ['red','yellow','green'])item[k]+=n(r.values[k]);item.letters.push({date:'Все доступные недели',campaign:'Content '+r.content+' / Term '+r.term,url:r.sourceUrl,sendsay:r.url,material:true});}}
   if(/^Gosfinansi_letter_news_GF_digest|^letter_news_goszakaz_regular_news_digest/i.test(mail.campaign||'')||!mail.hasDemoData)continue;
   for(const evidence of mail.demoEvidence||[]){
    const key=evidence.sourceUrl||evidence.source+'|'+evidence.product+'|'+evidence.campaign;
@@ -264,10 +265,26 @@ function demandMailTopics(emails){
    const groupKey=evidence.product+'|'+title.toLowerCase();
    if(!groups.has(groupKey))groups.set(groupKey,{title,product:evidence.product,red:0,yellow:0,green:0,letters:[],lastDate:mail.date});
    const item=groups.get(groupKey);for(const metric of ['red','yellow','green'])item[metric]+=n(evidence[metric]);
-   item.letters.push({date:mail.date,campaign:mail.campaign,url:evidence.sourceUrl,sendsay:mail.sendsay});
+   item.letters.push({id:mail.id,date:mail.date,campaign:mail.campaign,url:evidence.sourceUrl,sendsay:mail.sendsay});
   }
  }
  return [...groups.values()].sort((a,b)=>b.green-a.green||b.yellow-a.yellow||b.lastDate.localeCompare(a.lastDate));
+}
+function demandLinksHtml(topic){
+ if(topic.materialUrl)return '';
+ const ids=[...new Set(topic.letters.map(m=>m.id).filter(Boolean))];
+ const links=new Map();let loading=false,error=false,pending=false;
+ for(const id of ids){const entry=demandMaterialLinks.get(id);if(!entry){pending=true;continue;}if(entry.loading)loading=true;if(entry.error)error=true;for(const m of entry.materials||[])if(!links.has(m.url))links.set(m.url,m);}
+ return `<div class="demand-material-links">${[...links.values()].map(m=>`<p>${safeLink(m.url,m.title||'Открыть материал')}</p>`).join('')}${pending||error?`<button class="demand-material-load" data-mail-ids="${esc(JSON.stringify(ids))}">${error?'Повторить загрузку материалов':'Материалы из письма'}</button>`:loading?'<small>Загружаю ссылки на материалы…</small>':!links.size?'<small>Прямых ссылок на новости и статьи в письме не найдено.</small>':''}${error?'<small>Не удалось загрузить часть ссылок.</small>':''}</div>`;
+}
+async function loadDemandLinks(ids){
+ for(const id of ids){
+  const existing=demandMaterialLinks.get(id);if(existing&&!existing.error)continue;
+  demandMaterialLinks.set(id,{loading:true});renderDemand();
+  try{const mail=registryData.find(m=>m.id===id);const data=mail?.materialData||await rpc('getMailDemoDetailsUi',id);demandMaterialLinks.set(id,{materials:data.materials||[]});}
+  catch(e){demandMaterialLinks.set(id,{error:e.message});}
+ }
+ renderDemand();
 }
 async function loadDemand(){
  if(demandBusy)return;demandBusy=true;document.getElementById('demandReload').disabled=true;document.getElementById('demandStatus').textContent='Сопоставляю темы с результатами DEMO…';
@@ -281,7 +298,8 @@ function renderDemand(){
  const matched=emails.filter(m=>m.hasDemoData).length;
  document.getElementById('demandStatus').textContent='Письма: '+fmt(emails.length)+' · Campaign сопоставлен: '+fmt(matched)+' · Новостные письма проверены: '+emails.filter(m=>isNewsMail(m)&&m.materialData).length+'/'+emails.filter(isNewsMail).length;
  document.getElementById('demandSummary').innerHTML=`<div><b>${fmt(topics.filter(t=>t.green>0).length)}</b><span>тем с зелёными демо</span></div><div><b>${fmt(topics.reduce((sum,t)=>sum+t.green,0))}</b><span>зелёных демо по этим темам</span></div><div><b>${fmt(topics.length)}</b><span>тем с сопоставленной статистикой</span></div>`;
- document.getElementById('demandDemo').innerHTML=topics.length?`<table><thead><tr><th>Тема / продукт</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Основание</th></tr></thead><tbody>${topics.slice(0,demandShowAll?topics.length:20).map(t=>`<tr><td><b>${esc(t.title)}</b><small>${esc(t.product)}</small></td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>Метки: ${t.letters.length}</summary>${t.letters.map(m=>`<p>${esc(m.date)} · ${esc(m.campaign)}<br>${safeLink(m.url,'Статистика DEMO')} · ${safeLink(m.sendsay,m.material?'Материал':'Письмо в Sendsay')}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>${topics.length>20?`<button id="demandMore">${demandShowAll?'Показать первые 20':'Показать все темы: '+topics.length}</button>`:''}`:'<p>Нет сопоставленных тем по выбранному запросу.</p>';
+ document.getElementById('demandDemo').innerHTML=topics.length?`<table><thead><tr><th>Тема / продукт</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Основание</th></tr></thead><tbody>${topics.slice(0,demandShowAll?topics.length:20).map(t=>`<tr><td><b>${t.materialUrl?safeLink(t.materialUrl,t.title):esc(t.title)}</b><small>${esc(t.product)}</small>${demandLinksHtml(t)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>Метки: ${t.letters.length}</summary>${t.letters.map(m=>`<p>${esc(m.date)} · ${esc(m.campaign)}<br>${safeLink(m.url,'Статистика DEMO')} · ${safeLink(m.sendsay,m.material?'Материал':'Письмо в Sendsay')}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>${topics.length>20?`<button id="demandMore">${demandShowAll?'Показать первые 20':'Показать все темы: '+topics.length}</button>`:''}`:'<p>Нет сопоставленных тем по выбранному запросу.</p>';
+ document.querySelectorAll('.demand-material-load').forEach(button=>button.onclick=()=>loadDemandLinks(JSON.parse(button.dataset.mailIds)));
  const more=document.getElementById('demandMore');if(more)more.onclick=()=>{demandShowAll=!demandShowAll;renderDemand();};
 }
 document.getElementById('demandReload').onclick=async()=>{registryData=null;await loadDemand();};
