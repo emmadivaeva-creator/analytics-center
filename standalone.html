@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Analytics Center</title><link rel="stylesheet" href="app.css">
+<style>#authGate{position:fixed;inset:0;z-index:10000;display:grid;place-items:center;background:#f4f6f9;padding:24px}#authGate[hidden]{display:none}.signin{max-width:460px;background:white;border-radius:20px;padding:32px;box-shadow:0 12px 40px #17203318}.signin button{padding:12px 18px;background:#4263eb;color:white;border:0;border-radius:10px;font:inherit}.signin p{line-height:1.6}</style>
+<script defer src="domain-config.js"></script>
+<script async src="https://accounts.google.com/gsi/client"></script>
+<script defer src="domain-auth.js"></script>
+</head><body><section id="authGate"><div class="signin"><h1>Analytics Center</h1><p>Редакционная аналитика и план рассылок.</p><p id="authStatus" role="status">Подключаю вход Google…</p><button id="signIn" disabled>Войти через Google</button><p><a href="https://script.google.com/macros/s/AKfycbzixvV5Pde5ZHZJnXUB_5AeO_kw1nVkMzdNkw-0VUl2g4tFTypcDHRYeknI0iJhv_PhdA/exec">Открыть текущую версию</a></p></div></section></body></html>
