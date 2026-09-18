@@ -29,6 +29,7 @@ function getCallTopicDetailUi(name,kind,filters) {
 }
 
 function requireDashboardOwner_() {
+  if (typeof PUBLIC_DASHBOARD_READ_ !== "undefined" && PUBLIC_DASHBOARD_READ_) return;
   const viewer=String(Session.getActiveUser().getEmail()||'').toLowerCase();
   const owner=String(Session.getEffectiveUser().getEmail()||'').toLowerCase();
   if(!viewer||viewer!==owner)throw new Error('Войдите в аккаунт владельца аналитики для доступа к плану и расшифровкам.');

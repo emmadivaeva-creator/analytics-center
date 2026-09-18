@@ -57,8 +57,8 @@ const DEMO_HEADERS = Object.freeze([
   'Неделя', 'Продукт', 'R', 'Y', 'G', 'План', 'Обновлено', 'Источник'
 ]);
 
-function doGet() {
-  return buildAnalyticsWebApp_();
+function doGet(e) {
+  return publicDashboardRead_(e);
 }
 
 /**

@@ -14,7 +14,30 @@
     status.textContent = message;
     button.disabled = !client;
   }
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi']);
+  function publicRead(method, parameters) {
+    return new Promise((resolve,reject) => {
+      const callback = 'analyticsJsonp_'+crypto.randomUUID().replace(/-/g,'');
+      const script = document.createElement('script');
+      const url = new URL(config.publicReadUrl);
+      url.searchParams.set('method',method);
+      url.searchParams.set('args',JSON.stringify(parameters));
+      url.searchParams.set('callback',callback);
+      const cleanup=()=>{clearTimeout(timer);script.remove();delete window[callback];};
+      const timer=setTimeout(()=>{cleanup();reject(new Error('Данные загружаются слишком долго. Повторите попытку.'));},120000);
+      window[callback]=data=>{cleanup();data.ok?resolve(data.result):reject(new Error(data.error||'Не удалось прочитать данные.'));};
+      script.onerror=()=>{cleanup();reject(new Error('Не удалось подключиться к данным аналитики.'));};
+      script.src=url.href;document.head.append(script);
+    });
+  }
+  function startApp() {
+    if(started)return;
+    const script=document.createElement('script');script.src='app.js';
+    script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
+    document.head.append(script);started=true;gate.hidden=true;
+  }
   window.analyticsRpc = async function(method, ...parameters) {
+    if(config.publicReadUrl && readMethods.has(method))return publicRead(method,parameters);
     if (!allowed.has(method)) throw new Error('Этот раздел пока недоступен на новом адресе.');
     if (!token || Date.now() >= expiresAt) {
       token = '';
@@ -41,6 +64,7 @@
   };
   // Tokens remain in memory; neither browser storage nor URL contains credentials.
   function init() {
+    if(config?.publicReadUrl)startApp();
     if (!config?.clientId || !config.scriptId) {
       showGate('Новая версия готовится к подключению. Текущая аналитика работает по прежней ссылке.');
       return;
@@ -64,20 +88,14 @@
         expiresAt = Date.now() + Math.max(0, Number(result.expires_in) - 60) * 1000;
         try {
           await window.analyticsRpc('v2HealthCheck');
-          if (!started) {
-            const script = document.createElement('script');
-            script.src = 'app.js';
-            script.onerror = () => { started = false; showGate('Не удалось загрузить приложение. Повторите вход.'); };
-            document.head.append(script);
-            started = true;
-          }
+          startApp();
           gate.hidden = true;
         } catch (error) { showGate(error.message); }
       },
       error_callback: () => showGate('Окно входа закрыто или заблокировано. Нажмите «Войти через Google» снова.')
     });
     button.disabled = false;
-    status.textContent = 'Войдите в аккаунт владельца аналитики.';
+    status.textContent = 'Для обновления исходных данных войдите в аккаунт владельца. Просмотр доступен без входа.';
     button.onclick = () => { button.disabled = true; client.requestAccessToken({prompt: ''}); };
   }
   window.addEventListener('load', init, {once: true});

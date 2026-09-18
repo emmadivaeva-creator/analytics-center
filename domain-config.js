@@ -1,5 +1,6 @@
 // Public OAuth identifiers only. Never add client secrets or access tokens here.
 window.ANALYTICS_DOMAIN_CONFIG = Object.freeze({
+  publicReadUrl: 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec',
   clientId: '365326268499-9viso28g0ieh42l6nfe2ensq4rpovbos.apps.googleusercontent.com', // Web OAuth client in the same standard Cloud project as the script.
   scriptId: 'AKfycbyc65eMiIpCSXc7wdkZql1XmEcn8GYCezoSR5qIgjyycs9TLE-XYlySOxsciDlP2HGVIw',
   scopes: [
