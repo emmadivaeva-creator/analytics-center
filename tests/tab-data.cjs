@@ -39,3 +39,10 @@ assert.equal(attribution.dashboardEditorialMatch_(['17.09.2026','','','Друг�
 assert(attribution.dashboardEditorialMatch_(['15.09.2026','','','Нет'],editorial).error);
 assert(attribution.dashboardEditorialMatch_(['17.09.2026','','','Тема'],[...editorial,editorial[1]]).error);
 console.log('PASS: editorial date matching, extra-mail exclusion, missing/ambiguous originals, changed subjects');
+const newsCtx=vm.createContext({n:Number,isNewsMail:ctx.isNewsMail});
+vm.runInContext(source.slice(source.indexOf('function newsMaterialTopics('),source.indexOf('function renderNewsMaterials(')),newsCtx);
+const newsFixture={id:'a',product:'ГФ Периодика',campaign:'Gosfinansi_letter_news_GF_digest_u',materialData:{materials:[{url:'https://www.budgetnik.ru/news/1-test',title:'Есть демо',kind:'news'},{url:'https://www.budgetnik.ru/news/2-test',title:'Нет демо',kind:'news'}],rows:[{url:'https://www.budgetnik.ru/news/1-test',product:'ГФ Периодика',sourceUrl:'row1',weeks:[{week:37,red:1,yellow:2,green:3},{week:38,red:0,yellow:0,green:4}]}]}};
+let nt=newsCtx.newsMaterialTopics([newsFixture,{...newsFixture,id:'b'}],'');
+assert.equal(nt.length,2);assert.equal(nt[0].green,7);assert.equal(nt[0].letters.size,2);assert.equal(nt[1].total,0);
+nt=newsCtx.newsMaterialTopics([newsFixture],'38');assert.equal(nt[0].green,4);assert.equal(nt[0].red,0);
+console.log('PASS: news inventory keeps zero-demo materials, deduplicates repeated letters and filters fact by week');
