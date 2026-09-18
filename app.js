@@ -273,11 +273,125 @@ document.getElementById('callsStop').onclick=()=>{stopCalls=true;callState('Ос
 
 
 let demandBusy=false,demandShowAll=false;
-const demandMaterialLinks=new Map();
+let demandPlanRows=null,demandPlanPromise=null,demandPlanError='',demandPlanLoaded=false,demandPlanLoadedCount=0;
+
+function demandNormText(v){
+ return String(v||'').toLowerCase().replace(/ё/g,'е').replace(/[«»"“”„'’]/g,'').replace(/[^a-zа-я0-9]+/gi,' ').replace(/\s+/g,' ').trim();
+}
+function demandDateKey(v){
+ const s=String(v||'').trim();let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+ if(m)return m[1]+'-'+String(Number(m[2])).padStart(2,'0')+'-'+String(Number(m[3])).padStart(2,'0');
+ m=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+ if(m)return m[3]+'-'+String(Number(m[2])).padStart(2,'0')+'-'+String(Number(m[1])).padStart(2,'0');
+ return s;
+}
+function demandProductKey(v){
+ const s=demandNormText(v);
+ const group=/(?:^| )гф(?: |$)|госфинанс/.test(s)?'ГФ':/(?:^| )гз(?: |$)|госзаказ/.test(s)?'ГЗ':'';
+ let family='';
+ if(/период|гзру|госзакупки ru|убу|збу|апфас|гзвио|(?:^| )вио(?: |$)/.test(s))family='Периодика';
+ else if(/система|(?:^| )сс(?: |$)/.test(s))family='Система';
+ else if(/школ/.test(s))family='Школа';
+ return group&&family?group+' '+family:'';
+}
+function demandFlowKey(v){
+ const s=demandNormText(v);
+ if(/апфас/.test(s))return'apfas';
+ if(/гзвио|(?:^| )вио(?: |$)/.test(s))return'vio';
+ if(/(?:^| )збу(?: |$)/.test(s))return'zbu';
+ if(/(?:^| )убу(?: |$)/.test(s))return'ubu';
+ if(/гзру|госзакупки ru/.test(s))return'gzru';
+ return'';
+}
+function demandMailSlot(mail){
+ const raw=String(mail?.campaign||'').toLowerCase(),s=demandNormText((mail?.segment||'')+' '+raw);
+ if(/activdemo/i.test(raw)){
+  if(/activdemo[^a-zа-я0-9]*d(?:[^a-zа-я0-9]|$)/i.test(raw)||/_activdemo_d_/i.test(raw))return'active-day';
+  return'active';
+ }
+ if(/клик|open/.test(s)||/_open_/i.test(raw))return'warm';
+ if(/_d(?:_|\.|$)/i.test(raw)||/досыл|дожим/.test(s))return'dosyl';
+ if(/_1(?:_|\.|$)/i.test(raw)||/все доступ|дополнитель/.test(s))return'extra';
+ return'main';
+}
+function demandPlanSlot(v){
+ const s=demandNormText(v);
+ if(/активдемо/.test(s))return /день|(?:^| )4(?: |$)/.test(s)?'active-day':'active';
+ if(/клик|open/.test(s))return'warm';
+ if(/досыл|дожим/.test(s))return'dosyl';
+ if(/все доступ|дополнитель/.test(s))return'extra';
+ if(/живые|main|основн/.test(s))return'main';
+ return'';
+}
+function demandPlanRowsFrom(data){
+ const headers=data?.headers||[],rows=data?.rows||[],idx=name=>headers.indexOf(name);
+ const dateI=idx('Дата'),productI=idx('Продукт / поток'),segmentI=idx('Сегмент'),subjectI=idx('Тема письма'),urlI=idx('Ссылка на материал');
+ if([dateI,productI,segmentI,subjectI,urlI].some(i=>i<0))return[];
+ return rows.flatMap(r=>{
+  const url=String(r[urlI]||'').trim(),product=demandProductKey(r[productI]);
+  if(!/^https?:\/\//i.test(url)||!/^(?:ГФ|ГЗ) (?:Периодика|Система)$/.test(product))return[];
+  return [{
+   date:demandDateKey(r[dateI]),product,flow:demandFlowKey(r[productI]),slot:demandPlanSlot(r[segmentI]),
+   subject:String(r[subjectI]||'').trim(),subjectNorm:demandNormText(r[subjectI]),url
+  }];
+ });
+}
+async function loadDemandPlanRows(force=false){
+ if(demandPlanPromise)return demandPlanPromise;
+ if(demandPlanLoaded&&!force)return demandPlanRows||[];
+ demandPlanPromise=(async()=>{
+  if(force){demandPlanRows=[];demandPlanLoaded=false;demandPlanLoadedCount=0;demandPlanError='';}
+  if(!Array.isArray(demandPlanRows))demandPlanRows=[];
+  const first=await rpc('getVikaPlanUi',null),seen=new Set();
+  const ingest=data=>{
+   const rows=demandPlanRowsFrom(data);
+   const existing=new Set(demandPlanRows.map(r=>[r.date,r.product,r.flow,r.slot,r.url].join('|')));
+   for(const row of rows){const key=[row.date,row.product,row.flow,row.slot,row.url].join('|');if(!existing.has(key)){demandPlanRows.push(row);existing.add(key);}}
+   demandPlanLoadedCount++;
+   if(registryData)renderDemand();
+  };
+  ingest(first);seen.add(String(first?.selected?.id||''));
+  const plans=(first?.plans||[]).slice().sort((a,b)=>Number(b.week||0)-Number(a.week||0));
+  for(const plan of plans){
+   if(seen.has(String(plan.id)))continue;
+   seen.add(String(plan.id));
+   try{ingest(await rpc('getVikaPlanUi',plan.id));}catch(e){demandPlanError=e.message||String(e);}
+  }
+  demandPlanLoaded=true;
+  return demandPlanRows;
+ })().catch(e=>{demandPlanError=e.message||String(e);demandPlanLoaded=true;throw e;}).finally(()=>{demandPlanPromise=null;if(registryData)renderDemand();});
+ return demandPlanPromise;
+}
+function demandPlanLinksForMail(mail){
+ if(!Array.isArray(demandPlanRows)||!mail)return[];
+ const date=demandDateKey(mail.date),product=demandProductKey(mail.product||mail.productFlow);
+ if(!/^(?:ГФ|ГЗ) (?:Периодика|Система)$/.test(product))return[];
+ let candidates=demandPlanRows.filter(r=>r.date===date&&r.product===product);
+ if(!candidates.length)return[];
+ const subject=demandNormText(mail.subject),exact=candidates.filter(r=>r.subjectNorm&&r.subjectNorm===subject);
+ if(exact.length===1)return exact;
+ const mailFlow=demandFlowKey((mail.productFlow||'')+' '+(mail.product||'')+' '+(mail.campaign||''));
+ if(mailFlow){
+  const byFlow=candidates.filter(r=>r.flow===mailFlow);
+  if(byFlow.length)candidates=byFlow;
+ }
+ const slot=demandMailSlot(mail),bySlot=candidates.filter(r=>r.slot===slot);
+ if(bySlot.length===1)return bySlot;
+ if(candidates.length===1)return candidates;
+ return[];
+}
+function demandPlanLinksForTopic(topic){
+ const links=new Map();
+ for(const letter of topic.letters||[]){
+  const mail=(registryData||[]).find(m=>m.id===letter.id);
+  for(const row of demandPlanLinksForMail(mail))if(!links.has(row.url))links.set(row.url,row);
+ }
+ return [...links.values()];
+}
 function demandMailTopics(emails){
  const seen=new Set(),groups=new Map();
  for(const mail of emails){
-  if(mail.materialData){for(const r of mail.materialData.rows){const key=r.sourceUrl;if(seen.has(key))continue;seen.add(key);const groupKey=r.product+'|'+r.url; if(!groups.has(groupKey))groups.set(groupKey,{title:r.title,materialUrl:r.url,product:r.product,red:0,yellow:0,green:0,letters:[],lastDate:mail.date});const item=groups.get(groupKey);for(const k of ['red','yellow','green'])item[k]+=n(r.values[k]);item.letters.push({date:'Все доступные недели',campaign:'Content '+r.content+' / Term '+r.term,url:r.sourceUrl,sendsay:r.url,material:true});}}
+  if(mail.materialData){for(const r of mail.materialData.rows){const key=r.sourceUrl;if(seen.has(key))continue;seen.add(key);const groupKey=r.product+'|'+r.url;if(!groups.has(groupKey))groups.set(groupKey,{title:r.title,materialUrl:r.url,product:r.product,red:0,yellow:0,green:0,letters:[],lastDate:mail.date});const item=groups.get(groupKey);for(const k of ['red','yellow','green'])item[k]+=n(r.values[k]);item.letters.push({date:'Все доступные недели',campaign:'Content '+r.content+' / Term '+r.term,url:r.sourceUrl,sendsay:r.url,material:true});}}
   if(/^Gosfinansi_letter_news_GF_digest|^letter_news_goszakaz_regular_news_digest/i.test(mail.campaign||'')||!mail.hasDemoData)continue;
   for(const evidence of mail.demoEvidence||[]){
    const key=evidence.sourceUrl||evidence.source+'|'+evidence.product+'|'+evidence.campaign;
@@ -292,42 +406,17 @@ function demandMailTopics(emails){
  }
  return [...groups.values()].sort((a,b)=>b.green-a.green||b.yellow-a.yellow||b.lastDate.localeCompare(a.lastDate));
 }
-function demandLinksHtml(topic){
- if(topic.materialUrl)return '';
- const ids=[...new Set(topic.letters.map(m=>m.id).filter(Boolean))];
- const links=new Map();let loading=false,error=false,pending=false;
- for(const id of ids){const entry=demandMaterialLinks.get(id);if(!entry){pending=true;continue;}if(entry.loading)loading=true;if(entry.error)error=true;for(const m of entry.materials||[])if(m&&m.url&&!links.has(m.url))links.set(m.url,m);}
- const direct=[...links.values()].map(m=>`<p>↗ ${safeLink(m.url,m.title||'Открыть материал')}</p>`).join('');
- const status=error?`<button class="demand-material-load" data-mail-ids="${esc(JSON.stringify(ids))}">Повторить загрузку ссылок</button><small>Не удалось загрузить часть ссылок.</small>`:(loading||pending)?'<small>Загружаю ссылки на материалы…</small>':!links.size?'<small>В этом письме прямые ссылки на статьи и новости не найдены.</small>':'';
- return `<div class="demand-material-links">${direct}${status}</div>`;
-}
-let demandPrefetchBusy=false;
-async function loadDemandLinks(ids){
- for(const id of [...new Set(ids||[])]){
-  const existing=demandMaterialLinks.get(id);if(existing&&!existing.error)continue;
-  demandMaterialLinks.set(id,{loading:true});
+async function loadDemand(force=false){
+ if(demandBusy)return;
+ demandBusy=true;document.getElementById('demandReload').disabled=true;document.getElementById('demandStatus').textContent='Сопоставляю темы с результатами DEMO…';
+ try{
+  await loadRegistry(force);
+  if(!registryData)throw new Error('Реестр писем не загружен');
   renderDemand();
-  try{const mail=registryData.find(m=>m.id===id);const data=mail?.materialData||await rpc('getMailDemoDetailsUi',id);demandMaterialLinks.set(id,{materials:data.materials||[]});}
-  catch(e){demandMaterialLinks.set(id,{error:e.message});}
+  try{await loadDemandPlanRows(force);}catch(e){}
   renderDemand();
- }
-}
-function prefetchDemandLinks(topics){
- if(demandPrefetchBusy)return;
- const unresolved=[];
- for(const topic of topics||[]){
-  if(topic.materialUrl)continue;
-  const id=topic.letters.map(m=>m.id).find(id=>id&&!demandMaterialLinks.has(id));
-  if(id&&!unresolved.includes(id))unresolved.push(id);
-  if(unresolved.length>=4)break;
- }
- if(!unresolved.length)return;
- demandPrefetchBusy=true;
- Promise.resolve().then(()=>loadDemandLinks(unresolved)).finally(()=>{demandPrefetchBusy=false;setTimeout(()=>renderDemand(),0);});
-}
-async function loadDemand(){
- if(demandBusy)return;demandBusy=true;document.getElementById('demandReload').disabled=true;document.getElementById('demandStatus').textContent='Сопоставляю темы с результатами DEMO…';
- try{await loadRegistry();if(!registryData)throw new Error('Реестр писем не загружен');renderDemand();}catch(e){document.getElementById('demandStatus').textContent='Не удалось загрузить спрос: '+e.message;}finally{demandBusy=false;document.getElementById('demandReload').disabled=false;}
+ }catch(e){document.getElementById('demandStatus').textContent='Не удалось загрузить спрос: '+e.message;}
+ finally{demandBusy=false;document.getElementById('demandReload').disabled=false;}
 }
 function renderDemand(){
  if(!registryData)return;
@@ -335,15 +424,20 @@ function renderDemand(){
  const emails=registryData.filter(m=>!group||String(m.product||'').startsWith(group));
  const topics=demandMailTopics(registryData).filter(t=>(!group||String(t.product||'').startsWith(group))&&[t.title,t.product].join(' ').toLowerCase().includes(q));
  const matched=emails.filter(m=>m.hasDemoData).length;
- document.getElementById('demandStatus').textContent='Письма: '+fmt(emails.length)+' · Campaign сопоставлен: '+fmt(matched)+' · Новостные письма проверены: '+emails.filter(m=>isNewsMail(m)&&m.materialData).length+'/'+emails.filter(isNewsMail).length;
+ const linked=topics.filter(t=>t.materialUrl||demandPlanLinksForTopic(t).length).length;
+ const linkState=!demandPlanLoaded?' · ссылки из плана загружаются':demandPlanError?' · ссылки из плана загружены частично':' · с материалом: '+fmt(linked);
+ document.getElementById('demandStatus').textContent='Письма: '+fmt(emails.length)+' · Campaign сопоставлен: '+fmt(matched)+linkState;
  document.getElementById('demandSummary').innerHTML=`<div><b>${fmt(topics.filter(t=>t.green>0).length)}</b><span>тем с зелёными демо</span></div><div><b>${fmt(topics.reduce((sum,t)=>sum+t.green,0))}</b><span>зелёных демо по этим темам</span></div><div><b>${fmt(topics.length)}</b><span>тем с сопоставленной статистикой</span></div>`;
  const visibleTopics=topics.slice(0,demandShowAll?topics.length:20);
- document.getElementById('demandDemo').innerHTML=topics.length?`<table><thead><tr><th>Тема / продукт</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Основание</th></tr></thead><tbody>${visibleTopics.map(t=>`<tr><td><b>${t.materialUrl?safeLink(t.materialUrl,t.title):esc(t.title)}</b><small>${esc(t.product)}</small>${demandLinksHtml(t)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>Метки: ${t.letters.length}</summary>${t.letters.map(m=>`<p>${esc(m.date)} · ${esc(m.campaign)}<br>${safeLink(m.url,'Статистика DEMO')} · ${safeLink(m.sendsay,m.material?'Материал':'Письмо в Sendsay')}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>${topics.length>20?`<button id="demandMore">${demandShowAll?'Показать первые 20':'Показать все темы: '+topics.length}</button>`:''}`:'<p>Нет сопоставленных тем по выбранному запросу.</p>';
- document.querySelectorAll('.demand-material-load').forEach(button=>button.onclick=()=>loadDemandLinks(JSON.parse(button.dataset.mailIds)));
+ document.getElementById('demandDemo').innerHTML=topics.length?`<table><thead><tr><th>Тема / продукт</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Основание</th></tr></thead><tbody>${visibleTopics.map(t=>{
+  const planLinks=demandPlanLinksForTopic(t),primary=t.materialUrl||(planLinks.length===1?planLinks[0].url:'');
+  const family=demandProductKey(t.product),needsPlan=/ (?:Периодика|Система)$/.test(family)&&!t.materialUrl;
+  const extra=planLinks.length>1?`<div class="demand-material-links">${planLinks.map((m,i)=>`<p>↗ ${safeLink(m.url,'Материал '+(i+1)+' · '+m.date)}</p>`).join('')}</div>`:needsPlan&&!primary?`<div class="demand-material-links"><small>${demandPlanLoaded?'Ссылка на материал в плане не сопоставлена.':'Загружаю ссылку на материал из плана…'}</small></div>`:'';
+  return `<tr><td><b>${primary?safeLink(primary,t.title):esc(t.title)}</b><small>${esc(t.product)}</small>${extra}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>Метки: ${t.letters.length}</summary>${t.letters.map(m=>`<p>${esc(m.date)} · ${esc(m.campaign)}<br>${safeLink(m.url,'Статистика DEMO')} · ${safeLink(m.sendsay,m.material?'Материал':'Письмо в Sendsay')}</p>`).join('')}</details></td></tr>`;
+ }).join('')}</tbody></table>${topics.length>20?`<button id="demandMore">${demandShowAll?'Показать первые 20':'Показать все темы: '+topics.length}</button>`:''}`:'<p>Нет сопоставленных тем по выбранному запросу.</p>';
  const more=document.getElementById('demandMore');if(more)more.onclick=()=>{demandShowAll=!demandShowAll;renderDemand();};
- prefetchDemandLinks(visibleTopics);
 }
-document.getElementById('demandReload').onclick=async()=>{registryData=null;await loadDemand();};
+document.getElementById('demandReload').onclick=async()=>{registryData=null;demandPlanRows=null;demandPlanLoaded=false;demandPlanLoadedCount=0;demandPlanError='';await loadDemand(true);};
 document.getElementById('demandSearch').oninput=renderDemand;
 document.getElementById('demandGroup').onchange=()=>{demandShowAll=false;renderDemand();};
 
