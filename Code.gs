@@ -1111,6 +1111,12 @@ function buildDemoStats_(demoSpreadsheet) {
 
     for (let rowIndex = headerIndex + 1; rowIndex < rows.length; rowIndex++) {
       const row = rows[rowIndex];
+
+      // На листе «ФАКТ демо СС» после первого «Общий итог» начинается
+      // второй разрез той же статистики. Его нельзя суммировать повторно:
+      // иначе факт Систем почти удваивается.
+      if (spec.family === 'Система' && norm_(row[0]) === 'общий итог') break;
+
       const group = demoGroup_(row[0]);
       const sourceKey = String(row[1] || '').trim();
 
