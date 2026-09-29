@@ -127,7 +127,7 @@ function testSendsayMaterialSourcesV2() {
       .map(decodeLoose);
     const unique=[...new Set(urls)];
     const materialUrls=unique.filter(function(url){
-      return /(?:budgetnik\.ru|pro-goszakaz\.ru)\/(?:art|news)\//i.test(url);
+      return /(?:budgetnik\.ru|zpbudgetnik\.ru|gosfinansy\.ru|pro-goszakaz\.ru|goszakupkiru\.ru|1gzakaz\.ru)\/(?:art|article|news)\//i.test(url);
     });
     const hosts={};
     unique.forEach(function(url){
@@ -142,7 +142,11 @@ function testSendsayMaterialSourcesV2() {
       hrefCount:(raw.match(/href\s*=/gi)||[]).length,
       urlCount:unique.length,
       hasBudgetnik:/budgetnik\.ru/i.test(raw),
+      hasZpBudgetnik:/zpbudgetnik\.ru/i.test(raw),
+      hasGosfinansy:/gosfinansy\.ru/i.test(raw),
       hasProGoszakaz:/pro-goszakaz\.ru/i.test(raw),
+      hasGoszakupkiru:/goszakupkiru\.ru/i.test(raw),
+      has1gzakaz:/1gzakaz\.ru/i.test(raw),
       hasExternalExtra:/external_extra/i.test(raw),
       materialUrlCount:materialUrls.length,
       materialUrls:materialUrls.slice(0,10),
