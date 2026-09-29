@@ -65,15 +65,31 @@ classifyCampaign_ = function(campaign, fileName, subject, sender) {
       '265': 'ГФ Периодика',
       '266': 'ГФ Периодика',
       '350': 'ГФ Периодика',
-      '729': 'ГЗ Периодика',
-      '818': 'ГЗ Система',
       '1005': 'ГФ Школа',
-      '1213': 'ГЗ Школа',
-      '1223': 'ГФ Система'
+      '1223': 'ГФ Система',
+
+      '728': 'ГЗ Периодика',
+      '729': 'ГЗ Периодика',
+      '733': 'ГЗ Периодика',
+      '737': 'ГЗ Периодика',
+      '818': 'ГЗ Система',
+      '821': 'ГЗ Система',
+      '824': 'ГЗ Система',
+      '1213': 'ГЗ Школа'
     };
     if (productBySourceId[sourceId]) {
       product = productBySourceId[sourceId];
       flow = product;
+
+      if (product === 'ГЗ Периодика') {
+        if (/gzvio|(?:^|[_-])vio(?:[_-]|\.|$)/i.test(String(campaign || ''))) {
+          flow = product + ' · ВИО';
+        } else if (/fas/i.test(String(campaign || ''))) {
+          flow = product + ' · ФАС';
+        } else if (/gzru/i.test(String(campaign || ''))) {
+          flow = product + ' · ГЗРУ';
+        }
+      }
     }
   }
 
