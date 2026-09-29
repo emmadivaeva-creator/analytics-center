@@ -572,6 +572,59 @@ function renderVika(){
   const fields=(r,indices)=>indices.map(i=>r[i]?`<div class="vika-field"><h4>${esc(vikaData.headers[i]||'Дополнительно')}</h4><p>${i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i])}</p></div>`:'').join('');
   document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b>${vikaEditorialHtml(i)}<details><summary>Подготовленный текст плана</summary>${fields(r,[4,5,6,7])}</details></td><td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
 }
+
+async function loadVio(force=false){
+ const status=document.getElementById('vioStatus');
+ status.textContent='Читаю выгрузку ВИО и собираю темы…';
+ try{
+  vioData=await rpc('getVioTrendsUi',force?1:null);
+  renderVio();
+  const meta=vioData&&vioData.meta||{};
+  status.textContent='Обновлено '+dateRu(meta.readAt)+' · текущий период: '+String(meta.currentLabel||'');
+ }catch(err){
+  status.textContent='Не удалось загрузить ВИО: '+(err&&err.message?err.message:String(err));
+ }
+}
+function vioSigned(v,suffix){
+ const x=n(v);
+ return (x>0?'+':'')+new Intl.NumberFormat('ru-RU',{maximumFractionDigits:1}).format(x)+(suffix||'');
+}
+function vioList(items,mode){
+ const rows=Array.isArray(items)?items:[];
+ if(!rows.length)return '<div class="vio-empty">Пока недостаточно данных.</div>';
+ const max=Math.max.apply(null,[1].concat(rows.map(x=>mode==='rise'?Math.abs(n(x.deltaPp)):n(x.count))));
+ return rows.map((x,i)=>{
+  const value=mode==='rise'?Math.abs(n(x.deltaPp)):n(x.count);
+  const width=Math.max(4,Math.round(value/max*100));
+  let meta='';
+  if(mode==='topic')meta=fmt(x.count)+' вопросов · '+pct(x.share)+(n(x.deltaPp)?' · '+vioSigned(x.deltaPp,' п.п.'):'');
+  else if(mode==='rise')meta=vioSigned(x.deltaPp,' п.п.')+' · '+fmt(x.count)+' вопросов';
+  else meta=fmt(x.count)+' · '+pct(x.share);
+  return '<div class="vio-row"><div class="vio-rank">'+(i+1)+'</div><div class="vio-rowmain"><div><b>'+esc(x.name)+'</b><span>'+esc(meta)+'</span></div><div class="vio-bar"><i style="width:'+width+'%"></i></div></div></div>';
+ }).join('');
+}
+function renderVio(){
+ if(!vioData)return;
+ const groups=vioData.groups||{};
+ const data=groups[vioGroup]||{};
+ const meta=vioData.meta||{};
+ document.getElementById('vioGz').setAttribute('aria-pressed',String(vioGroup==='ГЗ'));
+ document.getElementById('vioGf').setAttribute('aria-pressed',String(vioGroup==='ГФ'));
+ const pace=n(data.paceChangePct);
+ document.getElementById('vioSummary').innerHTML=
+  '<div><b>'+fmt(data.currentTotal)+'</b><span>вопросов · '+esc(meta.currentLabel||'текущий месяц')+'</span></div>'+
+  '<div><b>'+esc(String(data.currentPace==null?0:data.currentPace))+'</b><span>вопросов в день</span></div>'+
+  '<div><b>'+esc(vioSigned(pace,'%'))+'</b><span>темп к '+esc(meta.previousLabel||'прошлому месяцу')+'</span></div>'+
+  '<div><b>'+fmt(data.previousTotal)+'</b><span>вопросов · '+esc(meta.previousLabel||'прошлый месяц')+'</span></div>';
+ document.getElementById('vioTopics').innerHTML=vioList((data.topTopics||[]).slice(0,10),'topic');
+ document.getElementById('vioRising').innerHTML=vioList((data.risingTopics||[]).slice(0,8),'rise');
+ document.getElementById('vioIntents').innerHTML=vioList((data.intents||[]).slice(0,8),'intent');
+ document.getElementById('vioRubrics').innerHTML=(data.rubrics||[]).map(x=>'<span><b>'+esc(x.name)+'</b><small>'+fmt(x.count)+' · '+pct(x.share)+'</small></span>').join('');
+}
+document.getElementById('vioGz').onclick=()=>{vioGroup='ГЗ';renderVio();};
+document.getElementById('vioGf').onclick=()=>{vioGroup='ГФ';renderVio();};
+document.getElementById('vioReload').onclick=()=>loadVio(true);
+
 document.getElementById('vikaPeriod').onchange=e=>loadVika(e.target.value);
 document.getElementById('vikaSearch').oninput=renderVika;
 document.getElementById('vikaDate').onchange=renderVika;
