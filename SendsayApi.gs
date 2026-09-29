@@ -127,9 +127,14 @@ function testSendsayApiOneDay() {
           product: report.product,
           type: report.type,
           delivered: report.delivered,
+          uniqueOpened: report.uniqueOpened,
+          uniqueClicked: report.uniqueClicked,
           openRate: report.openRate,
           clickRate: report.clickRate,
           ctor: report.ctor,
+          calcOpenRate: report.delivered ? round_(report.uniqueOpened / report.delivered * 100, 2) : 0,
+          calcClickRate: report.delivered ? round_(report.uniqueClicked / report.delivered * 100, 2) : 0,
+          calcCtor: report.uniqueOpened ? round_(report.uniqueClicked / report.uniqueOpened * 100, 2) : 0,
           sendsay: report.sendsay
         };
       })
@@ -518,8 +523,13 @@ function sendsayApiRowToReport_(row, policy) {
   const issueName = String(row[2] || '').trim();
   const subject = String(row[3] || '').trim();
   const format = String(row[4] || '').trim().toLowerCase();
+  const groupGid = String(row[5] || '').trim();
 
   if (!issueId || !issueDt || format !== 'e') return null;
+
+  // Персональные тестовые отправки не должны попадать в редакционную аналитику.
+  // В тестовом срезе Sendsay они приходят с gid=personal и часто с subject "Тест: ...".
+  if (groupGid === 'personal' || /^\s*тест\s*:/i.test(subject)) return null;
 
   const campaign = campaignFromIssueName_(issueName);
 
@@ -564,12 +574,12 @@ function sendsayApiRowToReport_(row, policy) {
 
     sent: number_(row[9]),
     delivered: number_(row[10]),
-    deliveredRate: percent_(row[11]),
+    deliveredRate: sendsayApiRate_(row[11]),
     uniqueOpened: uniqueOpened,
-    openRate: percent_(row[13]),
+    openRate: sendsayApiRate_(row[13]),
     uniqueClicked: number_(row[14]),
-    clickRate: percent_(row[15]),
-    ctor: percent_(row[16]),
+    clickRate: sendsayApiRate_(row[15]),
+    ctor: sendsayApiRate_(row[16]),
     unsubscribed: unsubscribed,
     utor: utor,
 
@@ -577,9 +587,16 @@ function sendsayApiRowToReport_(row, policy) {
     policyName: policy.name,
     draftId: String(row[7] || ''),
     draftName: String(row[8] || ''),
-    groupGid: String(row[5] || ''),
+    groupGid: groupGid,
     groupName: String(row[6] || '')
   };
+}
+
+function sendsayApiRate_(value) {
+  // issue.delivery_rate / open_rate / click_rate / click_open_rate
+  // уже приходят из stat.uni в процентных пунктах.
+  // Например 0.14 означает 0.14%, а не 14%.
+  return round_(number_(value), 2);
 }
 
 function campaignFromIssueName_(issueName) {
