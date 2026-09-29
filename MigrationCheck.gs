@@ -142,12 +142,14 @@ function testSendsayMaterialSourcesV2() {
       strings:strings.length,
       hrefCount:(raw.match(/href\s*=/gi)||[]).length,
       urlCount:unique.length,
-      hasBudgetnik:/budgetnik\.ru/i.test(raw),
-      hasZpBudgetnik:/zpbudgetnik\.ru/i.test(raw),
-      hasGosfinansy:/gosfinansy\.ru/i.test(raw),
-      hasProGoszakaz:/pro-goszakaz\.ru/i.test(raw),
-      hasGoszakupkiru:/goszakupkiru\.ru/i.test(raw),
-      has1gzakaz:/1gzakaz\.ru/i.test(raw),
+      ownDomainsFound:[...new Set(unique.map(function(url){
+        const m=url.match(/^https?:\/\/([^/?#]+)/i);
+        if(!m)return'';
+        const host=m[1].toLowerCase().replace(/^www\./,'');
+        return typeof dashboardMaterialRootDomain_==='function'
+          ? dashboardMaterialRootDomain_(host)
+          : '';
+      }).filter(Boolean))],
       hasExternalExtra:/external_extra/i.test(raw),
       materialUrlCount:materialUrls.length,
       materialUrls:materialUrls.slice(0,10),
