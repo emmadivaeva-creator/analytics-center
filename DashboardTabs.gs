@@ -97,48 +97,118 @@ function dashboardMatchMails_(emails,facts) {
   });
   return emails;
 }
+function dashboardMaterialRootDomain_(domain) {
+  const d=String(domain||'').toLowerCase().replace(/^www\./,'').split(':')[0];
+  const roots=['budgetnik.ru','zpbudgetnik.ru','gosfinansy.ru','pro-goszakaz.ru','goszakupkiru.ru','1gzakaz.ru'];
+  return roots.find(function(root){return d===root||d.endsWith('.'+root);})||'';
+}
+
 function dashboardMaterialGroupByDomain_(domain) {
-  const d=String(domain||'').toLowerCase().replace(/^www\./,'');
-  if(['budgetnik.ru','zpbudgetnik.ru','gosfinansy.ru'].includes(d))return'ГФ';
-  if(['pro-goszakaz.ru','goszakupkiru.ru','1gzakaz.ru'].includes(d))return'ГЗ';
+  const root=dashboardMaterialRootDomain_(domain);
+  if(['budgetnik.ru','zpbudgetnik.ru','gosfinansy.ru'].includes(root))return'ГФ';
+  if(['pro-goszakaz.ru','goszakupkiru.ru','1gzakaz.ru'].includes(root))return'ГЗ';
   return'';
 }
 
 function dashboardMaterials_(raw) {
-  raw=raw.replace(/=\r?\n/g,'').replace(/=3D/gi,'=').replace(/&amp;/g,'&');
+  raw=String(raw||'')
+    .replace(/=\r?\n/g,'')
+    .replace(/=3D/gi,'=')
+    .replace(/&amp;/gi,'&')
+    .replace(/&quot;/gi,'"');
+
   const materials={};
+
   function add(url,title){
-    url=(url.match(/https?:\/\/(?:www\.)?(?:budgetnik\.ru|zpbudgetnik\.ru|gosfinansy\.ru|pro-goszakaz\.ru|goszakupkiru\.ru|1gzakaz\.ru)\/[^\s"'<>)]*/i)||[])[0]||'';
-    const m=url.match(/^https?:\/\/(?:www\.)?(budgetnik\.ru|zpbudgetnik\.ru|gosfinansy\.ru|pro-goszakaz\.ru|goszakupkiru\.ru|1gzakaz\.ru)\/(art|article|news)\/(\d+)(?:-|[/?#]|$)/i);
-    if(!m)return;
-    const domain=m[1].toLowerCase();
-    const kind=/^article$/i.test(m[2])?'art':m[2].toLowerCase();
-    const key=domain+'|'+kind+'|'+m[3];
+    const found=(String(url||'').match(/https?:\/\/[^\s"'<>)]*/i)||[])[0]||'';
+    if(!found)return;
+
+    const hostMatch=found.match(/^https?:\/\/([^/?#]+)/i);
+    if(!hostMatch)return;
+
+    const host=hostMatch[1].toLowerCase().replace(/^www\./,'');
+    const root=dashboardMaterialRootDomain_(host);
+    if(!root)return;
+
+    const tail=found.slice(hostMatch[0].length);
+    let id='';
+    let kind='';
+
+    const standard=tail.match(/^\/(art|article|news)\/(\d+)(?:-|[/?#]|$)/i);
+    if(standard){
+      id=standard[2];
+      kind=/^article$/i.test(standard[1])?'art':standard[1].toLowerCase();
+    }
+
+    if(!id && /^e\./i.test(host)){
+      const short=tail.match(/^\/(\d{5,})(?:[/?#]|$)/);
+      if(short){
+        id=short[1];
+        kind='any';
+      }
+    }
+
+    if(!id){
+      const query=found.match(/[?&](?:id|articleid|newsid|doc_id|docid|term)=(\d{5,})/i);
+      if(query){
+        id=query[1];
+        kind='any';
+      }
+    }
+
+    if(!id)return;
+
+    const key=root+'|'+kind+'|'+id;
     title=String(title||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
-    if(/=[A-F0-9]{2}/i.test(title)){try{title=decodeURIComponent(title.replace(/%/g,'%25').replace(/=([A-F0-9]{2})/gi,'%$1'));}catch(e){title='';}}
+    if(/=[A-F0-9]{2}/i.test(title)){
+      try{title=decodeURIComponent(title.replace(/%/g,'%25').replace(/=([A-F0-9]{2})/gi,'%$1'));}catch(e){title='';}
+    }
     title=title.replace(/&nbsp;/g,' ').replace(/&quot;/g,'"').replace(/&amp;/g,'&');
-    if(!materials[key]||title.length>(materials[key].title||'').length)materials[key]={
-      id:m[3],
-      kind:kind,
-      domain:domain,
-      group:dashboardMaterialGroupByDomain_(domain),
-      url:url.split(/[?#]/)[0],
-      title:title||kind+' / '+m[3]
-    };
+
+    if(!materials[key]||title.length>(materials[key].title||'').length){
+      materials[key]={
+        id:id,
+        kind:kind,
+        domain:host,
+        rootDomain:root,
+        group:dashboardMaterialGroupByDomain_(host),
+        url:found,
+        title:title||(kind==='any'?'Материал '+id:kind+' / '+id)
+      };
+    }
   }
+
   const anchors=/<a\b[^>]*href\s*=\s*(["'])([\s\S]*?)\1[^>]*>([\s\S]*?)<\/a>/gi;
-  let a;while((a=anchors.exec(raw)))add(a[2],a[3]);
-  (raw.match(/https?:\/\/[^\s<>"']+/g)||[]).forEach(url=>add(url,''));
+  let a;
+  while((a=anchors.exec(raw)))add(a[2],a[3]);
+
+  (raw.match(/https?:\/\/[^\s<>"']+/g)||[]).forEach(function(url){add(url,'');});
   return Object.values(materials);
 }
+
 function dashboardMaterialRows_(mail,materials,facts){
   const group=String(mail.product).split(' ')[0];
   return facts.filter(r=>r.product.split(' ')[0]===group).flatMap(r=>{
     const kind=/^(?:art|article)$/i.test(r.key)?'art':/^news$/i.test(r.key)?'news':'';
-    const material=materials.find(m=>m.id===r.term&&m.kind===kind&&dashboardMaterialGroupByDomain_(m.domain)===group);
+    const material=materials.find(m=>
+      m.id===r.term &&
+      (m.kind===kind||m.kind==='any') &&
+      dashboardMaterialGroupByDomain_(m.domain)===group
+    );
     if(!material)return [];
-    const totals={red:0,yellow:0,green:0};r.weeks.forEach(w=>['red','yellow','green'].forEach(k=>totals[k]+=w[k]));
-    return [{product:r.product,content:r.key,term:r.term,title:material.title,url:material.url,source:r.source,sourceUrl:r.sourceUrl,weeks:r.weeks,values:totals}];
+    const totals={red:0,yellow:0,green:0};
+    r.weeks.forEach(w=>['red','yellow','green'].forEach(k=>totals[k]+=w[k]));
+    return [{
+      product:r.product,
+      content:r.key,
+      term:r.term,
+      title:material.title,
+      url:material.url,
+      source:r.source,
+      sourceUrl:r.sourceUrl,
+      weeks:r.weeks,
+      values:totals
+    }];
   });
 }
 function getMailDemoDetailsUi(id) {
