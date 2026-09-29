@@ -2,16 +2,18 @@
  * Analytics Center v2 — независимая сборка аналитики DEMO.
  *
  * Источники истины:
- * 1) папка Drive с фактическими отчётами Sendsay (.webarchive / .mhtml / .mht);
+ * 1) Sendsay API (stat.uni) под LBAC policy 52 / 61;
  * 2) исходная таблица "Статистика по ДЕМО".
+ *
+ * Legacy-парсер файлов Drive оставлен как резервный код на время миграции.
  *
  * Старые листы "DEMO-аналитики" не читаются и не участвуют в расчётах.
  */
 
 const APP = Object.freeze({
-  version: '2.0.0',
+  version: '2.1.0',
   parserVersion: 'sendsay-webarchive-v3',
-  cachePrefix: 'analytics-center-v6',
+  cachePrefix: 'analytics-center-v7',
   cacheSeconds: 300,
 
   storageProperty: 'ANALYTICS_STORAGE_SHEET_ID',
@@ -111,16 +113,9 @@ function refreshAppData() {
  * .webarchive поддерживается наравне с .mhtml/.mht.
  */
 function syncDriveReports() {
-  assertAdmin_();
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
-  try {
-    const result = importDriveReportsBatch_(openStorage_(), APP.importBatchSize);
-    clearCache_();
-    return result;
-  } finally {
-    lock.releaseLock();
-  }
+  // Совместимое имя для существующего UI v2.
+  // Рабочий источник писем теперь Sendsay API, а не папка Drive.
+  return syncSendsayApiLast3Days();
 }
 
 /**
