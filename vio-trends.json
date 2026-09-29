@@ -1,0 +1,561 @@
+{
+  "meta": {
+    "sourceTitle": "Выгрузки ВИО",
+    "readAt": "2026-09-29T13:18:59.835Z",
+    "currentMonth": "2026-09",
+    "previousMonth": "2026-08",
+    "currentLabel": "сентябрь 2026",
+    "previousLabel": "август 2026",
+    "snapshot": true
+  },
+  "groups": {
+    "ГЗ": {
+      "currentTotal": 2245,
+      "previousTotal": 1848,
+      "currentDays": 29,
+      "previousDays": 31,
+      "currentPace": 77.4,
+      "previousPace": 59.6,
+      "paceChangePct": 29.9,
+      "topTopics": [
+        {
+          "name": "223-ФЗ",
+          "count": 391,
+          "previousCount": 363,
+          "share": 17.4,
+          "previousShare": 19.6,
+          "deltaPp": -2.2
+        },
+        {
+          "name": "Нацрежим и российское происхождение",
+          "count": 341,
+          "previousCount": 284,
+          "share": 15.2,
+          "previousShare": 15.4,
+          "deltaPp": -0.2
+        },
+        {
+          "name": "Исполнение, приемка, оплата, неустойка",
+          "count": 307,
+          "previousCount": 273,
+          "share": 13.7,
+          "previousShare": 14.8,
+          "deltaPp": -1.1
+        },
+        {
+          "name": "Изменение условий контракта",
+          "count": 207,
+          "previousCount": 199,
+          "share": 9.2,
+          "previousShare": 10.8,
+          "deltaPp": -1.5
+        },
+        {
+          "name": "ЕИС, реестры и электронные документы",
+          "count": 157,
+          "previousCount": 124,
+          "share": 7,
+          "previousShare": 6.7,
+          "deltaPp": 0.3
+        },
+        {
+          "name": "НМЦК и цена",
+          "count": 156,
+          "previousCount": 150,
+          "share": 6.9,
+          "previousShare": 8.1,
+          "deltaPp": -1.2
+        },
+        {
+          "name": "Заявки и требования к участникам",
+          "count": 149,
+          "previousCount": 103,
+          "share": 6.6,
+          "previousShare": 5.6,
+          "deltaPp": 1.1
+        },
+        {
+          "name": "Другие вопросы",
+          "count": 97,
+          "previousCount": 47,
+          "share": 4.3,
+          "previousShare": 2.5,
+          "deltaPp": 1.8
+        },
+        {
+          "name": "Строительство и ремонт",
+          "count": 94,
+          "previousCount": 64,
+          "share": 4.2,
+          "previousShare": 3.5,
+          "deltaPp": 0.7
+        },
+        {
+          "name": "Единственный поставщик",
+          "count": 74,
+          "previousCount": 41,
+          "share": 3.3,
+          "previousShare": 2.2,
+          "deltaPp": 1.1
+        },
+        {
+          "name": "ОКПД2 и КТРУ",
+          "count": 73,
+          "previousCount": 66,
+          "share": 3.3,
+          "previousShare": 3.6,
+          "deltaPp": -0.3
+        },
+        {
+          "name": "Заключение контракта",
+          "count": 33,
+          "previousCount": 32,
+          "share": 1.5,
+          "previousShare": 1.7,
+          "deltaPp": -0.3
+        }
+      ],
+      "risingTopics": [
+        {
+          "name": "Заявки и требования к участникам",
+          "count": 149,
+          "previousCount": 103,
+          "share": 6.6,
+          "previousShare": 5.6,
+          "deltaPp": 1.1
+        },
+        {
+          "name": "Единственный поставщик",
+          "count": 74,
+          "previousCount": 41,
+          "share": 3.3,
+          "previousShare": 2.2,
+          "deltaPp": 1.1
+        },
+        {
+          "name": "Способы закупки и процедуры",
+          "count": 30,
+          "previousCount": 9,
+          "share": 1.3,
+          "previousShare": 0.5,
+          "deltaPp": 0.8
+        },
+        {
+          "name": "Строительство и ремонт",
+          "count": 94,
+          "previousCount": 64,
+          "share": 4.2,
+          "previousShare": 3.5,
+          "deltaPp": 0.7
+        },
+        {
+          "name": "Расторжение контракта",
+          "count": 23,
+          "previousCount": 12,
+          "share": 1,
+          "previousShare": 0.6,
+          "deltaPp": 0.4
+        },
+        {
+          "name": "ЕИС, реестры и электронные документы",
+          "count": 157,
+          "previousCount": 124,
+          "share": 7,
+          "previousShare": 6.7,
+          "deltaPp": 0.3
+        },
+        {
+          "name": "Описание объекта закупки и ТЗ",
+          "count": 21,
+          "previousCount": 13,
+          "share": 0.9,
+          "previousShare": 0.7,
+          "deltaPp": 0.2
+        }
+      ],
+      "intents": [
+        {
+          "name": "Проверить: можно ли / обязательно ли",
+          "count": 791,
+          "share": 35.2
+        },
+        {
+          "name": "Разобраться в конкретной ситуации",
+          "count": 502,
+          "share": 22.4
+        },
+        {
+          "name": "Рассчитать сумму / цену / показатель",
+          "count": 218,
+          "share": 9.7
+        },
+        {
+          "name": "Выбрать код / счет / классификацию",
+          "count": 148,
+          "share": 6.6
+        },
+        {
+          "name": "Исправить ошибку / решить проблему",
+          "count": 139,
+          "share": 6.2
+        },
+        {
+          "name": "Определить срок / дату",
+          "count": 128,
+          "share": 5.7
+        },
+        {
+          "name": "Сдать отчет / заполнить сведения",
+          "count": 112,
+          "share": 5
+        },
+        {
+          "name": "Оформить документы / подтвердить",
+          "count": 91,
+          "share": 4.1
+        },
+        {
+          "name": "Изменить / прекратить / продлить",
+          "count": 84,
+          "share": 3.7
+        },
+        {
+          "name": "Понять порядок действий",
+          "count": 32,
+          "share": 1.4
+        }
+      ],
+      "rubrics": [
+        {
+          "name": "Закупки по 223-ФЗ",
+          "count": 167,
+          "share": 7.4
+        },
+        {
+          "name": "Нарушения 44-ФЗ",
+          "count": 144,
+          "share": 6.4
+        },
+        {
+          "name": "НМЦК",
+          "count": 121,
+          "share": 5.4
+        },
+        {
+          "name": "Работа в ЕИС",
+          "count": 114,
+          "share": 5.1
+        },
+        {
+          "name": "Единственный поставщик по 44-ФЗ и 223-ФЗ",
+          "count": 94,
+          "share": 4.2
+        },
+        {
+          "name": "Изменения контракта после его заключения",
+          "count": 83,
+          "share": 3.7
+        },
+        {
+          "name": "Национальный режим по 44-ФЗ и 223-ФЗ",
+          "count": 77,
+          "share": 3.4
+        },
+        {
+          "name": "Исполнение контракта",
+          "count": 72,
+          "share": 3.2
+        },
+        {
+          "name": "Заключение контракта по 44-ФЗ",
+          "count": 68,
+          "share": 3
+        },
+        {
+          "name": "Закупки строительных работ",
+          "count": 39,
+          "share": 1.7
+        },
+        {
+          "name": "Расторжение контракта по 44-ФЗ",
+          "count": 35,
+          "share": 1.6
+        }
+      ]
+    },
+    "ГФ": {
+      "currentTotal": 4141,
+      "previousTotal": 2353,
+      "currentDays": 29,
+      "previousDays": 31,
+      "currentPace": 142.8,
+      "previousPace": 75.9,
+      "paceChangePct": 88.1,
+      "topTopics": [
+        {
+          "name": "Имущество: ОС, МЗ, списание, инвентаризация",
+          "count": 1184,
+          "previousCount": 822,
+          "share": 28.6,
+          "previousShare": 34.9,
+          "deltaPp": -6.3
+        },
+        {
+          "name": "Проводки, счета, доходы и расходы",
+          "count": 550,
+          "previousCount": 346,
+          "share": 13.3,
+          "previousShare": 14.7,
+          "deltaPp": -1.4
+        },
+        {
+          "name": "Зарплата и выплаты",
+          "count": 451,
+          "previousCount": 255,
+          "share": 10.9,
+          "previousShare": 10.8,
+          "deltaPp": 0.1
+        },
+        {
+          "name": "КВР, КОСГУ, КБК",
+          "count": 430,
+          "previousCount": 234,
+          "share": 10.4,
+          "previousShare": 9.9,
+          "deltaPp": 0.4
+        },
+        {
+          "name": "Другие вопросы",
+          "count": 357,
+          "previousCount": 146,
+          "share": 8.6,
+          "previousShare": 6.2,
+          "deltaPp": 2.4
+        },
+        {
+          "name": "Закупки и госконтракты",
+          "count": 298,
+          "previousCount": 85,
+          "share": 7.2,
+          "previousShare": 3.6,
+          "deltaPp": 3.6
+        },
+        {
+          "name": "Отчетность и первичные документы",
+          "count": 212,
+          "previousCount": 70,
+          "share": 5.1,
+          "previousShare": 3,
+          "deltaPp": 2.1
+        },
+        {
+          "name": "Налоги и взносы",
+          "count": 183,
+          "previousCount": 103,
+          "share": 4.4,
+          "previousShare": 4.4,
+          "deltaPp": 0
+        },
+        {
+          "name": "Кадры и трудовые отношения",
+          "count": 167,
+          "previousCount": 117,
+          "share": 4,
+          "previousShare": 5,
+          "deltaPp": -0.9
+        },
+        {
+          "name": "Отпуска, пособия, командировки, компенсации",
+          "count": 133,
+          "previousCount": 79,
+          "share": 3.2,
+          "previousShare": 3.4,
+          "deltaPp": -0.1
+        },
+        {
+          "name": "Субсидии и финансирование",
+          "count": 90,
+          "previousCount": 63,
+          "share": 2.2,
+          "previousShare": 2.7,
+          "deltaPp": -0.5
+        },
+        {
+          "name": "Контроль, аудит и проверки",
+          "count": 30,
+          "previousCount": 9,
+          "share": 0.7,
+          "previousShare": 0.4,
+          "deltaPp": 0.3
+        }
+      ],
+      "risingTopics": [
+        {
+          "name": "Закупки и госконтракты",
+          "count": 298,
+          "previousCount": 85,
+          "share": 7.2,
+          "previousShare": 3.6,
+          "deltaPp": 3.6
+        },
+        {
+          "name": "Отчетность и первичные документы",
+          "count": 212,
+          "previousCount": 70,
+          "share": 5.1,
+          "previousShare": 3,
+          "deltaPp": 2.1
+        },
+        {
+          "name": "КВР, КОСГУ, КБК",
+          "count": 430,
+          "previousCount": 234,
+          "share": 10.4,
+          "previousShare": 9.9,
+          "deltaPp": 0.4
+        },
+        {
+          "name": "Контроль, аудит и проверки",
+          "count": 30,
+          "previousCount": 9,
+          "share": 0.7,
+          "previousShare": 0.4,
+          "deltaPp": 0.3
+        },
+        {
+          "name": "Зарплата и выплаты",
+          "count": 451,
+          "previousCount": 255,
+          "share": 10.9,
+          "previousShare": 10.8,
+          "deltaPp": 0.1
+        },
+        {
+          "name": "Аренда и пользование имуществом",
+          "count": 27,
+          "previousCount": 13,
+          "share": 0.7,
+          "previousShare": 0.6,
+          "deltaPp": 0.1
+        },
+        {
+          "name": "Организация бухгалтерии и учетная политика",
+          "count": 20,
+          "previousCount": 9,
+          "share": 0.5,
+          "previousShare": 0.4,
+          "deltaPp": 0.1
+        }
+      ],
+      "intents": [
+        {
+          "name": "Проверить: можно ли / обязательно ли",
+          "count": 901,
+          "share": 21.8
+        },
+        {
+          "name": "Разобраться в конкретной ситуации",
+          "count": 703,
+          "share": 17
+        },
+        {
+          "name": "Исправить ошибку / решить проблему",
+          "count": 501,
+          "share": 12.1
+        },
+        {
+          "name": "Отразить в учете / сделать проводки",
+          "count": 479,
+          "share": 11.6
+        },
+        {
+          "name": "Рассчитать сумму / цену / показатель",
+          "count": 467,
+          "share": 11.3
+        },
+        {
+          "name": "Выбрать код / счет / классификацию",
+          "count": 466,
+          "share": 11.3
+        },
+        {
+          "name": "Оформить документы / подтвердить",
+          "count": 292,
+          "share": 7.1
+        },
+        {
+          "name": "Определить срок / дату",
+          "count": 164,
+          "share": 4
+        },
+        {
+          "name": "Понять порядок действий",
+          "count": 69,
+          "share": 1.7
+        },
+        {
+          "name": "Сдать отчет / заполнить сведения",
+          "count": 59,
+          "share": 1.4
+        }
+      ],
+      "rubrics": [
+        {
+          "name": "Учет имущества",
+          "count": 652,
+          "share": 15.7
+        },
+        {
+          "name": "Госзаказ и госзадание",
+          "count": 402,
+          "share": 9.7
+        },
+        {
+          "name": "Зарплата, премии, иные доходы",
+          "count": 272,
+          "share": 6.6
+        },
+        {
+          "name": "Бухгалтерская (бюджетная) отчетность",
+          "count": 87,
+          "share": 2.1
+        },
+        {
+          "name": "КВР и КОСГУ",
+          "count": 80,
+          "share": 1.9
+        },
+        {
+          "name": "НДФЛ",
+          "count": 63,
+          "share": 1.5
+        },
+        {
+          "name": "Учет доходов и расходов в бюджетном учреждении",
+          "count": 59,
+          "share": 1.4
+        },
+        {
+          "name": "Кадровые вопросы",
+          "count": 51,
+          "share": 1.2
+        },
+        {
+          "name": "Проверки в учреждениях",
+          "count": 44,
+          "share": 1.1
+        },
+        {
+          "name": "Учет отпускных",
+          "count": 32,
+          "share": 0.8
+        },
+        {
+          "name": "Командировка в учреждениях",
+          "count": 29,
+          "share": 0.7
+        }
+      ]
+    }
+  }
+}
