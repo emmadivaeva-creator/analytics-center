@@ -165,3 +165,112 @@ function testSendsayMaterialSourcesV2() {
   console.log(JSON.stringify(result,null,2));
   return result;
 }
+
+
+function testGzMaterialSourcesV2() {
+  const cases=[
+    {label:'ГЗРУ',policy:'61',issueId:'26554233'},
+    {label:'ГЗВИО',policy:'61',issueId:'26554104'},
+    {label:'АПФАС',policy:'61',issueId:'26554102'},
+    {label:'ГЗ Система',policy:'61',issueId:'26554106'}
+  ];
+
+  function collectStrings(value,out,depth){
+    if(depth>12||value==null)return;
+    if(typeof value==='string'){out.push(value);return;}
+    if(Array.isArray(value)){value.forEach(function(item){collectStrings(item,out,depth+1);});return;}
+    if(typeof value==='object')Object.keys(value).forEach(function(key){collectStrings(value[key],out,depth+1);});
+  }
+
+  const result=cases.map(function(item){
+    const data=sendsayApiRequest_({
+      action:'issue.get',
+      id:item.issueId,
+      source:1,
+      with_name:1,
+      with_archive:1
+    },item.policy);
+
+    const strings=[];
+    collectStrings(data,strings,0);
+    const raw=strings.join('\n');
+    const materials=dashboardMaterials_(raw);
+
+    return {
+      label:item.label,
+      issueId:item.issueId,
+      sourceChars:raw.length,
+      materialCount:materials.length,
+      materials:materials.slice(0,10)
+    };
+  });
+
+  console.log(JSON.stringify(result,null,2));
+  return result;
+}
+
+function testSendsaySourceIdsOneDayV2() {
+  const date='2026-09-28';
+  const policies=[
+    {id:'52',name:'goi'},
+    {id:'61',name:'mcfr_gos'}
+  ];
+  const grouped={};
+
+  policies.forEach(function(policy){
+    const data=sendsayApiRequest_({
+      action:'stat.uni',
+      select:[
+        'issue.id',
+        'issue.name',
+        'issue.subject',
+        'issue.format',
+        'issue.group.gid'
+      ],
+      filter:[
+        {a:'issue.dt:YD',op:'>=',v:date},
+        {a:'issue.dt:YD',op:'<=',v:date}
+      ],
+      order:['-issue.dt:Ys'],
+      first:500
+    },policy.id);
+
+    (data.list||[]).forEach(function(row){
+      const issueName=String(row[1]||'');
+      const subject=String(row[2]||'');
+      const format=String(row[3]||'').toLowerCase();
+      const gid=String(row[4]||'');
+
+      if(format!=='e'||gid==='personal'||/^\s*тест\s*:/i.test(subject))return;
+      if(/mcfr[_-].*gpt[_-]recommendation|gpt[_-]recommendation|ml[_-]json|json[_-]eck/i.test(issueName+' '+subject))return;
+
+      let kind='';
+      if(/\|\s*demo\s*\|/i.test(issueName))kind='DEMO';
+      else if(/\|\s*trigger\s*\|/i.test(issueName)&&/portal[_-]/i.test(issueName))kind='PORTAL';
+      else if(/\|\s*trigger\s*\|/i.test(issueName))kind='TRIGGER';
+      else if(/\|\s*news\s*\|/i.test(issueName))kind='NEWS';
+      if(!kind)return;
+
+      const m=issueName.match(/^\s*(\d+)\s*\|/);
+      const sourceId=m?m[1]:'NO_ID';
+      const key=policy.name+'|'+sourceId+'|'+kind;
+      if(!grouped[key])grouped[key]={
+        policy:policy.name,
+        sourceId:sourceId,
+        kind:kind,
+        count:0,
+        samples:[]
+      };
+      grouped[key].count++;
+      if(grouped[key].samples.length<3)grouped[key].samples.push(issueName);
+    });
+  });
+
+  const result=Object.keys(grouped).map(function(key){return grouped[key];})
+    .sort(function(a,b){
+      return a.policy.localeCompare(b.policy)||Number(a.sourceId)-Number(b.sourceId)||a.kind.localeCompare(b.kind);
+    });
+
+  console.log(JSON.stringify(result,null,2));
+  return result;
+}
