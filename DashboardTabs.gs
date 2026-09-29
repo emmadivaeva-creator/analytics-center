@@ -99,15 +99,48 @@ function dashboardMatchMails_(emails,facts) {
 }
 function dashboardMaterialRootDomain_(domain) {
   const d=String(domain||'').toLowerCase().replace(/^www\./,'').split(':')[0];
-  const roots=['budgetnik.ru','zpbudgetnik.ru','gosfinansy.ru','pro-goszakaz.ru','goszakupkiru.ru','1gzakaz.ru'];
+  const roots=[
+    'budgetnik.ru',
+    'zpbudgetnik.ru',
+    'gosfinansy.ru',
+    'goszakupkiru.ru',
+    'goszakaz-vo.ru',
+    'faspraktika.ru',
+    '1gzakaz.ru',
+    'gzakypki.ru',
+    'pro-goszakaz.ru'
+  ];
   return roots.find(function(root){return d===root||d.endsWith('.'+root);})||'';
 }
 
 function dashboardMaterialGroupByDomain_(domain) {
   const root=dashboardMaterialRootDomain_(domain);
   if(['budgetnik.ru','zpbudgetnik.ru','gosfinansy.ru'].includes(root))return'ГФ';
-  if(['pro-goszakaz.ru','goszakupkiru.ru','1gzakaz.ru'].includes(root))return'ГЗ';
+  if(['pro-goszakaz.ru','goszakupkiru.ru','goszakaz-vo.ru','faspraktika.ru','1gzakaz.ru','gzakypki.ru'].includes(root))return'ГЗ';
   return'';
+}
+
+function dashboardMaterialProductByDomain_(domain) {
+  const host=String(domain||'').toLowerCase().replace(/^www\./,'').split(':')[0];
+  const root=dashboardMaterialRootDomain_(host);
+
+  if(host==='finacademy.budgetnik.ru'||host.endsWith('.finacademy.budgetnik.ru')) {
+    return {product:'ГФ Школа',flow:'ГФ Школа'};
+  }
+  if(root==='gosfinansy.ru') return {product:'ГФ Система',flow:'ГФ Система'};
+  if(root==='zpbudgetnik.ru') return {product:'ГФ Периодика',flow:'ГФ Периодика · ЗБУ'};
+  if(root==='budgetnik.ru') return {product:'ГФ Периодика',flow:'ГФ Периодика · УБУ'};
+
+  if(host==='academy.gzakypki.ru'||host.endsWith('.academy.gzakypki.ru')) {
+    return {product:'ГЗ Школа',flow:'ГЗ Школа'};
+  }
+  if(root==='1gzakaz.ru') return {product:'ГЗ Система',flow:'ГЗ Система'};
+  if(root==='goszakupkiru.ru') return {product:'ГЗ Периодика',flow:'ГЗ Периодика · ГЗРУ'};
+  if(root==='goszakaz-vo.ru') return {product:'ГЗ Периодика',flow:'ГЗ Периодика · ВИО'};
+  if(root==='faspraktika.ru') return {product:'ГЗ Периодика',flow:'ГЗ Периодика · ФАС'};
+  if(root==='pro-goszakaz.ru') return {product:'ГЗ Периодика',flow:'ГЗ Периодика'};
+
+  return {product:'',flow:''};
 }
 
 function dashboardMaterials_(raw) {
@@ -172,6 +205,8 @@ function dashboardMaterials_(raw) {
         domain:host,
         rootDomain:root,
         group:dashboardMaterialGroupByDomain_(host),
+        product:dashboardMaterialProductByDomain_(host).product,
+        flow:dashboardMaterialProductByDomain_(host).flow,
         url:found,
         title:title||(kind==='any'?'Материал '+id:kind+' / '+id)
       };
