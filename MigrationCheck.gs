@@ -274,3 +274,62 @@ function testSendsaySourceIdsOneDayV2() {
   console.log(JSON.stringify(result,null,2));
   return result;
 }
+
+
+function testFinalSendsayImportFilterV2() {
+  const date='2026-09-28';
+  const summary={date:date,total:0,byProduct:{},bySource:{},samples:[]};
+
+  SENDSAY_API.policies.forEach(function(policy){
+    const data=sendsayApiRequest_({
+      action:'stat.uni',
+      select:SENDSAY_API_SELECT.slice(),
+      filter:[
+        {a:'issue.dt:YD',op:'>=',v:date},
+        {a:'issue.dt:YD',op:'<=',v:date}
+      ],
+      order:['-issue.dt:Ys'],
+      first:500
+    },policy.id);
+
+    (data.list||[]).forEach(function(row){
+      const report=sendsayApiRowToReport_(row,policy);
+      if(!report)return;
+
+      summary.total++;
+      summary.byProduct[report.product]=(summary.byProduct[report.product]||0)+1;
+
+      const issueName=String(row[2]||'');
+      const sourceMatch=issueName.match(/^\s*(\d+)\s*\|/);
+      const sourceId=sourceMatch?sourceMatch[1]:'NO_ID';
+
+      let kind='OTHER';
+      if(/\|\s*demo\s*\|/i.test(issueName))kind='DEMO';
+      else if(/\|\s*trigger\s*\|/i.test(issueName)&&/portal[_-]/i.test(issueName))kind='PORTAL';
+      else if(/\|\s*trigger\s*\|/i.test(issueName))kind='TRIGGER';
+      else if(/\|\s*news\s*\|/i.test(issueName))kind='NEWS';
+
+      const key=sourceId+'|'+kind+'|'+report.product+(report.flow&&report.flow!==report.product?'|'+report.flow:'');
+      summary.bySource[key]=(summary.bySource[key]||0)+1;
+
+      if(summary.samples.length<30){
+        summary.samples.push({
+          policy:policy.name,
+          sourceId:sourceId,
+          kind:kind,
+          product:report.product,
+          flow:report.flow,
+          campaign:report.campaign,
+          subject:report.subject
+        });
+      }
+    });
+  });
+
+  summary.bySource=Object.keys(summary.bySource).sort().map(function(key){
+    return {key:key,count:summary.bySource[key]};
+  });
+
+  console.log(JSON.stringify(summary,null,2));
+  return summary;
+}
