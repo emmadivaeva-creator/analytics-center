@@ -618,9 +618,22 @@ function campaignFromIssueName_(issueName) {
 function isAnalyticsSendsayIssue_(issueName, campaign) {
   const name = String(issueName || '');
   const normalizedCampaign = String(campaign || '');
+  const text = name + ' ' + normalizedCampaign;
 
+  // Технические ML/GPT-рекомендации в редакционную аналитику не берём,
+  // даже если сам выпуск в Sendsay лежит в группе Demo.
+  if (/mcfr[_-].*gpt[_-]recommendation|gpt[_-]recommendation|ml[_-]json|json[_-]eck/i.test(text)) {
+    return false;
+  }
+
+  // Рабочий whitelist:
+  // 1) штатные Demo-выпуски;
+  // 2) Trigger-выпуски;
+  // 3) portal_* / portal-custom;
+  // 4) два канонических NEWS, которые уже используются в аналитике.
   if (/\|\s*demo\s*\|/i.test(name)) return true;
-  if (/activdemo/i.test(normalizedCampaign)) return true;
+  if (/\|\s*trigger\s*\|/i.test(name)) return true;
+  if (/portal[_-]/i.test(text)) return true;
   if (canonicalNewsCampaign_(normalizedCampaign)) return true;
 
   return false;
