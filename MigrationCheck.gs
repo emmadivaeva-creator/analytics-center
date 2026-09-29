@@ -44,3 +44,41 @@ function migrationCheckSendsayApiV2() {
   console.log(JSON.stringify(result, null, 2));
   return result;
 }
+
+
+function testSendsayMaterialSourceV2() {
+  const policy='52';
+  const issueId='26541039';
+  const data=sendsayApiRequest_({
+    action:'issue.get',
+    id:issueId,
+    source:0,
+    with_name:1
+  },policy);
+
+  const chunks=[];
+  (function walk(value,depth){
+    if(depth>10||value==null)return;
+    if(typeof value==='string'){
+      if(value.length>=40&&(/<html|<body|<a\b|href\s*=|https?:\/\//i.test(value)||/content-type:\s*text\/html/i.test(value)))chunks.push(value);
+      return;
+    }
+    if(Array.isArray(value)){value.forEach(function(item){walk(item,depth+1);});return;}
+    if(typeof value==='object')Object.keys(value).forEach(function(key){walk(value[key],depth+1);});
+  })(data,0);
+
+  chunks.sort(function(a,b){return b.length-a.length;});
+  const raw=chunks.join('\n');
+  const materials=dashboardMaterials_(raw);
+
+  const result={
+    ok:raw.length>0,
+    issueId:issueId,
+    sourceChars:raw.length,
+    materialCount:materials.length,
+    materials:materials.slice(0,10)
+  };
+
+  console.log(JSON.stringify(result,null,2));
+  return result;
+}
