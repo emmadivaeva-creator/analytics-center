@@ -259,7 +259,7 @@ function getMailDemoDetailsUi(id) {
   let raw='';
 
   if(apiMatch){
-    cacheKey='materials-api-v1-'+apiMatch[1]+'-'+apiMatch[2];
+    cacheKey='materials-api-v2-'+apiMatch[1]+'-'+apiMatch[2];
     const cached=cache.get(cacheKey);
     if(cached){
       try{
@@ -272,7 +272,7 @@ function getMailDemoDetailsUi(id) {
     const data=sendsayApiRequest_({
       action:'issue.get',
       id:apiMatch[2],
-      source:0,
+      source:1,
       with_name:1
     },apiMatch[1]);
 
@@ -308,8 +308,8 @@ function getMailDemoDetailsUi(id) {
       const policy=/^ГФ\b/.test(String(mail.product||''))?'52':/^ГЗ\b/.test(String(mail.product||''))?'61':'';
       if(!issueId||!policy)throw error;
 
-      cacheKey='materials-api-fallback-v1-'+policy+'-'+issueId;
-      const data=sendsayApiRequest_({action:'issue.get',id:issueId,source:0,with_name:1},policy);
+      cacheKey='materials-api-fallback-v2-'+policy+'-'+issueId;
+      const data=sendsayApiRequest_({action:'issue.get',id:issueId,source:1,with_name:1},policy);
       const chunks=[];
       (function walk(value,depth){
         if(depth>10||value==null)return;
