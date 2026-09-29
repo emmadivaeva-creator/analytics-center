@@ -582,7 +582,16 @@ async function loadVio(force=false){
   const meta=vioData&&vioData.meta||{};
   status.textContent='Обновлено '+dateRu(meta.readAt)+' · текущий период: '+String(meta.currentLabel||'');
  }catch(err){
-  status.textContent='Не удалось загрузить ВИО: '+(err&&err.message?err.message:String(err));
+  try{
+   const response=await fetch('vio-trends.json?v='+Date.now(),{cache:'no-store'});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   vioData=await response.json();
+   renderVio();
+   const meta=vioData&&vioData.meta||{};
+   status.textContent='Срез из выгрузки · '+String(meta.currentLabel||'')+' · live-обновление включится после обновления Apps Script';
+  }catch(fallbackErr){
+   status.textContent='Не удалось загрузить ВИО: '+(err&&err.message?err.message:String(err));
+  }
  }
 }
 function vioSigned(v,suffix){
@@ -616,10 +625,10 @@ function renderVio(){
   '<div><b>'+esc(String(data.currentPace==null?0:data.currentPace))+'</b><span>вопросов в день</span></div>'+
   '<div><b>'+esc(vioSigned(pace,'%'))+'</b><span>темп к '+esc(meta.previousLabel||'прошлому месяцу')+'</span></div>'+
   '<div><b>'+fmt(data.previousTotal)+'</b><span>вопросов · '+esc(meta.previousLabel||'прошлый месяц')+'</span></div>';
- document.getElementById('vioTopics').innerHTML=vioList((data.topTopics||[]).slice(0,10),'topic');
+ document.getElementById('vioTopics').innerHTML=vioList((data.topTopics||[]).filter(x=>x.name!=='Другие вопросы').slice(0,10),'topic');
  document.getElementById('vioRising').innerHTML=vioList((data.risingTopics||[]).slice(0,8),'rise');
  document.getElementById('vioIntents').innerHTML=vioList((data.intents||[]).slice(0,8),'intent');
- document.getElementById('vioRubrics').innerHTML=(data.rubrics||[]).map(x=>'<span><b>'+esc(x.name)+'</b><small>'+fmt(x.count)+' · '+pct(x.share)+'</small></span>').join('');
+ document.getElementById('vioRubrics').innerHTML=(data.rubrics||[]).filter(x=>x.name!=='Без рубрики').map(x=>'<span><b>'+esc(x.name)+'</b><small>'+fmt(x.count)+' · '+pct(x.share)+'</small></span>').join('');
 }
 document.getElementById('vioGz').onclick=()=>{vioGroup='ГЗ';renderVio();};
 document.getElementById('vioGf').onclick=()=>{vioGroup='ГФ';renderVio();};
