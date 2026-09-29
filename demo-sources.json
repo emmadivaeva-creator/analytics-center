@@ -1,0 +1,232 @@
+{
+  "meta": {
+    "updatedAt": "2026-09-29T15:25:00Z",
+    "weeks": "27–39",
+    "period": "29 июня – 27 сентября 2026",
+    "note": "Использованы полные недели 27–39. Неполная 40-я неделя не включена."
+  },
+  "groups": {
+    "Все": {
+      "total": 15774,
+      "green": 4060,
+      "sources": [
+        {
+          "id": "letter",
+          "label": "Letter",
+          "total": 6432,
+          "green": 1337
+        },
+        {
+          "id": "trigger",
+          "label": "Trigger",
+          "total": 1218,
+          "green": 284
+        },
+        {
+          "id": "landing",
+          "label": "Landing",
+          "total": 502,
+          "green": 164
+        },
+        {
+          "id": "refer",
+          "label": "Refer / сайт",
+          "total": 7622,
+          "green": 2275
+        }
+      ],
+      "site": [
+        {
+          "id": "unmarked",
+          "label": "Не размечено",
+          "total": 4388,
+          "green": 1327
+        },
+        {
+          "id": "paywall",
+          "label": "Пейволы",
+          "total": 1593,
+          "green": 493
+        },
+        {
+          "id": "news",
+          "label": "Новости",
+          "total": 723,
+          "green": 137
+        },
+        {
+          "id": "blocks",
+          "label": "Блоки и кнопки сайта",
+          "total": 557,
+          "green": 190
+        },
+        {
+          "id": "articles",
+          "label": "Статьи",
+          "total": 283,
+          "green": 87
+        },
+        {
+          "id": "vio",
+          "label": "ВиО / QA",
+          "total": 58,
+          "green": 29
+        },
+        {
+          "id": "other",
+          "label": "Прочее",
+          "total": 20,
+          "green": 12
+        }
+      ]
+    },
+    "ГФ": {
+      "total": 9277,
+      "green": 2417,
+      "sources": [
+        {
+          "id": "letter",
+          "label": "Letter",
+          "total": 3765,
+          "green": 822
+        },
+        {
+          "id": "trigger",
+          "label": "Trigger",
+          "total": 656,
+          "green": 134
+        },
+        {
+          "id": "landing",
+          "label": "Landing",
+          "total": 236,
+          "green": 70
+        },
+        {
+          "id": "refer",
+          "label": "Refer / сайт",
+          "total": 4620,
+          "green": 1391
+        }
+      ],
+      "site": [
+        {
+          "id": "unmarked",
+          "label": "Не размечено",
+          "total": 2837,
+          "green": 875
+        },
+        {
+          "id": "paywall",
+          "label": "Пейволы",
+          "total": 901,
+          "green": 279
+        },
+        {
+          "id": "news",
+          "label": "Новости",
+          "total": 420,
+          "green": 76
+        },
+        {
+          "id": "blocks",
+          "label": "Блоки и кнопки сайта",
+          "total": 240,
+          "green": 88
+        },
+        {
+          "id": "articles",
+          "label": "Статьи",
+          "total": 179,
+          "green": 58
+        },
+        {
+          "id": "vio",
+          "label": "ВиО / QA",
+          "total": 32,
+          "green": 10
+        },
+        {
+          "id": "other",
+          "label": "Прочее",
+          "total": 11,
+          "green": 5
+        }
+      ]
+    },
+    "ГЗ": {
+      "total": 6497,
+      "green": 1643,
+      "sources": [
+        {
+          "id": "letter",
+          "label": "Letter",
+          "total": 2667,
+          "green": 515
+        },
+        {
+          "id": "trigger",
+          "label": "Trigger",
+          "total": 562,
+          "green": 150
+        },
+        {
+          "id": "landing",
+          "label": "Landing",
+          "total": 266,
+          "green": 94
+        },
+        {
+          "id": "refer",
+          "label": "Refer / сайт",
+          "total": 3002,
+          "green": 884
+        }
+      ],
+      "site": [
+        {
+          "id": "unmarked",
+          "label": "Не размечено",
+          "total": 1551,
+          "green": 452
+        },
+        {
+          "id": "paywall",
+          "label": "Пейволы",
+          "total": 692,
+          "green": 214
+        },
+        {
+          "id": "news",
+          "label": "Новости",
+          "total": 303,
+          "green": 61
+        },
+        {
+          "id": "blocks",
+          "label": "Блоки и кнопки сайта",
+          "total": 317,
+          "green": 102
+        },
+        {
+          "id": "articles",
+          "label": "Статьи",
+          "total": 104,
+          "green": 29
+        },
+        {
+          "id": "vio",
+          "label": "ВиО / QA",
+          "total": 26,
+          "green": 19
+        },
+        {
+          "id": "other",
+          "label": "Прочее",
+          "total": 9,
+          "green": 7
+        }
+      ]
+    }
+  }
+}

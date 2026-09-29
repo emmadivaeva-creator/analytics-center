@@ -53,7 +53,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20260929-vio-readable3';
+    const script=document.createElement('script');script.src='app.js?v=20260929-demo-sources1';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
