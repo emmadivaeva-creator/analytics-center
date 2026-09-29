@@ -4,7 +4,7 @@
   let token = '', expiresAt = 0, client, started = false;
   const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'syncDriveReportsReliable',
     'syncDemoStats', 'refreshAppData', 'getMailRegistryUi', 'getMailDemoDetailsUi',
-    'getVikaPlanUi', 'getVikaEditorialUi']);
+    'getVikaPlanUi', 'getVikaEditorialUi', 'getVioTrendsUi']);
   const gate = document.getElementById('authGate');
   const button = document.getElementById('signIn');
   const status = document.getElementById('authStatus');
@@ -14,7 +14,7 @@
     status.textContent = message;
     button.disabled = !client;
   }
-  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi']);
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
   async function publicRead(method, parameters) {
     const url = new URL(config.publicReadUrl);
     url.searchParams.set('method', method);
@@ -53,7 +53,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20260918-tempplan-sendsay';
+    const script=document.createElement('script');script.src='app.js?v=20260929-vio-trends';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
