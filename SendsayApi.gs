@@ -620,21 +620,49 @@ function isAnalyticsSendsayIssue_(issueName, campaign) {
   const normalizedCampaign = String(campaign || '');
   const text = name + ' ' + normalizedCampaign;
 
-  // Технические ML/GPT-рекомендации в редакционную аналитику не берём,
-  // даже если сам выпуск в Sendsay лежит в группе Demo.
+  // Технические ML/GPT-рекомендации не берём.
   if (/mcfr[_-].*gpt[_-]recommendation|gpt[_-]recommendation|ml[_-]json|json[_-]eck/i.test(text)) {
     return false;
   }
 
-  // Рабочий whitelist:
-  // 1) штатные Demo-выпуски;
-  // 2) Trigger-выпуски;
-  // 3) portal_* / portal-custom;
-  // 4) два канонических NEWS, которые уже используются в аналитике.
+  const sourceMatch = name.match(/^\s*(\d+)\s*\|/);
+  const sourceId = sourceMatch ? sourceMatch[1] : '';
+
+  // Наши продукты:
+  // ГФ: УБУ, ЗБУ, Система Госфинансы, Школа Главбуха.
+  // ГЗ: ГЗРУ, АПФАС, ГЗВИО, Система Госзаказ, ВШГЗ.
+  // 821/824 — тарифные ветки Системы Госзаказ.
+  const allowedSources = {
+    '265': true,
+    '266': true,
+    '350': true,
+    '1005': true,
+    '1223': true,
+
+    '729': true,
+    '733': true,
+    '737': true,
+    '818': true,
+    '821': true,
+    '824': true,
+    '1213': true
+  };
+
+  // 728 — общий технический источник нескольких закупочных потоков.
+  // Из него берём только наши ГЗРУ / ГЗВИО / ФАС, но не соседние продукты.
+  const allowedShared728 =
+    sourceId === '728' &&
+    /(?:gzru|gzvio|(?:^|[_-])vio(?:[_-]|$)|fas)/i.test(normalizedCampaign);
+
+  if (!allowedSources[sourceId] && !allowedShared728) return false;
+
+  // NEWS берём только две канонические редакционные рассылки.
+  if (canonicalNewsCampaign_(normalizedCampaign)) return true;
+
+  // Остальные рабочие выпуски — только Demo / Trigger / portal.
   if (/\|\s*demo\s*\|/i.test(name)) return true;
   if (/\|\s*trigger\s*\|/i.test(name)) return true;
   if (/portal[_-]/i.test(text)) return true;
-  if (canonicalNewsCampaign_(normalizedCampaign)) return true;
 
   return false;
 }
