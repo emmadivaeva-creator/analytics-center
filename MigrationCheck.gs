@@ -126,9 +126,10 @@ function testSendsayMaterialSourcesV2() {
     const urls=(raw.match(/https?:\/\/[^\s"'<>\\)]+/gi)||[])
       .map(decodeLoose);
     const unique=[...new Set(urls)];
-    const materialUrls=unique.filter(function(url){
-      return /(?:budgetnik\.ru|zpbudgetnik\.ru|gosfinansy\.ru|pro-goszakaz\.ru|goszakupkiru\.ru|1gzakaz\.ru)\/(?:art|article|news)\//i.test(url);
-    });
+    const parsedMaterials=typeof dashboardMaterials_==='function'
+      ? dashboardMaterials_(raw)
+      : [];
+    const materialUrls=parsedMaterials.map(function(item){return item.url;});
     const hosts={};
     unique.forEach(function(url){
       const m=url.match(/^https?:\/\/([^/?#]+)/i);
@@ -150,6 +151,7 @@ function testSendsayMaterialSourcesV2() {
       hasExternalExtra:/external_extra/i.test(raw),
       materialUrlCount:materialUrls.length,
       materialUrls:materialUrls.slice(0,10),
+      parsedMaterials:parsedMaterials.slice(0,10),
       topHosts:Object.keys(hosts).sort(function(a,b){return hosts[b]-hosts[a];}).slice(0,12).map(function(host){
         return {host:host,count:hosts[host]};
       }),
