@@ -12,7 +12,8 @@ function publicDashboardRead_(event) {
       getMailRegistryUi: getMailRegistryUi,
       getMailDemoDetailsUi: getMailDemoDetailsUi,
       getVikaPlanUi: getVikaPlanUi,
-      getVikaEditorialUi: getVikaEditorialUi
+      getVikaEditorialUi: getVikaEditorialUi,
+      getVioTrendsUi: getVioTrendsUi
     };
     const method = String(p.method || '');
     if (!Object.prototype.hasOwnProperty.call(methods, method)) throw new Error('Доступен только просмотр аналитики.');
