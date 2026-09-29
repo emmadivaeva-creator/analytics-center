@@ -304,7 +304,7 @@ function demandUrls(v){
  return (String(v||'').match(/https?:\/\/[^\s<>"'\])}]+/gi)||[]).map(x=>x.replace(/[.,;:]+$/,''));
 }
 function demandIsMaterialUrl(url){
- return /^https?:\/\/(?:[^/]+\.)?(?:budgetnik\.ru|zpbudgetnik\.ru|goszakupkiru\.ru|pro-goszakaz\.ru|gosfinansy\.ru|1gzakaz\.ru)\//i.test(String(url||''));
+ return /^https?:\/\/(?:[^/]+\.)?(?:budgetnik\.ru|zpbudgetnik\.ru|gosfinansy\.ru|goszakupkiru\.ru|goszakaz-vo\.ru|faspraktika\.ru|1gzakaz\.ru|gzakypki\.ru|pro-goszakaz\.ru)\//i.test(String(url||''));
 }
 function demandGviz(spec){
  return new Promise((resolve,reject)=>{
