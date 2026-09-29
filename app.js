@@ -709,6 +709,7 @@ function vioConcreteHtml(items){
   const action=String(x.action||'').trim();
   const topic=String(x.topic||'').trim();
   const title=vioEditorialTitle(x,vioGroup);
+  const examples=Array.isArray(x.examples)?x.examples.slice(0,3):[];
   const chips=[];
   if(object)chips.push('<span class="vio-chip"><small>Предмет</small><b>'+esc(object)+'</b></span>');
   if(action&&action!=='Разобрать'&&action.toLowerCase()!==String(x.object||'').toLowerCase())chips.push('<span class="vio-chip"><small>Действие</small><b>'+esc(action)+'</b></span>');
@@ -718,6 +719,7 @@ function vioConcreteHtml(items){
    '<h3>'+esc(title)+'</h3>'+
    (chips.length?'<div class="vio-question-tags">'+chips.join('')+'</div>':'')+
    '<div class="vio-question-intent"><span>Чаще хотят</span><b>'+esc(vioIntentHuman(x.topIntent))+'</b></div>'+
+   (examples.length?'<details class="vio-examples"><summary>Примеры ВИО</summary><ul>'+examples.map(v=>'<li>'+esc(v)+'</li>').join('')+'</ul></details>':'')+
   '</article>';
  }).join('');
 }
