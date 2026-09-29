@@ -63,6 +63,8 @@ classifyCampaign_ = function(campaign, fileName, subject, sender) {
     const sourceId = sourceIdMatch ? sourceIdMatch[1] : '';
     const productBySourceId = {
       '265': 'ГФ Периодика',
+      '266': 'ГФ Периодика',
+      '350': 'ГФ Периодика',
       '729': 'ГЗ Периодика',
       '818': 'ГЗ Система',
       '1005': 'ГФ Школа',
