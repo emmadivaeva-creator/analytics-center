@@ -82,3 +82,78 @@ function testSendsayMaterialSourceV2() {
   console.log(JSON.stringify(result,null,2));
   return result;
 }
+
+
+function testSendsayMaterialSourcesV2() {
+  const policy='52';
+  const issueId='26541039';
+
+  function collectStrings(value,out,depth) {
+    if(depth>12||value==null)return;
+    if(typeof value==='string'){out.push(value);return;}
+    if(Array.isArray(value)){value.forEach(function(item){collectStrings(item,out,depth+1);});return;}
+    if(typeof value==='object')Object.keys(value).forEach(function(key){collectStrings(value[key],out,depth+1);});
+  }
+
+  function decodeLoose(value) {
+    let out=String(value||'')
+      .replace(/=\r?\n/g,'')
+      .replace(/=3D/gi,'=')
+      .replace(/&amp;/gi,'&')
+      .replace(/&quot;/gi,'"');
+    for(let i=0;i<2;i++){
+      try{
+        const decoded=decodeURIComponent(out);
+        if(decoded===out)break;
+        out=decoded;
+      }catch(error){break;}
+    }
+    return out;
+  }
+
+  function inspect(source) {
+    const data=sendsayApiRequest_({
+      action:'issue.get',
+      id:issueId,
+      source:source,
+      with_name:1,
+      with_archive:1
+    },policy);
+
+    const strings=[];
+    collectStrings(data,strings,0);
+    const raw=decodeLoose(strings.join('\n'));
+    const urls=(raw.match(/https?:\/\/[^\s"'<>\\)]+/gi)||[])
+      .map(decodeLoose);
+    const unique=[...new Set(urls)];
+    const materialUrls=unique.filter(function(url){
+      return /(?:budgetnik\.ru|pro-goszakaz\.ru)\/(?:art|news)\//i.test(url);
+    });
+    const hosts={};
+    unique.forEach(function(url){
+      const m=url.match(/^https?:\/\/([^/?#]+)/i);
+      if(m)hosts[m[1].toLowerCase()]=(hosts[m[1].toLowerCase()]||0)+1;
+    });
+
+    return {
+      source:source,
+      chars:raw.length,
+      strings:strings.length,
+      hrefCount:(raw.match(/href\s*=/gi)||[]).length,
+      urlCount:unique.length,
+      hasBudgetnik:/budgetnik\.ru/i.test(raw),
+      hasProGoszakaz:/pro-goszakaz\.ru/i.test(raw),
+      hasExternalExtra:/external_extra/i.test(raw),
+      materialUrlCount:materialUrls.length,
+      materialUrls:materialUrls.slice(0,10),
+      topHosts:Object.keys(hosts).sort(function(a,b){return hosts[b]-hosts[a];}).slice(0,12).map(function(host){
+        return {host:host,count:hosts[host]};
+      }),
+      urlSample:unique.slice(0,15)
+    };
+  }
+
+  const result=[0,1,2].map(inspect);
+  console.log(JSON.stringify(result,null,2));
+  return result;
+}
