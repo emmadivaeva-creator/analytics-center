@@ -127,14 +127,94 @@ function dashboardMaterialRows_(mail,materials,facts){
 }
 function getMailDemoDetailsUi(id) {
   requireDashboardOwner_();
-  const mail=readImportedEmails_(openStorage_()).find(m=>m.id===id);
+
+  const mail=readImportedEmails_(openStorage_()).find(function(item){ return item.id===id; });
   if(!mail)throw new Error('Письмо не найдено');
-  const file=DriveApp.getFileById(String(id).replace(/^import-/,''));
-  const cache=CacheService.getScriptCache(),key='materials-v3-'+file.getId()+'-'+file.getLastUpdated().getTime();
-  let materials;try{materials=JSON.parse(cache.get(key)||'null');}catch(e){}
-  if(!materials){materials=dashboardMaterials_(file.getBlob().getDataAsString('UTF-8'));try{cache.put(key,JSON.stringify(materials),21600);}catch(e){}}
+
+  const rawId=String(id||'').replace(/^import-/,'');
+  const apiMatch=rawId.match(/^api:(52|61):(\d+)$/);
+  const cache=CacheService.getScriptCache();
+  let cacheKey='';
+  let raw='';
+
+  if(apiMatch){
+    cacheKey='materials-api-v1-'+apiMatch[1]+'-'+apiMatch[2];
+    const cached=cache.get(cacheKey);
+    if(cached){
+      try{
+        const materials=JSON.parse(cached);
+        const rows=dashboardMaterialRows_(mail,materials,dashboardDemoRows_(true));
+        return {week:mail.week,materials:materials,rows:rows,note:'Ссылки письма прочитаны напрямую из Sendsay API. Демо материалов по Content / Term показано за все доступные недели источника.'};
+      }catch(error){}
+    }
+
+    const data=sendsayApiRequest_({
+      action:'issue.get',
+      id:apiMatch[2],
+      source:0,
+      with_name:1
+    },apiMatch[1]);
+
+    const chunks=[];
+    (function walk(value,depth){
+      if(depth>10||value==null)return;
+      if(typeof value==='string'){
+        if(value.length>=40&&(/<html|<body|<a\b|href\s*=|https?:\/\//i.test(value)||/content-type:\s*text\/html/i.test(value)))chunks.push(value);
+        return;
+      }
+      if(Array.isArray(value)){value.forEach(function(item){walk(item,depth+1);});return;}
+      if(typeof value==='object')Object.keys(value).forEach(function(key){walk(value[key],depth+1);});
+    })(data,0);
+
+    chunks.sort(function(a,b){return b.length-a.length;});
+    raw=chunks.join('\n');
+    if(!raw)throw new Error('Sendsay API не вернул содержимое письма для разбора ссылок.');
+  }else{
+    try{
+      const file=DriveApp.getFileById(rawId);
+      cacheKey='materials-drive-v4-'+file.getId()+'-'+file.getLastUpdated().getTime();
+      const cached=cache.get(cacheKey);
+      if(cached){
+        try{
+          const materials=JSON.parse(cached);
+          const rows=dashboardMaterialRows_(mail,materials,dashboardDemoRows_(true));
+          return {week:mail.week,materials:materials,rows:rows,note:'Ссылки письма прочитаны из сохранённого отчёта. Демо материалов по Content / Term показано за все доступные недели источника.'};
+        }catch(error){}
+      }
+      raw=file.getBlob().getDataAsString('UTF-8');
+    }catch(error){
+      const issueId=String(mail.campaignId||'').trim();
+      const policy=/^ГФ\b/.test(String(mail.product||''))?'52':/^ГЗ\b/.test(String(mail.product||''))?'61':'';
+      if(!issueId||!policy)throw error;
+
+      cacheKey='materials-api-fallback-v1-'+policy+'-'+issueId;
+      const data=sendsayApiRequest_({action:'issue.get',id:issueId,source:0,with_name:1},policy);
+      const chunks=[];
+      (function walk(value,depth){
+        if(depth>10||value==null)return;
+        if(typeof value==='string'){
+          if(value.length>=40&&(/<html|<body|<a\b|href\s*=|https?:\/\//i.test(value)||/content-type:\s*text\/html/i.test(value)))chunks.push(value);
+          return;
+        }
+        if(Array.isArray(value)){value.forEach(function(item){walk(item,depth+1);});return;}
+        if(typeof value==='object')Object.keys(value).forEach(function(key){walk(value[key],depth+1);});
+      })(data,0);
+      chunks.sort(function(a,b){return b.length-a.length;});
+      raw=chunks.join('\n');
+      if(!raw)throw new Error('Не удалось прочитать содержимое письма ни с Drive, ни через Sendsay API.');
+    }
+  }
+
+  const materials=dashboardMaterials_(raw);
+  try{cache.put(cacheKey,JSON.stringify(materials),21600);}catch(error){}
   const rows=dashboardMaterialRows_(mail,materials,dashboardDemoRows_(true));
-  return {week:mail.week,materials,rows,note:'Демо материалов по Content / Term за все доступные недели источника. Результат включает все реферы материала, а не только переходы из этого письма. Повтор материала в письмах не умножает его результат в «Спросе».'};
+
+  return {
+    week:mail.week,
+    materials:materials,
+    rows:rows,
+    note:'Ссылки письма доступны без обязательного хранения webarchive на Drive. Демо материалов по Content / Term показано за все доступные недели источника.'
+  };
 }
 
 /** Read editorial originals without changing the approved plan sheet. */
