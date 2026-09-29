@@ -4,7 +4,7 @@ const VIO_TRENDS_SOURCE_ID_ = '1ENnwfKY_fqyr4-81pjUDY3gsfcu_vf9zVnuifiR_5XU';
 function getVioTrendsUi(force) {
   requireDashboardOwner_();
   const cache = CacheService.getScriptCache();
-  const cacheKey = 'vio-trends-v6';
+  const cacheKey = 'vio-trends-v7';
   if (!Number(force)) {
     try {
       const cached = cache.get(cacheKey);
@@ -160,12 +160,18 @@ function vioConcreteTopics_(items) {
         object: object,
         topic: x.topic || 'Другие вопросы',
         count: 0,
-        intents: {}
+        intents: {},
+        examples: []
       };
     }
 
     map[key].count++;
     map[key].intents[x.intent] = (map[key].intents[x.intent] || 0) + 1;
+
+    const example = String(x.title || '').trim();
+    if (example && map[key].examples.indexOf(example) < 0 && map[key].examples.length < 4) {
+      map[key].examples.push(example);
+    }
   });
 
   return Object.keys(map)
@@ -181,7 +187,8 @@ function vioConcreteTopics_(items) {
         object: item.object,
         topic: item.topic,
         count: item.count,
-        topIntent: topIntent.name
+        topIntent: topIntent.name,
+        examples: item.examples.slice(0,3)
       };
     })
     .sort(function(a,b){return b.count-a.count || a.name.localeCompare(b.name);});
