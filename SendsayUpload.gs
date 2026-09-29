@@ -42,14 +42,9 @@ function saveSendsayReportFile(formObject) {
  * сколько нужно, пока remaining не станет 0. Общего лимита по числу файлов нет.
  */
 function syncDriveReportsReliable(firstPass) {
-  assertAdmin_();
-
-  if (firstPass === true) {
-    prepareCanonicalReparseOnce_();
-    prepareFailedSendsayRowsForRetry_();
-  }
-
-  return syncDriveReports();
+  // Сохраняем старое имя RPC для app.js.
+  // В API-режиме legacy-подготовка файлов Drive больше не нужна.
+  return syncSendsayApiLast3Days();
 }
 
 /**
