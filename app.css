@@ -34,3 +34,23 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 .green-share{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center;margin-top:12px;padding:12px;border-radius:12px;background:#eff8f3}.green-share span{font-size:12px;color:var(--muted)}.green-share strong{font-size:23px;color:#16845e}.green-share small{grid-column:1/-1;color:var(--muted);font-size:11px}
 
 .vika-editorial{padding:10px;margin:10px 0;background:#f1f5ff;border-radius:10px}.editorial-original{white-space:pre-wrap;overflow-wrap:anywhere}
+
+
+.vio-summary{grid-template-columns:repeat(4,1fr)}
+.vio-switch button[aria-pressed="true"]{background:#eef3ff;border-color:#9fb3dd;color:#244a8f}
+.vio-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:start}
+.vio-row{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.vio-row:last-child{border-bottom:0}
+.vio-rank{width:24px;height:24px;border-radius:8px;background:#eef2f7;color:#596579;display:grid;place-items:center;font-size:11px;font-weight:700}
+.vio-rowmain>div:first-child{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.vio-rowmain b{font-size:12px;line-height:1.35}
+.vio-rowmain span{font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+.vio-bar{height:6px;background:#edf1f6;border-radius:999px;margin-top:8px;overflow:hidden}
+.vio-bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
+.vio-rubrics{display:flex;flex-wrap:wrap;gap:10px}
+.vio-rubrics span{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;max-width:280px}
+.vio-rubrics b{font-size:12px}.vio-rubrics small{color:var(--muted)}
+.vio-note{font-size:11px;color:var(--muted);margin-top:14px}
+.vio-empty{padding:12px 0;color:var(--muted)}
+@media(max-width:1100px){.vio-grid{grid-template-columns:1fr}.vio-summary{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.vio-summary{grid-template-columns:1fr}.vio-rowmain>div:first-child{display:block}.vio-rowmain span{display:block;text-align:left;margin-top:4px;white-space:normal}}
