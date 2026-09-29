@@ -97,18 +97,34 @@ function dashboardMatchMails_(emails,facts) {
   });
   return emails;
 }
+function dashboardMaterialGroupByDomain_(domain) {
+  const d=String(domain||'').toLowerCase().replace(/^www\./,'');
+  if(['budgetnik.ru','zpbudgetnik.ru','gosfinansy.ru'].includes(d))return'ГФ';
+  if(['pro-goszakaz.ru','goszakupkiru.ru','1gzakaz.ru'].includes(d))return'ГЗ';
+  return'';
+}
+
 function dashboardMaterials_(raw) {
   raw=raw.replace(/=\r?\n/g,'').replace(/=3D/gi,'=').replace(/&amp;/g,'&');
   const materials={};
   function add(url,title){
-    url=(url.match(/https?:\/\/(?:www\.)?(?:budgetnik\.ru|pro-goszakaz\.ru)\/[^\s"'<>)]*/i)||[])[0]||'';
-    const m=url.match(/^https?:\/\/(?:www\.)?(budgetnik\.ru|pro-goszakaz\.ru)\/(art|news)\/(\d+)(?:-|[/?#]|$)/i);
+    url=(url.match(/https?:\/\/(?:www\.)?(?:budgetnik\.ru|zpbudgetnik\.ru|gosfinansy\.ru|pro-goszakaz\.ru|goszakupkiru\.ru|1gzakaz\.ru)\/[^\s"'<>)]*/i)||[])[0]||'';
+    const m=url.match(/^https?:\/\/(?:www\.)?(budgetnik\.ru|zpbudgetnik\.ru|gosfinansy\.ru|pro-goszakaz\.ru|goszakupkiru\.ru|1gzakaz\.ru)\/(art|article|news)\/(\d+)(?:-|[/?#]|$)/i);
     if(!m)return;
-    const key=m[1].toLowerCase()+'|'+m[2].toLowerCase()+'|'+m[3];
+    const domain=m[1].toLowerCase();
+    const kind=/^article$/i.test(m[2])?'art':m[2].toLowerCase();
+    const key=domain+'|'+kind+'|'+m[3];
     title=String(title||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
     if(/=[A-F0-9]{2}/i.test(title)){try{title=decodeURIComponent(title.replace(/%/g,'%25').replace(/=([A-F0-9]{2})/gi,'%$1'));}catch(e){title='';}}
     title=title.replace(/&nbsp;/g,' ').replace(/&quot;/g,'"').replace(/&amp;/g,'&');
-    if(!materials[key]||title.length>(materials[key].title||'').length)materials[key]={id:m[3],kind:m[2].toLowerCase(),domain:m[1].toLowerCase(),url:url.split(/[?#]/)[0],title:title||m[2]+' / '+m[3]};
+    if(!materials[key]||title.length>(materials[key].title||'').length)materials[key]={
+      id:m[3],
+      kind:kind,
+      domain:domain,
+      group:dashboardMaterialGroupByDomain_(domain),
+      url:url.split(/[?#]/)[0],
+      title:title||kind+' / '+m[3]
+    };
   }
   const anchors=/<a\b[^>]*href\s*=\s*(["'])([\s\S]*?)\1[^>]*>([\s\S]*?)<\/a>/gi;
   let a;while((a=anchors.exec(raw)))add(a[2],a[3]);
@@ -119,7 +135,7 @@ function dashboardMaterialRows_(mail,materials,facts){
   const group=String(mail.product).split(' ')[0];
   return facts.filter(r=>r.product.split(' ')[0]===group).flatMap(r=>{
     const kind=/^(?:art|article)$/i.test(r.key)?'art':/^news$/i.test(r.key)?'news':'';
-    const material=materials.find(m=>m.id===r.term&&m.kind===kind&&m.domain===(group==='ГФ'?'budgetnik.ru':'pro-goszakaz.ru'));
+    const material=materials.find(m=>m.id===r.term&&m.kind===kind&&dashboardMaterialGroupByDomain_(m.domain)===group);
     if(!material)return [];
     const totals={red:0,yellow:0,green:0};r.weeks.forEach(w=>['red','yellow','green'].forEach(k=>totals[k]+=w[k]));
     return [{product:r.product,content:r.key,term:r.term,title:material.title,url:material.url,source:r.source,sourceUrl:r.sourceUrl,weeks:r.weeks,values:totals}];
