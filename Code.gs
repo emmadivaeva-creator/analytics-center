@@ -60,7 +60,9 @@ const DEMO_HEADERS = Object.freeze([
 ]);
 
 function doGet(e) {
-  return publicDashboardRead_(e);
+  const params = e && e.parameter ? e.parameter : {};
+  if (params.method || params.callback) return publicDashboardRead_(e);
+  return buildAnalyticsWebApp_();
 }
 
 /**
