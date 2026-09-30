@@ -3,7 +3,8 @@
   const config = window.ANALYTICS_DOMAIN_CONFIG;
   let token = '', expiresAt = 0, client, started = false;
   const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'syncDriveReportsReliable',
-    'syncDemoStats', 'refreshAppData', 'getMailRegistryUi', 'getMailDemoDetailsUi',
+    'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
+    'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailDemoDetailsUi',
     'getVikaPlanUi', 'getVikaEditorialUi', 'getVioTrendsUi']);
   const gate = document.getElementById('authGate');
   const button = document.getElementById('signIn');
@@ -14,7 +15,7 @@
     status.textContent = message;
     button.disabled = !client;
   }
-  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailRegistryRecentUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
   async function publicRead(method, parameters) {
     const url = new URL(config.publicReadUrl);
     url.searchParams.set('method', method);
