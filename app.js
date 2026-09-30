@@ -1,5 +1,5 @@
 function startAnalyticsApp(){
-  document.body.innerHTML="<div class=\"app\">\n<aside>\n  <div class=\"brand\"><b>Analytics Center</b><span>Чистая сборка V2</span></div>\n  <nav>\n    <button class=\"navbtn active\" data-page=\"pulse\">Пульс</button>\n    <button class=\"navbtn\" data-page=\"sources\">Источники демо</button>\n    <button class=\"navbtn\" data-page=\"mail\">Письма</button>\n    <button class=\"navbtn\" data-page=\"news\">Новости</button>\n    <button class=\"navbtn\" data-page=\"demand\">Спрос / Темы</button>\n    <button class=\"navbtn\" data-page=\"vio\">ВИО / Спрос</button>\n    <button class=\"navbtn\" data-page=\"vika\">План для Вики</button>\n    \n    <button class=\"navbtn\" data-page=\"service\">Служебное</button>\n  </nav>\n  <div class=\"asidefoot\"><b>v2-full-refresh-2026-09-10-10</b>Интерфейс живёт на GitHub Pages. Apps Script используется только как серверный мост к данным.</div>\n</aside>\n<main>\n  <div class=\"topline\">\n    <div class=\"build\"><span id=\"serverDot\" class=\"dot\"></span><span id=\"serverStatus\">Проверяем сервер…</span></div>\n    <div class=\"topactions\"><button class=\"health\" id=\"healthBtn\">Проверить сервер</button><button class=\"refresh\" id=\"refreshBtn\">Обновить всё</button></div>\n  </div>\n\n  <section class=\"page active\" id=\"page-pulse\">\n    <div class=\"head\">\n      <div><div class=\"eyebrow\">Главный экран</div><h1>Пульс</h1><p>Факт читается напрямую из «Статистики по ДЕМО». План считаем только по зелёным; жёлтые — резерв для дожима; красные — диагностика.</p></div>\n      <div class=\"weekmeta\">\n        <div class=\"weekbadge current\" id=\"currentWeekBadge\">Сейчас: неделя —</div>\n        <select class=\"weekselect\" id=\"weekSelect\"><option>Загружаю недели…</option></select>\n      </div>\n    </div>\n    <div id=\"pulseError\" class=\"errorbox hidden\"></div>\n    <div id=\"pulseLoading\" class=\"loading\">Читаю свежий DEMO-факт из исходной таблицы…</div>\n    <div id=\"pulseContent\" class=\"hidden\">\n      <div class=\"freshnote\" id=\"freshNote\"></div>\n      <div class=\"sectiontitle\"><div><h2>Шесть продуктов</h2><p>Факт выбранной недели и решение на следующий шаг.</p></div><p id=\"sourceStamp\"></p></div>\n      <div class=\"productgrid\" id=\"products\"></div>\n      <div class=\"twocol\">\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Что делать сейчас</h2><p>Решение по каждому продукту.</p></div><div class=\"decisionlist\" id=\"decisions\"></div></section>\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Динамика по неделям</h2><p>Номер недели, даты и зелёные относительно плана.</p></div><div class=\"weeks\" id=\"weeks\"></div></section>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"page\" id=\"page-sources\">\n    <div class=\"head\">\n      <div><div class=\"eyebrow\">Откуда приходят DEMO</div><h1>Источники демо</h1><p>Сколько демо и зелёных приносит каждый источник. Letter, Trigger и Landing считаются отдельно; Refer / сайт раскрыт до конкретных типов точек входа.</p></div>\n      <div class=\"sources-period\" id=\"sourcesPeriod\">Недели 27–39</div>\n    </div>\n    <div class=\"tab-tools sources-switch\">\n      <button id=\"sourcesAll\" aria-pressed=\"true\">Все</button>\n      <button id=\"sourcesGf\" aria-pressed=\"false\">Госфинансы</button>\n      <button id=\"sourcesGz\" aria-pressed=\"false\">Госзаказ</button>\n    </div>\n    <p id=\"sourcesStatus\" role=\"status\">Загружаю срез источников…</p>\n    <div id=\"sourcesSummary\" class=\"demand-summary sources-summary\"></div>\n    <div id=\"sourceCards\" class=\"sources-cards\"></div>\n    <div class=\"sources-layout\">\n      <section class=\"panel calls-box sources-site-panel\">\n        <div class=\"sources-section-head\"><div><h2>Что внутри Refer / сайта</h2><p>Сайтовый трафик раскрыт по типу точки входа. Landing здесь исключён, чтобы не задваивать его с отдельным источником.</p></div></div>\n        <div id=\"siteBreakdown\"></div>\n      </section>\n      <section class=\"panel calls-box sources-insight-panel\">\n        <h2>Что видно сразу</h2>\n        <div id=\"sourceInsights\" class=\"source-insights\"></div>\n        <details class=\"sources-method\">\n          <summary>Как сгруппированы источники</summary>\n          <div class=\"sources-method-grid\">\n            <p><b>Пейволы</b><span>PW_*, pw_*, pw_click-button, placeholder*, id2panel*.</span></p>\n            <p><b>Новости</b><span>UTM Content = news.</span></p>\n            <p><b>Статьи</b><span>UTM Content = article или art.</span></p>\n            <p><b>ВиО / QA</b><span>Question и qa.</span></p>\n            <p><b>Блоки и кнопки сайта</b><span>push_id2, SB_*, iframe_content, statbloc_*, leftmenu_*, undermainmenucross, dd-ss-* и похожие внутренние точки.</span></p>\n            <p><b>Не размечено</b><span>UTM Content не указан. Это показываем отдельно, а не прячем в «Прочее».</span></p>\n          </div>\n        </details>\n      </section>\n    </div>\n    <section class=\"panel calls-box sources-compare\">\n      <div class=\"sources-section-head\"><div><h2>ГФ и ГЗ: сравнение источников</h2><p>Для каждого источника видно две вещи: какую долю всех демо он даёт и какая доля этих демо становится зелёной.</p></div></div>\n      <div id=\"sourcesCompare\" class=\"tablewrap\"></div>\n    </section>\n  </section>\n\n  <section class=\"page\" id=\"page-mail\"><div class=\"head\"><div><h1>Письма</h1><p>Демо-рассылки. Новостные рассылки — во вкладке «Новости». Самые свежие — сверху.</p></div></div><div class=\"tab-tools\"><input id=\"mailSearch\" placeholder=\"Поиск по теме или кампании\"><select id=\"mailProduct\"><option value=\"\">Все продукты</option></select><button id=\"mailReload\">Обновить</button></div><p id=\"mailStatus\" role=\"status\"></p><div class=\"registry\" id=\"mailRows\"></div><button id=\"mailMore\" class=\"hidden\">Показать ещё</button></section>\n  <section class=\"page\" id=\"page-news\"><div class=\"head\"><div><h1>Новости</h1><p>Как читают рассылки и какие материалы приносят демо.</p></div></div>\n<div class=\"tab-tools\"><button id=\"newsLettersTab\" aria-pressed=\"true\">Рассылки с новостями</button><button id=\"newsMaterialsTab\" aria-pressed=\"false\">Какие новости дают демо</button></div>\n<div id=\"newsLettersPanel\"><div class=\"tab-tools\"><input id=\"newsSearch\" placeholder=\"Поиск письма\"><select id=\"newsProduct\"><option value=\"\">Все продукты</option></select><button id=\"newsReload\">Обновить</button></div><p id=\"newsStatus\" role=\"status\"></p><div class=\"registry\" id=\"newsRows\"></div><button id=\"newsMore\" class=\"hidden\">Показать ещё</button></div>\n<div id=\"newsMaterialsPanel\" class=\"hidden\"><h2>Какие новости дают демо</h2><p>Все материалы из загруженных новостных писем, включая статьи. Демо — по всем источникам переходов, а не только из рассылок. Повторы материалов учтены один раз.</p><div class=\"tab-tools\"><input id=\"newsMaterialSearch\" placeholder=\"Найти новость или статью\"><select id=\"newsMaterialGroup\"><option value=\"\">ГФ и ГЗ</option><option>ГФ</option><option>ГЗ</option></select><select id=\"newsMaterialWeek\"><option value=\"\">Все доступные недели</option></select><select id=\"newsMaterialFilter\"><option value=\"\">Все материалы</option><option value=\"zero\">Без демо</option><option value=\"green\">С зелёными демо</option></select><select id=\"newsMaterialSort\"><option value=\"green\">Сначала больше зелёных</option><option value=\"total\">Сначала больше всех демо</option></select></div><p id=\"newsMaterialStatus\" role=\"status\"></p><div id=\"newsMaterialSummary\" class=\"demand-summary\"></div><div id=\"newsMaterialRows\" class=\"registry\"></div></div></section>\n  <section class=\"page\" id=\"page-demand\"><div class=\"head\"><div><h1>Спрос: темы, которые дают демо</h1><p>Результаты тем писем: зелёные, жёлтые и красные демо с подтверждением из статистики.</p></div><button id=\"demandReload\">Обновить спрос</button></div><div class=\"demand-filters tab-tools\"><select id=\"demandGroup\" aria-label=\"Группа продуктов спроса\"><option value=\"\">ГФ и ГЗ</option><option value=\"ГФ\">ГФ</option><option value=\"ГЗ\">ГЗ</option></select><input id=\"demandSearch\" placeholder=\"Найти тему: зарплата, закупки, ИИ…\" aria-label=\"Поиск темы спроса\"></div><p id=\"demandStatus\" role=\"status\"></p><div id=\"demandSummary\" class=\"demand-summary\"></div><div class=\"demand-panels\"><section class=\"calls-box\"><h2>Какие темы дают демо</h2><p>Темы фактически отправленных писем, по зелёным демо. Одинаковые темы объединены внутри продукта. Повторные отчёты одной метки учтены один раз. Общие уведомления о закрытии доступа без предметной темы исключены.</p><p>Здесь прямые результаты Campaign за доступные недели после отправки. Для новостей и статей — результаты материалов по Content / Term за все доступные недели, по всем реферам. Каждый материал в продукте учитывается один раз, даже если был в нескольких письмах.</p><div id=\"demandDemo\" class=\"tablewrap\"></div></section></div></section><section class=\"page\" id=\"page-vio\"><div class=\"head\"><div><div class=\"eyebrow\">Спрос из ВИО</div><h1>Что спрашивают пользователи</h1><p>Здесь не просто рубрики и частотность. Главный слой — конкретная рабочая ситуация: что делают, с чем и какой ответ хотят получить.</p></div><button id=\"vioReload\">Обновить</button></div><div class=\"tab-tools vio-switch\"><button id=\"vioGz\" aria-pressed=\"true\">Госзаказ</button><button id=\"vioGf\" aria-pressed=\"false\">Госфинансы</button></div><p id=\"vioStatus\" role=\"status\"></p><div id=\"vioSummary\" class=\"demand-summary vio-summary\"></div><div class=\"vio-overview-head\"><h2>Обзор спроса</h2><p>Сначала общий масштаб: какие темы доминируют, что растёт и какой результат хотят получить.</p></div><div class=\"vio-grid\"><section class=\"panel calls-box\"><h2>Большие темы</h2><p>Куда приходится основной объём вопросов в текущем месяце.</p><div id=\"vioTopics\"></div></section><section class=\"panel calls-box\"><h2>Что растёт</h2><p>Темы, доля которых выросла относительно прошлого месяца.</p><div id=\"vioRising\"></div></section><section class=\"panel calls-box\"><h2>Что хотят получить</h2><p>Проверить правомерность, оформить, посчитать, исправить ошибку или понять порядок действий.</p><div id=\"vioIntents\"></div></section></div><section class=\"panel calls-box vio-concrete\"><div class=\"vio-section-head\"><div><h2>Что именно спрашивают</h2><p>Формулировки собраны из повторяющихся вопросов: действие + конкретный предмет + основной интент. Это уже можно использовать как основу для редакционных тем.</p></div><span class=\"vio-section-hint\">действие + предмет + интент</span></div><div id=\"vioConcrete\"></div></section><section class=\"panel calls-box vio-rubric-panel\"><details><summary>Ведущие рубрики исходной выгрузки</summary><p>Контрольный слой классификации. Для редакционной работы полезнее блок «Что именно спрашивают».</p><div id=\"vioRubrics\" class=\"vio-rubrics\"></div></details></section><p class=\"vio-note\">Тексты исходных вопросов используются только для классификации. На экран выводится агрегированный спрос, без самих пользовательских вопросов.</p></section>\n  <section class=\"page\" id=\"page-vika\"><div class=\"head\"><div><h1>План для Вики</h1><p>Письма из действующего рабочего плана. Полный текст и материалы — в каждой строке.</p></div></div><div class=\"tab-tools\"><select id=\"vikaPeriod\"><option>Текущий план</option></select><select id=\"vikaDate\" aria-label=\"Дата писем\"><option value=\"\">Все даты</option></select><input id=\"vikaSearch\" placeholder=\"Поиск по продукту, теме или сегменту\"><button id=\"vikaReload\">Обновить план</button></div><p id=\"vikaStatus\" role=\"status\"></p><p id=\"vikaSource\"></p><div class=\"registry\" id=\"vikaRows\"></div></section>\n  <section class=\"page\" id=\"page-calls\"><div class=\"head\"><div><h1>Звонки / Что продаёт</h1><p>Темы разговоров, потребности клиентов, возражения и подтверждающие фрагменты.</p></div></div><div class=\"panel calls-box\"><h2>Загрузить расшифровки</h2><p>Excel или CSV: «Номер действия», «sl_api_nr», «Анализ — Расшифровка звонков». Также можно загрузить отдельный разговор в TXT.</p><input id=\"callFiles\" type=\"file\" accept=\".xlsx,.csv,.txt\" multiple><p id=\"callImportStatus\" role=\"status\"></p><details><summary>Как обрабатываются разговоры</summary><p>Расшифровки сохраняются в служебной таблице. По кнопке анализа текст с маскировкой телефонов и электронной почты передаётся в OpenAI. Анализ требует настроенного API-ключа и оплачивается по тарифу API.</p></details></div><div class=\"tab-tools\"><button id=\"callsReload\">Обновить результаты</button><button id=\"callsAnalyze\" disabled>Проанализировать загруженные звонки</button><button id=\"callsStop\" class=\"hidden\">Остановить после текущей партии</button></div><p id=\"callsStatus\" role=\"status\"></p><div id=\"callsMetrics\"></div><div class=\"registry\" id=\"callsTopics\"></div><div id=\"callsDetail\" class=\"panel calls-box hidden\"></div><details class=\"calls-box\"><summary>История загрузок</summary><div id=\"callsImports\"></div></details></section>\n  <section class=\"page\" id=\"page-service\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 7</div><h1>Служебное</h1><p>Источники, синхронизация, ошибки и дубли.</p></div></div><div class=\"placeholder\"><h2>Служебный экран</h2></div></section>\n</main>\n</div>";
+  document.body.innerHTML="<div class=\"app\">\n<aside>\n  <div class=\"brand\"><b>Analytics Center</b><span>Чистая сборка V2</span></div>\n  <nav>\n    <button class=\"navbtn active\" data-page=\"pulse\">Пульс</button>\n    <button class=\"navbtn\" data-page=\"sources\">Источники демо</button>\n    <button class=\"navbtn\" data-page=\"mail\">Письма</button>\n    <button class=\"navbtn\" data-page=\"news\">Новости</button>\n    <button class=\"navbtn\" data-page=\"demand\">Спрос / Темы</button>\n    <button class=\"navbtn\" data-page=\"vio\">ВИО / Спрос</button>\n    <button class=\"navbtn\" data-page=\"vika\">План для Вики</button>\n    \n    <button class=\"navbtn\" data-page=\"service\">Служебное</button>\n  </nav>\n  <div class=\"asidefoot\"><b>v2-full-refresh-2026-09-10-10</b>Интерфейс живёт на GitHub Pages. Apps Script используется только как серверный мост к данным.</div>\n</aside>\n<main>\n  <div class=\"topline\">\n    <div class=\"build\"><span id=\"serverDot\" class=\"dot\"></span><span id=\"serverStatus\">Проверяем сервер…</span></div>\n    <div class=\"topactions\"><button class=\"health\" id=\"healthBtn\">Проверить сервер</button><button class=\"refresh\" id=\"refreshBtn\">Обновить последние 3 дня</button></div>\n  </div>\n\n  <section class=\"page active\" id=\"page-pulse\">\n    <div class=\"head\">\n      <div><div class=\"eyebrow\">Главный экран</div><h1>Пульс</h1><p>Факт читается напрямую из «Статистики по ДЕМО». План считаем только по зелёным; жёлтые — резерв для дожима; красные — диагностика.</p></div>\n      <div class=\"weekmeta\">\n        <div class=\"weekbadge current\" id=\"currentWeekBadge\">Сейчас: неделя —</div>\n        <select class=\"weekselect\" id=\"weekSelect\"><option>Загружаю недели…</option></select>\n      </div>\n    </div>\n    <div id=\"pulseError\" class=\"errorbox hidden\"></div>\n    <div id=\"pulseLoading\" class=\"loading\">Читаю свежий DEMO-факт из исходной таблицы…</div>\n    <div id=\"pulseContent\" class=\"hidden\">\n      <div class=\"freshnote\" id=\"freshNote\"></div>\n      <div class=\"sectiontitle\"><div><h2>Шесть продуктов</h2><p>Факт выбранной недели и решение на следующий шаг.</p></div><p id=\"sourceStamp\"></p></div>\n      <div class=\"productgrid\" id=\"products\"></div>\n      <div class=\"twocol\">\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Что делать сейчас</h2><p>Решение по каждому продукту.</p></div><div class=\"decisionlist\" id=\"decisions\"></div></section>\n        <section class=\"panel\"><div class=\"panelhead\"><h2>Динамика по неделям</h2><p>Номер недели, даты и зелёные относительно плана.</p></div><div class=\"weeks\" id=\"weeks\"></div></section>\n      </div>\n    </div>\n  </section>\n\n  <section class=\"page\" id=\"page-sources\">\n    <div class=\"head\">\n      <div><div class=\"eyebrow\">Откуда приходят DEMO</div><h1>Источники демо</h1><p>Сколько демо и зелёных приносит каждый источник. Letter, Trigger и Landing считаются отдельно; Refer / сайт раскрыт до конкретных типов точек входа.</p></div>\n      <div class=\"sources-period\" id=\"sourcesPeriod\">Недели 27–39</div>\n    </div>\n    <div class=\"tab-tools sources-switch\">\n      <button id=\"sourcesAll\" aria-pressed=\"true\">Все</button>\n      <button id=\"sourcesGf\" aria-pressed=\"false\">Госфинансы</button>\n      <button id=\"sourcesGz\" aria-pressed=\"false\">Госзаказ</button>\n    </div>\n    <p id=\"sourcesStatus\" role=\"status\">Загружаю срез источников…</p>\n    <div id=\"sourcesSummary\" class=\"demand-summary sources-summary\"></div>\n    <div id=\"sourceCards\" class=\"sources-cards\"></div>\n    <div class=\"sources-layout\">\n      <section class=\"panel calls-box sources-site-panel\">\n        <div class=\"sources-section-head\"><div><h2>Что внутри Refer / сайта</h2><p>Сайтовый трафик раскрыт по типу точки входа. Landing здесь исключён, чтобы не задваивать его с отдельным источником.</p></div></div>\n        <div id=\"siteBreakdown\"></div>\n      </section>\n      <section class=\"panel calls-box sources-insight-panel\">\n        <h2>Что видно сразу</h2>\n        <div id=\"sourceInsights\" class=\"source-insights\"></div>\n        <details class=\"sources-method\">\n          <summary>Как сгруппированы источники</summary>\n          <div class=\"sources-method-grid\">\n            <p><b>Пейволы</b><span>PW_*, pw_*, pw_click-button, placeholder*, id2panel*.</span></p>\n            <p><b>Новости</b><span>UTM Content = news.</span></p>\n            <p><b>Статьи</b><span>UTM Content = article или art.</span></p>\n            <p><b>ВиО / QA</b><span>Question и qa.</span></p>\n            <p><b>Блоки и кнопки сайта</b><span>push_id2, SB_*, iframe_content, statbloc_*, leftmenu_*, undermainmenucross, dd-ss-* и похожие внутренние точки.</span></p>\n            <p><b>Не размечено</b><span>UTM Content не указан. Это показываем отдельно, а не прячем в «Прочее».</span></p>\n          </div>\n        </details>\n      </section>\n    </div>\n    <section class=\"panel calls-box sources-compare\">\n      <div class=\"sources-section-head\"><div><h2>ГФ и ГЗ: сравнение источников</h2><p>Для каждого источника видно две вещи: какую долю всех демо он даёт и какая доля этих демо становится зелёной.</p></div></div>\n      <div id=\"sourcesCompare\" class=\"tablewrap\"></div>\n    </section>\n  </section>\n\n  <section class=\"page\" id=\"page-mail\"><div class=\"head\"><div><h1>Письма</h1><p>Демо-рассылки. Новостные рассылки — во вкладке «Новости». Самые свежие — сверху.</p></div></div><div class=\"tab-tools\"><input id=\"mailSearch\" placeholder=\"Поиск по теме или кампании\"><select id=\"mailProduct\"><option value=\"\">Все продукты</option></select><button id=\"mailReload\">Обновить</button></div><p id=\"mailStatus\" role=\"status\"></p><div class=\"registry\" id=\"mailRows\"></div><button id=\"mailMore\" class=\"hidden\">Показать ещё</button></section>\n  <section class=\"page\" id=\"page-news\"><div class=\"head\"><div><h1>Новости</h1><p>Как читают рассылки и какие материалы приносят демо.</p></div></div>\n<div class=\"tab-tools\"><button id=\"newsLettersTab\" aria-pressed=\"true\">Рассылки с новостями</button><button id=\"newsMaterialsTab\" aria-pressed=\"false\">Какие новости дают демо</button></div>\n<div id=\"newsLettersPanel\"><div class=\"tab-tools\"><input id=\"newsSearch\" placeholder=\"Поиск письма\"><select id=\"newsProduct\"><option value=\"\">Все продукты</option></select><button id=\"newsReload\">Обновить</button></div><p id=\"newsStatus\" role=\"status\"></p><div class=\"registry\" id=\"newsRows\"></div><button id=\"newsMore\" class=\"hidden\">Показать ещё</button></div>\n<div id=\"newsMaterialsPanel\" class=\"hidden\"><h2>Какие новости дают демо</h2><p>Все материалы из загруженных новостных писем, включая статьи. Демо — по всем источникам переходов, а не только из рассылок. Повторы материалов учтены один раз.</p><div class=\"tab-tools\"><input id=\"newsMaterialSearch\" placeholder=\"Найти новость или статью\"><select id=\"newsMaterialGroup\"><option value=\"\">ГФ и ГЗ</option><option>ГФ</option><option>ГЗ</option></select><select id=\"newsMaterialWeek\"><option value=\"\">Все доступные недели</option></select><select id=\"newsMaterialFilter\"><option value=\"\">Все материалы</option><option value=\"zero\">Без демо</option><option value=\"green\">С зелёными демо</option></select><select id=\"newsMaterialSort\"><option value=\"green\">Сначала больше зелёных</option><option value=\"total\">Сначала больше всех демо</option></select></div><p id=\"newsMaterialStatus\" role=\"status\"></p><div id=\"newsMaterialSummary\" class=\"demand-summary\"></div><div id=\"newsMaterialRows\" class=\"registry\"></div></div></section>\n  <section class=\"page\" id=\"page-demand\"><div class=\"head\"><div><h1>Спрос: темы, которые дают демо</h1><p>Результаты тем писем: зелёные, жёлтые и красные демо с подтверждением из статистики.</p></div><button id=\"demandReload\">Обновить спрос</button></div><div class=\"demand-filters tab-tools\"><select id=\"demandGroup\" aria-label=\"Группа продуктов спроса\"><option value=\"\">ГФ и ГЗ</option><option value=\"ГФ\">ГФ</option><option value=\"ГЗ\">ГЗ</option></select><input id=\"demandSearch\" placeholder=\"Найти тему: зарплата, закупки, ИИ…\" aria-label=\"Поиск темы спроса\"></div><p id=\"demandStatus\" role=\"status\"></p><div id=\"demandSummary\" class=\"demand-summary\"></div><div class=\"demand-panels\"><section class=\"calls-box\"><h2>Какие темы дают демо</h2><p>Темы фактически отправленных писем, по зелёным демо. Одинаковые темы объединены внутри продукта. Повторные отчёты одной метки учтены один раз. Общие уведомления о закрытии доступа без предметной темы исключены.</p><p>Здесь прямые результаты Campaign за доступные недели после отправки. Для новостей и статей — результаты материалов по Content / Term за все доступные недели, по всем реферам. Каждый материал в продукте учитывается один раз, даже если был в нескольких письмах.</p><div id=\"demandDemo\" class=\"tablewrap\"></div></section></div></section><section class=\"page\" id=\"page-vio\"><div class=\"head\"><div><div class=\"eyebrow\">Спрос из ВИО</div><h1>Что спрашивают пользователи</h1><p>Здесь не просто рубрики и частотность. Главный слой — конкретная рабочая ситуация: что делают, с чем и какой ответ хотят получить.</p></div><button id=\"vioReload\">Обновить</button></div><div class=\"tab-tools vio-switch\"><button id=\"vioGz\" aria-pressed=\"true\">Госзаказ</button><button id=\"vioGf\" aria-pressed=\"false\">Госфинансы</button></div><p id=\"vioStatus\" role=\"status\"></p><div id=\"vioSummary\" class=\"demand-summary vio-summary\"></div><div class=\"vio-overview-head\"><h2>Обзор спроса</h2><p>Сначала общий масштаб: какие темы доминируют, что растёт и какой результат хотят получить.</p></div><div class=\"vio-grid\"><section class=\"panel calls-box\"><h2>Большие темы</h2><p>Куда приходится основной объём вопросов в текущем месяце.</p><div id=\"vioTopics\"></div></section><section class=\"panel calls-box\"><h2>Что растёт</h2><p>Темы, доля которых выросла относительно прошлого месяца.</p><div id=\"vioRising\"></div></section><section class=\"panel calls-box\"><h2>Что хотят получить</h2><p>Проверить правомерность, оформить, посчитать, исправить ошибку или понять порядок действий.</p><div id=\"vioIntents\"></div></section></div><section class=\"panel calls-box vio-concrete\"><div class=\"vio-section-head\"><div><h2>Что именно спрашивают</h2><p>Формулировки собраны из повторяющихся вопросов: действие + конкретный предмет + основной интент. Это уже можно использовать как основу для редакционных тем.</p></div><span class=\"vio-section-hint\">действие + предмет + интент</span></div><div id=\"vioConcrete\"></div></section><section class=\"panel calls-box vio-rubric-panel\"><details><summary>Ведущие рубрики исходной выгрузки</summary><p>Контрольный слой классификации. Для редакционной работы полезнее блок «Что именно спрашивают».</p><div id=\"vioRubrics\" class=\"vio-rubrics\"></div></details></section><p class=\"vio-note\">Тексты исходных вопросов используются только для классификации. На экран выводится агрегированный спрос, без самих пользовательских вопросов.</p></section>\n  <section class=\"page\" id=\"page-vika\"><div class=\"head\"><div><h1>План для Вики</h1><p>Письма из действующего рабочего плана. Полный текст и материалы — в каждой строке.</p></div></div><div class=\"tab-tools\"><select id=\"vikaPeriod\"><option>Текущий план</option></select><select id=\"vikaDate\" aria-label=\"Дата писем\"><option value=\"\">Все даты</option></select><input id=\"vikaSearch\" placeholder=\"Поиск по продукту, теме или сегменту\"><button id=\"vikaReload\">Обновить план</button></div><p id=\"vikaStatus\" role=\"status\"></p><p id=\"vikaSource\"></p><div class=\"registry\" id=\"vikaRows\"></div></section>\n  <section class=\"page\" id=\"page-calls\"><div class=\"head\"><div><h1>Звонки / Что продаёт</h1><p>Темы разговоров, потребности клиентов, возражения и подтверждающие фрагменты.</p></div></div><div class=\"panel calls-box\"><h2>Загрузить расшифровки</h2><p>Excel или CSV: «Номер действия», «sl_api_nr», «Анализ — Расшифровка звонков». Также можно загрузить отдельный разговор в TXT.</p><input id=\"callFiles\" type=\"file\" accept=\".xlsx,.csv,.txt\" multiple><p id=\"callImportStatus\" role=\"status\"></p><details><summary>Как обрабатываются разговоры</summary><p>Расшифровки сохраняются в служебной таблице. По кнопке анализа текст с маскировкой телефонов и электронной почты передаётся в OpenAI. Анализ требует настроенного API-ключа и оплачивается по тарифу API.</p></details></div><div class=\"tab-tools\"><button id=\"callsReload\">Обновить результаты</button><button id=\"callsAnalyze\" disabled>Проанализировать загруженные звонки</button><button id=\"callsStop\" class=\"hidden\">Остановить после текущей партии</button></div><p id=\"callsStatus\" role=\"status\"></p><div id=\"callsMetrics\"></div><div class=\"registry\" id=\"callsTopics\"></div><div id=\"callsDetail\" class=\"panel calls-box hidden\"></div><details class=\"calls-box\"><summary>История загрузок</summary><div id=\"callsImports\"></div></details></section>\n  <section class=\"page\" id=\"page-service\"><div class=\"head\"><div><div class=\"eyebrow\">Этап 7</div><h1>Служебное</h1><p>Источники, синхронизация, ошибки и дубли.</p></div></div><div class=\"placeholder\"><h2>Служебный экран</h2></div></section>\n</main>\n</div>";
 (function(){
 'use strict';
 const BUILD='v2-full-refresh-2026-09-10-10';
@@ -69,46 +69,39 @@ async function loadData(){
    const data=await rpc('getPulseDataFresh');
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
  }catch(err){showError(err&&err.message?err.message:String(err));}
- finally{btn.disabled=false;btn.textContent='Обновить всё';}
+ finally{btn.disabled=false;btn.textContent='Обновить последние 3 дня';}
 }
 function showRefreshError(msg){
  const b=document.getElementById('pulseError');
- b.textContent='Не удалось обновить все данные: '+msg;
+ b.textContent='Не удалось обновить последние 3 дня: '+msg;
  b.classList.remove('hidden');
 }
-async function refreshAllData(){
+async function refreshLast3Days(){
  const btn=document.getElementById('refreshBtn');
  btn.disabled=true;
  document.getElementById('pulseError').classList.add('hidden');
- let first=true,totalProcessed=0;
  try{
-   while(true){
-     btn.textContent=first?'Проверяю Sendsay…':'Обновляю Sendsay…';
-     const r=await rpc('syncDriveReportsReliable',first);
-     first=false;
-     totalProcessed+=n(r&&r.processed);
-     const remaining=n(r&&r.remaining);
-     btn.textContent='Sendsay: '+totalProcessed+' · осталось '+remaining;
-     if(remaining<=0) break;
-     if(n(r&&r.processed)<=0) throw new Error('Очередь Sendsay не уменьшается. Осталось файлов: '+remaining);
-   }
+   btn.textContent='Обновляю Sendsay за 3 дня…';
+   const api=await rpc('syncSendsayApiLast3Days');
+
    btn.textContent='Пересчитываю DEMO…';
    await rpc('syncDemoStats');
-   btn.textContent='Пересобираю данные…';
-   await rpc('refreshAppData');
-   const refreshed=await rpc('getMailRegistryUi');
-   registryData=(refreshed.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));renderRegistries();renderDemand();
+
+   btn.textContent='Забираю свежие письма…';
+   const recent=await rpc('getMailRegistryRecentUi',3);
+   await mergeRegistryRecent_(recent);
+
    btn.textContent='Обновляю Пульс…';
    const data=await rpc('getPulseDataFresh');
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
-   btn.textContent='Обновляю план для Вики…';
-   await loadVika(vikaData?.selected?.id);
-   setHealth(true,'Факт и письма обновлены · Sendsay обработано '+totalProcessed+' · Новости сопоставляются постепенно; статус плана — во вкладке Вики');
+
+   if(registryData)renderDemand();
+   setHealth(true,'Обновлены последние 3 дня · Sendsay: '+fmt(api&&api.processed)+' писем · история осталась в браузере');
  }catch(err){
    showRefreshError(err&&err.message?err.message:String(err));
-   setHealth(false,'Ошибка обновления данных');
+   setHealth(false,'Ошибка обновления последних 3 дней');
  }finally{
-   btn.disabled=false;btn.textContent='Обновить всё';
+   btn.disabled=false;btn.textContent='Обновить последние 3 дня';
  }
 }
 function showError(msg){document.getElementById('pulseLoading').classList.add('hidden');document.getElementById('pulseContent').classList.add('hidden');const b=document.getElementById('pulseError');b.textContent='Не удалось загрузить Пульс: '+msg;b.classList.remove('hidden')}
@@ -137,27 +130,112 @@ function renderSelectedWeek(){
 }
 
 
-let registryData=null,registryPromise=null;
+let registryData=null,registryPromise=null,registryCacheSavedAt='';
 const registryLimits={mail:100,news:100};
+const REGISTRY_CACHE_DB='analytics-center-cache';
+const REGISTRY_CACHE_STORE='kv';
+const REGISTRY_CACHE_KEY='mail-registry-v3';
+const REGISTRY_CACHE_VERSION=3;
+let registryCacheTimer=null;
+
 function isNewsMail(x){return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(x.campaign||'')||/^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(x.campaign||'');}
 function mailDate(x){const t=String(x.time||'00:00').split(':').map(v=>v.padStart(2,'0')).join(':');return String(x.date||'')+'T'+t;}
 function safeLink(url,label){return /^https?:\/\//i.test(String(url||''))?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'';}
-async function loadRegistry(force=false){
- if(registryPromise)return registryPromise;
- if(registryData&&!force){renderRegistries();return;}
- ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Загружаю письма…');
- registryPromise=(async()=>{try{
- const data=await rpc('getMailRegistryUi');
- registryData=(data.emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
- for(const key of ['mail','news']){const el=document.getElementById(key+'Product'),prev=el.value;const products=[...new Set(registryData.filter(x=>key==='news'?isNewsMail(x):!isNewsMail(x)).map(x=>x.product).filter(Boolean))].sort();el.innerHTML='<option value="">Все продукты</option>'+products.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');el.value=products.includes(prev)?prev:'';}
+
+function registryDb_(){
+ return new Promise((resolve,reject)=>{
+  if(!window.indexedDB)return reject(new Error('IndexedDB недоступен'));
+  const req=indexedDB.open(REGISTRY_CACHE_DB,1);
+  req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(REGISTRY_CACHE_STORE))db.createObjectStore(REGISTRY_CACHE_STORE);};
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error||new Error('Не удалось открыть кэш браузера'));
+ });
+}
+async function registryCacheRead_(){
+ const db=await registryDb_();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction(REGISTRY_CACHE_STORE,'readonly');
+  const req=tx.objectStore(REGISTRY_CACHE_STORE).get(REGISTRY_CACHE_KEY);
+  req.onsuccess=()=>{db.close();const value=req.result;resolve(value&&value.version===REGISTRY_CACHE_VERSION?value:null);};
+  req.onerror=()=>{db.close();reject(req.error||new Error('Не удалось прочитать кэш'));};
+ });
+}
+async function registryCacheWrite_(emails){
+ const payload={version:REGISTRY_CACHE_VERSION,savedAt:new Date().toISOString(),emails:Array.isArray(emails)?emails:[]};
+ const db=await registryDb_();
+ await new Promise((resolve,reject)=>{
+  const tx=db.transaction(REGISTRY_CACHE_STORE,'readwrite');
+  tx.objectStore(REGISTRY_CACHE_STORE).put(payload,REGISTRY_CACHE_KEY);
+  tx.oncomplete=()=>resolve();
+  tx.onerror=()=>reject(tx.error||new Error('Не удалось сохранить кэш'));
+  tx.onabort=()=>reject(tx.error||new Error('Сохранение кэша отменено'));
+ });
+ db.close();registryCacheSavedAt=payload.savedAt;
+ return payload;
+}
+function scheduleRegistryCacheSave_(){
+ clearTimeout(registryCacheTimer);
+ registryCacheTimer=setTimeout(()=>{if(registryData)registryCacheWrite_(registryData).catch(()=>{});},1200);
+}
+function applyRegistryData_(emails,savedAt){
+ registryData=(emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
+ registryCacheSavedAt=savedAt||registryCacheSavedAt||'';
+ for(const key of ['mail','news']){
+  const el=document.getElementById(key+'Product'),prev=el.value;
+  const products=[...new Set(registryData.filter(x=>key==='news'?isNewsMail(x):!isNewsMail(x)).map(x=>x.product).filter(Boolean))].sort();
+  el.innerHTML='<option value="">Все продукты</option>'+products.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  el.value=products.includes(prev)?prev:'';
+ }
  renderRegistries();
- }catch(e){['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Не удалось загрузить письма: '+e.message);}finally{registryPromise=null;}})();return registryPromise;
+}
+function registryCacheNote_(){
+ return registryCacheSavedAt?' · кэш браузера '+dateRu(registryCacheSavedAt):'';
+}
+async function loadRegistry(){
+ if(registryPromise)return registryPromise;
+ if(registryData){renderRegistries();return registryData;}
+ ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Открываю сохранённые письма…');
+ registryPromise=(async()=>{try{
+   try{
+     const cached=await registryCacheRead_();
+     if(cached&&Array.isArray(cached.emails)&&cached.emails.length){
+       applyRegistryData_(cached.emails,cached.savedAt);
+       return registryData;
+     }
+   }catch(cacheError){}
+
+   ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Первичная загрузка всей истории. Это делается один раз для этого браузера…');
+   const data=await rpc('getMailRegistryUi');
+   applyRegistryData_(data.emails||[],data.readAt);
+   try{await registryCacheWrite_(registryData);}catch(cacheError){}
+   return registryData;
+ }catch(e){
+   ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Не удалось загрузить письма: '+e.message);
+   throw e;
+ }finally{registryPromise=null;}})();
+ return registryPromise;
+}
+async function mergeRegistryRecent_(recent){
+ const payload=recent||{},from=String(payload.from||''),to=String(payload.to||'');
+ const current=Array.isArray(registryData)?registryData:[];
+ const previous=new Map(current.map(item=>[item.id,item]));
+ const fresh=(payload.emails||[]).map(item=>{
+   const old=previous.get(item.id);
+   if(old&&old.materialData&&!item.materialData)item.materialData=old.materialData;
+   return item;
+ });
+ const kept=current.filter(item=>!from||!to||item.date<from||item.date>to);
+ const merged=new Map();
+ kept.concat(fresh).forEach(item=>{if(item&&item.id)merged.set(item.id,item);});
+ applyRegistryData_([...merged.values()],payload.readAt||new Date().toISOString());
+ try{await registryCacheWrite_(registryData);}catch(cacheError){}
+ return registryData;
 }
 function renderRegistries(){for(const key of ['mail','news']){
  if(key==='news'){renderNewsLetters();renderNewsMaterials();continue;}
  const query=document.getElementById(key+'Search').value.trim().toLowerCase(),product=document.getElementById(key+'Product').value;
  const rows=(registryData||[]).filter(x=>(key==='news'?isNewsMail(x):!isNewsMail(x))&&(!product||x.product===product)&&(!query||[x.subject,x.campaign,x.segment].join(' ').toLowerCase().includes(query)));
- document.getElementById(key+'Status').textContent='Писем: '+fmt(rows.length)+' · от новых к старым'+(key==='news'?' · Новости сопоставлены: '+(registryData||[]).filter(m=>isNewsMail(m)&&m.materialData).length+'/'+(registryData||[]).filter(isNewsMail).length:'');
+ document.getElementById(key+'Status').textContent='Писем: '+fmt(rows.length)+' · от новых к старым'+registryCacheNote_()+(key==='news'?' · Новости сопоставлены: '+(registryData||[]).filter(m=>isNewsMail(m)&&m.materialData).length+'/'+(registryData||[]).filter(isNewsMail).length:'');
  document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}</small></td><td>${key==='mail'?`<b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>`:`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):x.hasDemoData===true?`R ${fmt(x.red)} / Y ${fmt(x.yellow)} / G ${fmt(x.green)}`:isNewsMail(x)?'По материалам — в подробностях':'Нет совпадения Campaign'}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
  document.getElementById(key+'More').classList.toggle('hidden',rows.length<=registryLimits[key]);
  document.getElementById(key+'Rows').querySelectorAll('.material-demo').forEach(button=>button.onclick=()=>loadMaterialDemo(button));
@@ -165,7 +243,7 @@ function renderRegistries(){for(const key of ['mail','news']){
 function renderNewsLetters(){
  const query=document.getElementById('newsSearch').value.trim().toLowerCase(),product=document.getElementById('newsProduct').value;
  const rows=(registryData||[]).filter(isNewsMail).filter(x=>(!product||x.product===product)&&(!query||[x.subject,x.campaign].join(' ').toLowerCase().includes(query)));
- document.getElementById('newsStatus').textContent='Писем: '+fmt(rows.length)+' · свежие сверху. Демо материалов — в разделе «Какие новости дают демо».';
+ document.getElementById('newsStatus').textContent='Писем: '+fmt(rows.length)+' · свежие сверху'+registryCacheNote_()+'. Демо материалов — в разделе «Какие новости дают демо».';
  document.getElementById('newsRows').innerHTML=rows.length?`<table><thead><tr><th>Дата</th><th>Продукт</th><th>Письмо в Sendsay</th><th>Отправлено</th><th>Доставлено</th><th>Открытия, %</th><th>Клики</th><th>Клики, %</th><th>CTOR, %</th></tr></thead><tbody>${rows.slice(0,registryLimits.news).map(x=>`<tr><td>${esc(x.date)}<small>${esc(x.time||'')}</small></td><td>${esc(x.product)}</td><td><b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b></td><td>${x.sent==null?'—':fmt(x.sent)}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?'—':pct(x.openRate)}</td><td>${x.clicks==null?'—':fmt(x.clicks)}</td><td>${x.clickRate==null?'—':pct(x.clickRate)}</td><td>${x.ctor==null?'—':pct(x.ctor)}</td></tr>`).join('')}</tbody></table><p>«—» — показатель не передан источником.</p>`:'<p>Нет писем по выбранным условиям.</p>';
  document.getElementById('newsMore').classList.toggle('hidden',rows.length<=registryLimits.news);
 }
@@ -215,7 +293,7 @@ async function startMaterialMatching(){
   if(current!==registryData)return;
   // Preserve expanded evidence while automatic results arrive.
   const opened=[];for(const key of ['mail','news'])document.querySelectorAll('#'+key+'Rows tbody tr').forEach((r,i)=>{if(r.querySelector('details[open]'))opened.push([key,i]);});
-  renderRegistries();opened.forEach(([key,i])=>{const d=document.querySelectorAll('#'+key+'Rows tbody tr')[i]?.querySelector('details');if(d)d.open=true;});renderDemand();
+  renderRegistries();opened.forEach(([key,i])=>{const d=document.querySelectorAll('#'+key+'Rows tbody tr')[i]?.querySelector('details');if(d)d.open=true;});renderDemand();scheduleRegistryCacheSave_();
  }
 }
 async function loadMaterialDemo(button){
@@ -224,7 +302,7 @@ async function loadMaterialDemo(button){
 }
 for(const key of ['mail','news']){
  for(const suffix of ['Search','Product'])document.getElementById(key+suffix).addEventListener(suffix==='Search'?'input':'change',()=>{registryLimits[key]=100;renderRegistries();});
- document.getElementById(key+'Reload').onclick=()=>loadRegistry(true);
+ document.getElementById(key+'Reload').onclick=()=>refreshLast3Days();
  document.getElementById(key+'More').onclick=()=>{registryLimits[key]+=100;renderRegistries();};
 }
 
@@ -851,7 +929,7 @@ document.getElementById('vikaDate').onchange=renderVika;
 document.getElementById('vikaReload').onclick=()=>loadVika(vikaData?.selected?.id);
 
 document.getElementById('healthBtn').addEventListener('click',checkServer);
-document.getElementById('refreshBtn').addEventListener('click',refreshAllData);
+document.getElementById('refreshBtn').addEventListener('click',refreshLast3Days);
 window.addEventListener('hashchange',()=>openPage(rememberedPage(),false));
 openPage(rememberedPage());
 checkServer();loadData();
