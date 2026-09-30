@@ -9,10 +9,10 @@
  * - UI можно менять в GitHub без нового Apps Script deployment.
  */
 const V2_ASSET_BASE_ = 'https://emmadivaeva-creator.github.io/analytics-center/';
-const V2_BACKEND_BUILD_ = 'v2-backend-assets-2026-09-09-04';
+const V2_BACKEND_BUILD_ = 'v2-backend-mail-cache-2026-09-30-01';
 
 function buildAnalyticsWebApp_() {
-  const cacheBust = Date.now();
+  const cacheBust = Date.now() + '-mail-cache-20260930-01';
   const cssUrl = V2_ASSET_BASE_ + 'app.css?v=' + cacheBust;
   const jsUrl = V2_ASSET_BASE_ + 'app.js?v=' + cacheBust;
 
