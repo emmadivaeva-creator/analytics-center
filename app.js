@@ -106,6 +106,29 @@ async function refreshLast3Days(){
    btn.disabled=false;btn.textContent='Обновить последние 3 дня';
  }
 }
+async function refreshAllMailRegistry(){
+ const buttons=[
+   document.getElementById('refreshAllMailBtn'),
+   document.getElementById('mailReloadAll'),
+   document.getElementById('newsReloadAll')
+ ].filter(Boolean);
+
+ buttons.forEach(button=>{button.disabled=true;button.textContent='Загружаю всю историю…';});
+ ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Обновляю полный архив писем из служебного хранилища…');
+
+ try{
+   const data=await rpc('getMailRegistryUi');
+   applyRegistryData_(data.emails||[],data.readAt||new Date().toISOString());
+   await registryCacheWrite_(registryData);
+   renderDemand();
+   setHealth(true,'Полный архив писем обновлён · в браузере '+fmt((registryData||[]).length)+' записей');
+ }catch(err){
+   ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Не удалось обновить полный архив: '+(err&&err.message?err.message:String(err)));
+   setHealth(false,'Ошибка полного обновления писем');
+ }finally{
+   buttons.forEach(button=>{button.disabled=false;button.textContent='Обновить все письма';});
+ }
+}
 function showError(msg){document.getElementById('pulseLoading').classList.add('hidden');document.getElementById('pulseContent').classList.add('hidden');const b=document.getElementById('pulseError');b.textContent='Не удалось загрузить Пульс: '+msg;b.classList.remove('hidden')}
 function setupWeeks(){
  const meta=appData.meta||{},year=meta.year||new Date().getFullYear(),weeks=appData.weekDetails||[];
@@ -237,7 +260,7 @@ function renderRegistries(){for(const key of ['mail','news']){
  if(key==='news'){renderNewsLetters();renderNewsMaterials();continue;}
  const query=document.getElementById(key+'Search').value.trim().toLowerCase(),product=document.getElementById(key+'Product').value;
  const rows=(registryData||[]).filter(x=>(key==='news'?isNewsMail(x):!isNewsMail(x))&&(!product||x.product===product)&&(!query||[x.subject,x.campaign,x.segment].join(' ').toLowerCase().includes(query)));
- document.getElementById(key+'Status').textContent='Писем: '+fmt(rows.length)+' · от новых к старым'+registryCacheNote_()+(key==='news'?' · Новости сопоставлены: '+(registryData||[]).filter(m=>isNewsMail(m)&&m.materialData).length+'/'+(registryData||[]).filter(isNewsMail).length:'');
+ document.getElementById(key+'Status').textContent='Писем в кэше: '+fmt(rows.length)+' · показано '+fmt(Math.min(rows.length,registryLimits[key]))+' · от новых к старым'+registryCacheNote_()+(key==='news'?' · Новости сопоставлены: '+(registryData||[]).filter(m=>isNewsMail(m)&&m.materialData).length+'/'+(registryData||[]).filter(isNewsMail).length:'');
  document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}</small></td><td>${key==='mail'?`<b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>`:`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):x.hasDemoData===true?`R ${fmt(x.red)} / Y ${fmt(x.yellow)} / G ${fmt(x.green)}`:isNewsMail(x)?'По материалам — в подробностях':'Нет совпадения Campaign'}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
  document.getElementById(key+'More').classList.toggle('hidden',rows.length<=registryLimits[key]);
  document.getElementById(key+'Rows').querySelectorAll('.material-demo').forEach(button=>button.onclick=()=>loadMaterialDemo(button));
@@ -305,6 +328,8 @@ async function loadMaterialDemo(button){
 for(const key of ['mail','news']){
  for(const suffix of ['Search','Product'])document.getElementById(key+suffix).addEventListener(suffix==='Search'?'input':'change',()=>{registryLimits[key]=100;renderRegistries();});
  document.getElementById(key+'Reload').onclick=()=>refreshLast3Days();
+ const allBtn=document.getElementById(key+'ReloadAll');
+ if(allBtn)allBtn.onclick=()=>refreshAllMailRegistry();
  document.getElementById(key+'More').onclick=()=>{registryLimits[key]+=100;renderRegistries();};
 }
 
@@ -1039,6 +1064,7 @@ document.getElementById('vikaReload').onclick=()=>loadVika(vikaData?.selected?.i
 
 document.getElementById('healthBtn').addEventListener('click',checkServer);
 document.getElementById('refreshBtn').addEventListener('click',refreshLast3Days);
+document.getElementById('refreshAllMailBtn').addEventListener('click',refreshAllMailRegistry);
 window.addEventListener('hashchange',()=>openPage(rememberedPage(),false));
 openPage(rememberedPage());
 checkServer();loadData();
