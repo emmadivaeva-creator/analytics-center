@@ -171,3 +171,35 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 .sources-compare-table .source-green-cell{color:var(--ok);font-weight:850}
 @media(max-width:1200px){.sources-cards{grid-template-columns:repeat(2,1fr)}.sources-layout{grid-template-columns:1fr}}
 @media(max-width:760px){.sources-summary,.sources-cards{grid-template-columns:1fr}.site-source-row{grid-template-columns:1fr 72px 72px}.sources-period{display:inline-block;margin-top:10px}.sources-compare-table{min-width:620px}}
+
+
+/* Недельный срез источников */
+.sources-filters{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 4px}
+.sources-filters label{display:grid;gap:5px;min-width:220px}
+.sources-filters label span{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:850}
+.sources-filters select{height:39px;padding:0 11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:#27354d;font:inherit;font-size:11px;font-weight:700;outline:none}
+.sources-filters select:focus{border-color:#a9bdf0;box-shadow:0 0 0 3px #eef3ff}
+.source-answer{margin:0 0 14px;padding:13px 15px;border:1px solid #dbe4f2;border-radius:13px;background:#f4f7fc;color:#46566f;font-size:11px;line-height:1.55}
+.source-answer b{color:#243650}.source-answer strong{color:var(--ok);font-size:12px}
+.sources-weekly-panel{margin:2px 0 16px}
+.sources-weekly-panel .tablewrap{margin-top:12px;overflow:auto}
+.sources-weekly-table{width:100%;border-collapse:separate;border-spacing:0;font-size:10px;min-width:760px}
+.sources-weekly-table th{padding:9px 10px;background:#f6f8fb;color:#758096;font-size:8px;text-transform:uppercase;letter-spacing:.045em;text-align:right;border-bottom:1px solid var(--line)}
+.sources-weekly-table th:first-child{text-align:left}
+.sources-weekly-table td{padding:9px 10px;border-bottom:1px solid #edf0f4;text-align:right;vertical-align:middle}
+.sources-weekly-table td:first-child{text-align:left;white-space:nowrap}
+.sources-weekly-table tbody tr:hover{background:#fafbfd}
+.sources-weekly-table tbody tr.current{background:#f2f6ff}
+.sources-weekly-table tbody tr.current td:first-child b{color:#315db7}
+.source-week-cell b,.source-week-total b{display:block;font-size:13px;line-height:1.05;color:#1d2c45}
+.source-week-cell span,.source-week-total span{display:block;margin-top:3px;color:var(--muted);font-size:8px}
+.source-week-cell.lead{background:#eef8f3}
+.source-week-cell.lead b{color:var(--ok)}
+.source-week-total{background:#f8fafc}
+.source-week-total b{color:var(--ok)}
+.source-current{display:inline-block;margin-left:6px;padding:2px 5px;border-radius:999px;background:#dfe9ff;color:#315db7;font-size:7px;font-weight:850;text-transform:uppercase;letter-spacing:.04em}
+@media(max-width:760px){
+ .sources-filters{display:grid;grid-template-columns:1fr}
+ .sources-filters label{min-width:0}
+ .source-answer{font-size:10px}
+}
