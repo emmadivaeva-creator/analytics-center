@@ -1470,7 +1470,9 @@ function readImportedEmails_(storage) {
     campaign: col(['campaign']),
     sendsay: col(['sendsay']),
     subject: col(['тема письма']),
+    sent: col(['отправлено']),
     delivered: col(['доставлено']),
+    uniqueOpened: col(['уник. открытия']),
     openRate: col(['or']),
     clicks: col(['уник. клики']),
     clickRate: col(['click rate']),
@@ -1500,6 +1502,21 @@ function readImportedEmails_(storage) {
     const yellow = hasDemoData ? number_(valueAt_(row, idx.yellow)) : 0;
     const green = hasDemoData ? number_(valueAt_(row, idx.green)) : 0;
 
+    const sent = number_(valueAt_(row, idx.sent));
+    const delivered = number_(valueAt_(row, idx.delivered));
+    const uniqueOpened = number_(valueAt_(row, idx.uniqueOpened));
+    const clicks = number_(valueAt_(row, idx.clicks));
+
+    const openRate = delivered > 0
+      ? round_(uniqueOpened / delivered * 100, 2)
+      : percent_(valueAt_(row, idx.openRate));
+    const clickRate = delivered > 0
+      ? round_(clicks / delivered * 100, 2)
+      : percent_(valueAt_(row, idx.clickRate));
+    const ctor = uniqueOpened > 0
+      ? round_(clicks / uniqueOpened * 100, 2)
+      : percent_(valueAt_(row, idx.ctor));
+
     output.push({
       id: 'import-' + String(valueAt_(row, idx.fileId) || i),
       importedOnly: true,
@@ -1518,11 +1535,13 @@ function readImportedEmails_(storage) {
       subject: subject,
 
       material: '',
-      delivered: number_(valueAt_(row, idx.delivered)),
-      openRate: percent_(valueAt_(row, idx.openRate)),
-      clicks: number_(valueAt_(row, idx.clicks)),
-      clickRate: percent_(valueAt_(row, idx.clickRate)),
-      ctor: percent_(valueAt_(row, idx.ctor)),
+      sent: sent,
+      delivered: delivered,
+      uniqueOpened: uniqueOpened,
+      openRate: openRate,
+      clicks: clicks,
+      clickRate: clickRate,
+      ctor: ctor,
 
       red: red,
       yellow: yellow,
@@ -1534,7 +1553,7 @@ function readImportedEmails_(storage) {
         : demoStatus || 'Sendsay загружен · DEMO ещё не сопоставлено',
 
       score: hasDemoData
-        ? scoreEmail_(red, yellow, green, percent_(valueAt_(row, idx.openRate)), percent_(valueAt_(row, idx.ctor)))
+        ? scoreEmail_(red, yellow, green, openRate, ctor)
         : 'Только верхняя воронка Sendsay',
 
       worked: hasDemoData
