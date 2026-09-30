@@ -53,7 +53,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20260929-demo-sources1';
+    const script=document.createElement('script');script.src='app.js?v=20260930-demo-sources-weekly1';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
