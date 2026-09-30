@@ -10,6 +10,7 @@ function publicDashboardRead_(event) {
       v2HealthCheck: v2HealthCheck,
       getPulseDataFresh: getPulseDataFresh,
       getMailRegistryUi: getMailRegistryUi,
+      getMailRegistryRecentUi: getMailRegistryRecentUi,
       getMailDemoDetailsUi: getMailDemoDetailsUi,
       getVikaPlanUi: getVikaPlanUi,
       getVikaEditorialUi: getVikaEditorialUi,
