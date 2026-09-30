@@ -417,23 +417,28 @@ function getSendsayApiBackfillStatus() {
   const raw = PropertiesService.getScriptProperties()
     .getProperty(SENDSAY_API.backfillStateProperty);
 
+  let result;
+
   if (!raw) {
-    return { ok: true, running: false, done: true };
+    result = { ok: true, running: false, done: true };
+  } else {
+    const state = JSON.parse(raw);
+    result = {
+      ok: true,
+      running: true,
+      done: false,
+      startedAt: state.startedAt,
+      cursor: state.windowStart,
+      policy: SENDSAY_API.policies[state.policyIndex].name,
+      skip: state.skip,
+      fetched: state.fetched,
+      accepted: state.accepted,
+      upserted: state.upserted
+    };
   }
 
-  const state = JSON.parse(raw);
-  return {
-    ok: true,
-    running: true,
-    done: false,
-    startedAt: state.startedAt,
-    cursor: state.windowStart,
-    policy: SENDSAY_API.policies[state.policyIndex].name,
-    skip: state.skip,
-    fetched: state.fetched,
-    accepted: state.accepted,
-    upserted: state.upserted
-  };
+  console.log(JSON.stringify(result, null, 2));
+  return result;
 }
 
 function syncSendsayApiRange_(from, to) {
