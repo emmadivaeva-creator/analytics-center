@@ -4,7 +4,7 @@
   let token = '', expiresAt = 0, client, started = false;
   const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'syncDriveReportsReliable',
     'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
-    'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailDemoDetailsUi',
+    'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi',
     'getVikaPlanUi', 'getVikaEditorialUi', 'getVioTrendsUi']);
   const gate = document.getElementById('authGate');
   const button = document.getElementById('signIn');
@@ -15,7 +15,7 @@
     status.textContent = message;
     button.disabled = !client;
   }
-  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailRegistryRecentUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
   async function publicRead(method, parameters) {
     const url = new URL(config.publicReadUrl);
     url.searchParams.set('method', method);
@@ -54,7 +54,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20260930-demo-sources-weekly1';
+    const script=document.createElement('script');script.src='app.js?v=20261001-mail-registry-v4';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
