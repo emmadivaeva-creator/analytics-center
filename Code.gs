@@ -1008,6 +1008,9 @@ function reconcileCanonicalRows_(sheet) {
 
   Object.keys(groups).forEach(campaignId => {
     const rows = groups[campaignId].sort((a, b) => {
+      const aApi = /^api:/i.test(a.fileId) ? 1 : 0;
+      const bApi = /^api:/i.test(b.fileId) ? 1 : 0;
+      if (aApi !== bApi) return bApi - aApi;
       const byModified = b.modified.localeCompare(a.modified);
       return byModified || b.imported.localeCompare(a.imported);
     });
@@ -1545,6 +1548,10 @@ function readImportedEmails_(storage) {
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
     if (String(valueAt_(row, idx.status) || '') !== 'Готово') continue;
+    // Analytics Center is API-only from 2026-07-01 onward.
+    // Legacy mhtml/webarchive rows remain only as migration history and are never read by analytics.
+    const sourceId = String(valueAt_(row, idx.fileId) || '').trim();
+    if (!/^api:/i.test(sourceId)) continue;
 
     const date = normalizeDate_(valueAt_(row, idx.date));
     const subject = String(valueAt_(row, idx.subject) || '').trim();
