@@ -71,6 +71,152 @@ function getMailRegistryRecentUi(days) {
   };
 }
 
+
+/**
+ * Читает полный реестр писем порциями, чтобы браузеру не приходилось
+ * ждать один гигантский ответ Apps Script. offset — смещение по физическим
+ * строкам листа _Sendsay v2. Размер порции фиксирован на сервере.
+ */
+function getMailRegistryPageUi(offset) {
+  requireDashboardOwner_();
+
+  const storage=openStorage_();
+  const sheet=storage.getSheetByName(APP.sendsaySheet);
+  const start=Math.max(0,Number(offset)||0);
+  const pageSize=2000;
+
+  if(!sheet||sheet.getLastRow()<2){
+    return {emails:[],offset:start,nextOffset:start,done:true,totalRows:0,readAt:new Date().toISOString()};
+  }
+
+  const lastRow=sheet.getLastRow();
+  const lastCol=sheet.getLastColumn();
+  const totalRows=Math.max(0,lastRow-1);
+  if(start>=totalRows){
+    return {emails:[],offset:start,nextOffset:start,done:true,totalRows:totalRows,readAt:new Date().toISOString()};
+  }
+
+  const header=sheet.getRange(1,1,1,lastCol).getDisplayValues()[0];
+  const count=Math.min(pageSize,totalRows-start);
+  const values=sheet.getRange(2+start,1,count,lastCol).getDisplayValues();
+  const emails=dashboardMailPageRows_(header,values,start);
+
+  return {
+    emails:dashboardMatchMails_(emails,dashboardDemoRows_(false)),
+    offset:start,
+    nextOffset:start+count,
+    done:start+count>=totalRows,
+    totalRows:totalRows,
+    readAt:new Date().toISOString()
+  };
+}
+
+function dashboardMailPageRows_(header,rows,physicalOffset) {
+  const headers=headerMap_(header);
+  const col=function(aliases){return indexOfHeader_(headers,aliases);};
+  const idx={
+    fileId:col(['file id']),
+    status:col(['статус']),
+    campaignId:col(['campaign id']),
+    date:col(['дата отправки']),
+    time:col(['время отправки']),
+    type:col(['тип']),
+    product:col(['продукт']),
+    flow:col(['поток']),
+    segment:col(['сегмент']),
+    campaign:col(['campaign']),
+    sendsay:col(['sendsay']),
+    subject:col(['тема письма']),
+    sent:col(['отправлено']),
+    delivered:col(['доставлено']),
+    uniqueOpened:col(['уник. открытия']),
+    openRate:col(['or']),
+    clicks:col(['уник. клики']),
+    clickRate:col(['click rate']),
+    ctor:col(['ctor']),
+    demoStatus:col(['demo статус']),
+    demoSource:col(['demo источник']),
+    red:col(['demo r']),
+    yellow:col(['demo y']),
+    green:col(['demo g'])
+  };
+
+  const output=[];
+  rows.forEach(function(row,i){
+    if(String(valueAt_(row,idx.status)||'')!=='Готово')return;
+
+    const date=normalizeDate_(valueAt_(row,idx.date));
+    const subject=String(valueAt_(row,idx.subject)||'').trim();
+    if(!date||!subject)return;
+
+    const product=normalizeProduct_(valueAt_(row,idx.product))||'Не указано';
+    const demoStatus=String(valueAt_(row,idx.demoStatus)||'').trim();
+    const hasDemoData=demoStatus==='Связано точно';
+    const red=hasDemoData?number_(valueAt_(row,idx.red)):0;
+    const yellow=hasDemoData?number_(valueAt_(row,idx.yellow)):0;
+    const green=hasDemoData?number_(valueAt_(row,idx.green)):0;
+    const sent=number_(valueAt_(row,idx.sent));
+    const delivered=number_(valueAt_(row,idx.delivered));
+    const uniqueOpened=number_(valueAt_(row,idx.uniqueOpened));
+    const clicks=number_(valueAt_(row,idx.clicks));
+    const openRate=delivered>0?round_(uniqueOpened/delivered*100,2):percent_(valueAt_(row,idx.openRate));
+    const clickRate=delivered>0?round_(clicks/delivered*100,2):percent_(valueAt_(row,idx.clickRate));
+    const ctor=uniqueOpened>0?round_(clicks/uniqueOpened*100,2):percent_(valueAt_(row,idx.ctor));
+
+    output.push({
+      id:'import-'+String(valueAt_(row,idx.fileId)||physicalOffset+i+1),
+      importedOnly:true,
+      hasDemoData:hasDemoData,
+      date:date,
+      time:String(valueAt_(row,idx.time)||'').trim(),
+      week:isoWeek_(date),
+      type:String(valueAt_(row,idx.type)||'demo').trim(),
+      product:product,
+      productFlow:String(valueAt_(row,idx.flow)||product).trim(),
+      segment:String(valueAt_(row,idx.segment)||'').trim(),
+      campaignId:String(valueAt_(row,idx.campaignId)||'').trim(),
+      campaign:String(valueAt_(row,idx.campaign)||'').trim(),
+      sendsay:url_(valueAt_(row,idx.sendsay)),
+      subject:subject,
+      material:'',
+      sent:sent,
+      delivered:delivered,
+      uniqueOpened:uniqueOpened,
+      openRate:openRate,
+      clicks:clicks,
+      clickRate:clickRate,
+      ctor:ctor,
+      red:red,
+      yellow:yellow,
+      green:green,
+      potential:yellow+green,
+      maturity:hasDemoData?demoMaturity_(date,product):(demoStatus||'Sendsay загружен · DEMO ещё не сопоставлено'),
+      score:hasDemoData?scoreEmail_(red,yellow,green,openRate,ctor):'Только верхняя воронка Sendsay',
+      worked:hasDemoData?workedLabel_(red,yellow,green):'',
+      failed:hasDemoData?failedLabel_(red,yellow,green):'',
+      source:'Фактический Sendsay',
+      demoMatchStatus:demoStatus,
+      demoSource:String(valueAt_(row,idx.demoSource)||'').trim(),
+      weeklyPlan:0,
+      weeklyFact:0,
+      weeklyProgress:0,
+      note:hasDemoData
+        ?'R / Y / G связаны только по точному совпадению Campaign.'
+        :(norm_(valueAt_(row,idx.type))==='news'
+          ?'Новостному письму не назначаем R / Y / G без точной UTM Content/Term-привязки.'
+          :'Отправка подтверждена, результат конкретной рассылки пока не сопоставлен.'),
+      body:'',
+      innerTitle:'',
+      cta:'',
+      targetUrl:'',
+      rationale:'',
+      exclusions:'',
+      planStatus:''
+    });
+  });
+  return output;
+}
+
 /** Read current source rows; keep campaign facts and referer material facts separate. */
 function dashboardDemoRows_(reference) {
   const book=demoStatsSpreadsheet_();
