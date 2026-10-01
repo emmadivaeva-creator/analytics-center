@@ -11,7 +11,12 @@ function getVikaPlanUi(sheetId) {
   const rows=sheet.getRange(1,1,Math.max(4,sheet.getLastRow()),14).getDisplayValues();
   const header=rows.findIndex(r=>r[0]==='Дата'&&r[1]==='Продукт / поток');
   if(header<0)throw new Error('В плане не найдена строка заголовков.');
-  return {plans:plans,selected:selected,title:rows[0][0],headers:rows[header],rows:rows.slice(header+1).filter(r=>r.some(Boolean)),sourceUrl:book.getUrl()+'#gid='+selected.id,readAt:new Date().toISOString()};
+  const planRows=rows.slice(header+1).filter(function(r){
+    if(!r.some(Boolean))return false;
+    const flow=String(r[1]||'');
+    return !/АПФАС|ГЗВИО|ГЗ Периодика\s*[·-]\s*(?:ВИО|ФАС)/i.test(flow);
+  });
+  return {plans:plans,selected:selected,title:rows[0][0],headers:rows[header],rows:planRows,sourceUrl:book.getUrl()+'#gid='+selected.id,readAt:new Date().toISOString()};
 }
 function getCallsDataUi(filters) {
   requireDashboardOwner_();
