@@ -903,7 +903,9 @@ function markRemovedFiles_(sheet, currentIds) {
     const id = String(valueAt_(values[i], fileIdCol) || '').trim();
     let status = String(valueAt_(values[i], statusCol) || '');
 
-    if (id && !currentIds[id] && status !== 'Удалено') {
+    // API rows are not files in the legacy Drive folder. Never mark them as removed
+    // just because their synthetic api:* ID is absent from Drive.
+    if (id && !/^api:/i.test(id) && !currentIds[id] && status !== 'Удалено') {
       status = 'Удалено';
       changed = true;
     }
@@ -914,6 +916,58 @@ function markRemovedFiles_(sheet, currentIds) {
   if (changed) {
     sheet.getRange(2, statusCol + 1, output.length, 1).setValues(output);
   }
+}
+
+/**
+ * One-time repair after migration to Sendsay API.
+ * Legacy Drive cleanup used to mark synthetic api:* rows as "Удалено".
+ * Restore them and then re-apply canonical duplicate selection.
+ */
+function repairSendsayApiStatuses() {
+  assertAdmin_();
+
+  const storage = openStorage_();
+  const sheet = ensureSendsaySheet_(storage);
+  if (sheet.getLastRow() < 2) return { ok:true, repaired:0, total:0 };
+
+  const values = sheet.getDataRange().getDisplayValues();
+  const headers = headerMap_(values[0]);
+  const fileIdCol = indexOfHeader_(headers, ['file id']);
+  const statusCol = indexOfHeader_(headers, ['статус']);
+  if (fileIdCol < 0 || statusCol < 0) throw new Error('Не найдены File ID / Статус в _Sendsay v2.');
+
+  const statuses = [];
+  let repaired = 0;
+  let apiRows = 0;
+
+  for (let i = 1; i < values.length; i++) {
+    const id = String(valueAt_(values[i], fileIdCol) || '').trim();
+    let status = String(valueAt_(values[i], statusCol) || '').trim();
+
+    if (/^api:/i.test(id)) {
+      apiRows++;
+      if (status === 'Удалено') {
+        status = 'Готово';
+        repaired++;
+      }
+    }
+    statuses.push([status]);
+  }
+
+  if (repaired) {
+    sheet.getRange(2, statusCol + 1, statuses.length, 1).setValues(statuses);
+    SpreadsheetApp.flush();
+  }
+
+  reconcileCanonicalRows_(sheet);
+  clearCache_();
+
+  return {
+    ok:true,
+    repaired:repaired,
+    apiRows:apiRows,
+    latestSendDate:readImportStatus_(storage).latestSendDate
+  };
 }
 
 function reconcileCanonicalRows_(sheet) {
