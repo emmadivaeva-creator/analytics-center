@@ -11,6 +11,7 @@ function publicDashboardRead_(event) {
       getPulseDataFresh: getPulseDataFresh,
       getMailRegistryUi: getMailRegistryUi,
       getMailRegistryRecentUi: getMailRegistryRecentUi,
+      getMailRegistryPageUi: getMailRegistryPageUi,
       getMailDemoDetailsUi: getMailDemoDetailsUi,
       getVikaPlanUi: getVikaPlanUi,
       getVikaEditorialUi: getVikaEditorialUi,
