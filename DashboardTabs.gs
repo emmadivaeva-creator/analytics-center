@@ -151,15 +151,15 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
     const fileName=String(valueAt_(row,idx.fileName)||'').trim();
     const campaign=String(valueAt_(row,idx.campaign)||'').trim();
     const isNews=canonicalNewsCampaign_(campaign);
-    if(!isNews&&!/demo|custom/i.test(fileName+' '+campaign))return;
+    const demoStatus=String(valueAt_(row,idx.demoStatus)||'').trim();
+    const hasDemoData=demoStatus==='Связано точно';
+    if(!isNews&&!hasDemoData)return;
 
     const date=normalizeDate_(valueAt_(row,idx.date));
     const subject=String(valueAt_(row,idx.subject)||'').trim();
     if(!date||!subject)return;
 
     const product=normalizeProduct_(valueAt_(row,idx.product))||'Не указано';
-    const demoStatus=String(valueAt_(row,idx.demoStatus)||'').trim();
-    const hasDemoData=demoStatus==='Связано точно';
     const red=hasDemoData?number_(valueAt_(row,idx.red)):0;
     const yellow=hasDemoData?number_(valueAt_(row,idx.yellow)):0;
     const green=hasDemoData?number_(valueAt_(row,idx.green)):0;
