@@ -1560,18 +1560,19 @@ function readImportedEmails_(storage) {
     const fileName = String(valueAt_(row, idx.fileName) || '').trim();
     const campaign = String(valueAt_(row, idx.campaign) || '').trim();
     const isNews = canonicalNewsCampaign_(campaign);
+    const demoStatus = String(valueAt_(row, idx.demoStatus) || '').trim();
+    const hasDemoData = demoStatus === 'Связано точно';
 
-    // NEWS живут в отдельной вкладке. Для DEMO-отчёта принимаем только
-    // явные demo/custom. Обычные trigger/portal без этих маркеров исключаем.
-    if (!isNews && !/demo|custom/i.test(fileName + ' ' + campaign)) continue;
+    // Вкладка «Письма» должна быть зеркалом исходного DEMO-отчёта:
+    // берём только Sendsay-кампании, которые точно сопоставились со строкой
+    // «Статистики по ДЕМО». NEWS сохраняются отдельно для вкладки «Новости».
+    if (!isNews && !hasDemoData) continue;
 
     const date = normalizeDate_(valueAt_(row, idx.date));
     const subject = String(valueAt_(row, idx.subject) || '').trim();
     if (!date || !subject) continue;
 
     const product = normalizeProduct_(valueAt_(row, idx.product)) || 'Не указано';
-    const demoStatus = String(valueAt_(row, idx.demoStatus) || '').trim();
-    const hasDemoData = demoStatus === 'Связано точно';
 
     const red = hasDemoData ? number_(valueAt_(row, idx.red)) : 0;
     const yellow = hasDemoData ? number_(valueAt_(row, idx.yellow)) : 0;
