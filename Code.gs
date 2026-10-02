@@ -983,6 +983,7 @@ function reconcileCanonicalRows_(sheet) {
 
   const idx = {
     fileId: col(['file id']),
+    fileName: col(['имя файла']),
     modified: col(['изменен на drive', 'изменён на drive']),
     imported: col(['импортирован']),
     status: col(['статус']),
