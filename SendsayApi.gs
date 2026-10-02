@@ -661,13 +661,17 @@ function isAnalyticsSendsayIssue_(issueName, campaign) {
 
   if (!allowedSources[sourceId] && !allowedShared728) return false;
 
-  // NEWS остаются отдельной канонической вкладкой.
+  // NEWS берём только две канонические редакционные рассылки.
   if (canonicalNewsCampaign_(normalizedCampaign)) return true;
 
-  // DEMO-отчёт: берём только выпуски, где в issue.name или campaign
-  // явно есть demo (включая Activdemo) либо custom.
-  // Обычные Trigger/portal без demo/custom в отчёт больше не попадают.
-  return /demo|custom/i.test(text);
+  // Сырое API-хранилище держим шире, чем витрину сервиса:
+  // точный состав вкладки «Письма» определяется не названием кампании,
+  // а совпадением Campaign со «Статистикой по ДЕМО».
+  if (/\|\s*demo\s*\|/i.test(name)) return true;
+  if (/\|\s*trigger\s*\|/i.test(name)) return true;
+  if (/portal[_-]/i.test(text)) return true;
+
+  return false;
 }
 
 function buildSendsayApiIndex_(sheet) {
