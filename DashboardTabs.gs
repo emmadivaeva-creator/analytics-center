@@ -116,6 +116,7 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
   const col=function(aliases){return indexOfHeader_(headers,aliases);};
   const idx={
     fileId:col(['file id']),
+    fileName:col(['имя файла']),
     status:col(['статус']),
     campaignId:col(['campaign id']),
     date:col(['дата отправки']),
@@ -145,6 +146,13 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
   rows.forEach(function(row,i){
     if(String(valueAt_(row,idx.status)||'')!=='Готово')return;
 
+    const sourceId=String(valueAt_(row,idx.fileId)||'').trim();
+    if(!/^api:/i.test(sourceId))return;
+    const fileName=String(valueAt_(row,idx.fileName)||'').trim();
+    const campaign=String(valueAt_(row,idx.campaign)||'').trim();
+    const isNews=canonicalNewsCampaign_(campaign);
+    if(!isNews&&!/demo|custom/i.test(fileName+' '+campaign))return;
+
     const date=normalizeDate_(valueAt_(row,idx.date));
     const subject=String(valueAt_(row,idx.subject)||'').trim();
     if(!date||!subject)return;
@@ -173,9 +181,9 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
       type:String(valueAt_(row,idx.type)||'demo').trim(),
       product:product,
       productFlow:String(valueAt_(row,idx.flow)||product).trim(),
-      segment:String(valueAt_(row,idx.segment)||'').trim(),
+      segment:/trigg?er/i.test(fileName+' '+campaign)?'Триггер':String(valueAt_(row,idx.segment)||'').trim(),
       campaignId:String(valueAt_(row,idx.campaignId)||'').trim(),
-      campaign:String(valueAt_(row,idx.campaign)||'').trim(),
+      campaign:campaign,
       sendsay:url_(valueAt_(row,idx.sendsay)),
       subject:subject,
       material:'',
