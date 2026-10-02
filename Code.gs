@@ -669,8 +669,11 @@ function classifyCampaign_(campaign, fileName, subject, sender) {
   }
 
   let segment = type === 'news' ? 'Новостная рассылка' : 'Живые';
+  const triggerText = String(campaign || '') + ' ' + String(fileName || '');
 
-  if (/activdemo/.test(rawCampaign)) {
+  if (type !== 'news' && /trigg?er/i.test(triggerText)) {
+    segment = 'Триггер';
+  } else if (/activdemo/.test(rawCampaign)) {
     segment = 'Дожим демо';
   } else if (/(?:^|_)open(?:_|\.|$)/.test(rawCampaign)) {
     segment = 'Клики';
@@ -805,6 +808,7 @@ function importIndex_(sheet) {
   const col = aliases => indexOfHeader_(headers, aliases);
   const idx = {
     fileId: col(['file id']),
+    fileName: col(['имя файла']),
     modified: col(['изменен на drive', 'изменён на drive']),
     parser: col(['parser version']),
     status: col(['статус'])
@@ -1553,6 +1557,14 @@ function readImportedEmails_(storage) {
     const sourceId = String(valueAt_(row, idx.fileId) || '').trim();
     if (!/^api:/i.test(sourceId)) continue;
 
+    const fileName = String(valueAt_(row, idx.fileName) || '').trim();
+    const campaign = String(valueAt_(row, idx.campaign) || '').trim();
+    const isNews = canonicalNewsCampaign_(campaign);
+
+    // NEWS живут в отдельной вкладке. Для DEMO-отчёта принимаем только
+    // явные demo/custom. Обычные trigger/portal без этих маркеров исключаем.
+    if (!isNews && !/demo|custom/i.test(fileName + ' ' + campaign)) continue;
+
     const date = normalizeDate_(valueAt_(row, idx.date));
     const subject = String(valueAt_(row, idx.subject) || '').trim();
     if (!date || !subject) continue;
@@ -1591,9 +1603,11 @@ function readImportedEmails_(storage) {
       type: String(valueAt_(row, idx.type) || 'demo').trim(),
       product: product,
       productFlow: String(valueAt_(row, idx.flow) || product).trim(),
-      segment: String(valueAt_(row, idx.segment) || '').trim(),
+      segment: /trigg?er/i.test(fileName + ' ' + campaign)
+        ? 'Триггер'
+        : String(valueAt_(row, idx.segment) || '').trim(),
       campaignId: String(valueAt_(row, idx.campaignId) || '').trim(),
-      campaign: String(valueAt_(row, idx.campaign) || '').trim(),
+      campaign: campaign,
       sendsay: url_(valueAt_(row, idx.sendsay)),
       subject: subject,
 
