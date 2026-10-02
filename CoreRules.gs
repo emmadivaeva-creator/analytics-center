@@ -94,7 +94,9 @@ classifyCampaign_ = function(campaign, fileName, subject, sender) {
   }
 
   let segment = isNews ? 'Новостная рассылка' : 'Живые';
-  if (!isNews && /activdemo/.test(rawCampaign)) segment = 'Дожим демо';
+  const triggerText = String(campaign || '') + ' ' + String(fileName || '');
+  if (!isNews && /trigg?er/i.test(triggerText)) segment = 'Триггер';
+  else if (!isNews && /activdemo/.test(rawCampaign)) segment = 'Дожим демо';
   else if (!isNews && /(?:^|_)open(?:_|\.|$)/.test(rawCampaign)) segment = 'Клики';
   else if (!isNews && /(?:^|_)d(?:_|\.|$)/.test(rawCampaign)) segment = 'Дожим демо';
   else if (!isNews && /(?:^|_)50(?:_|\.|$)/.test(rawCampaign)) segment = 'Прогрев 0–50';
