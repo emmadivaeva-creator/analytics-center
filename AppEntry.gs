@@ -52,18 +52,37 @@ function v2HealthCheck() {
  * Служебный лист _DEMO v2 здесь намеренно не используется: он может отставать
  * от дозревающего факта прошлой недели и первых событий текущей недели.
  */
-function pulseGreenFact_(product, week, sourceGreen) {
-  // W39 is a closed, manually validated snapshot. The source pivot can keep
-  // receiving late events after the week is closed; Pulse must not reopen
-  // the accepted fact. These are the values already reconciled for W39.
-  const fixed = {
-    'ГЗ Система|39': 61,
-    'ГФ Система|39': 139
+function auditPulseNumbers() {
+  const result = buildDemoStats_(demoStatsSpreadsheet_());
+  const rows = [];
+
+  Object.keys(result.totals || {})
+    .map(function(key){ return result.totals[key]; })
+    .sort(function(a,b){ return number_(a.week)-number_(b.week) || APP.productOrder.indexOf(a.product)-APP.productOrder.indexOf(b.product); })
+    .forEach(function(raw){
+      const red = number_(raw.red);
+      const yellow = number_(raw.yellow);
+      const green = number_(raw.green);
+      const plan = number_(raw.plan);
+      rows.push({
+        week: number_(raw.week),
+        product: raw.product,
+        red: red,
+        yellow: yellow,
+        green: green,
+        plan: plan,
+        progress: plan ? round_(green / plan * 100, 1) : 0
+      });
+    });
+
+  const out = {
+    ok: true,
+    sourceUrl: result.sourceUrl,
+    updatedAt: result.updatedAt,
+    rows: rows
   };
-  const key = product + '|' + week;
-  return Object.prototype.hasOwnProperty.call(fixed, key)
-    ? fixed[key]
-    : number_(sourceGreen);
+  console.log(JSON.stringify(out, null, 2));
+  return out;
 }
 
 function getPulseDataFresh() {
@@ -89,7 +108,7 @@ function getPulseDataFresh() {
       const raw = result.totals[product + '|' + week] || emptyDemoTotal_(product, week);
       const red = number_(raw.red);
       const yellow = number_(raw.yellow);
-      const green = pulseGreenFact_(product, week, raw.green);
+      const green = number_(raw.green);
       const plan = number_(raw.plan);
       return {
         product: product,
