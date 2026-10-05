@@ -670,7 +670,7 @@ function isAnalyticsSendsayIssue_(issueName, campaign) {
   // Если это trigger/triger, правило жёсткое: только portal.
   // Проверяем раньше DEMO, чтобы trigger_demo без portal тоже не просочился.
   const isTrigger = /trigg?er/i.test(text);
-  if (isTrigger) return /portal/i.test(text);
+  if (isTrigger) return /portal_custom/i.test(text);
 
   if (/\|\s*demo\s*\|/i.test(name)) return true;
 
