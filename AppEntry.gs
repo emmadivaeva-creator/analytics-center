@@ -52,6 +52,20 @@ function v2HealthCheck() {
  * Служебный лист _DEMO v2 здесь намеренно не используется: он может отставать
  * от дозревающего факта прошлой недели и первых событий текущей недели.
  */
+function pulseGreenFact_(product, week, sourceGreen) {
+  // W39 is a closed, manually validated snapshot. The source pivot can keep
+  // receiving late events after the week is closed; Pulse must not reopen
+  // the accepted fact. These are the values already reconciled for W39.
+  const fixed = {
+    'ГЗ Система|39': 61,
+    'ГФ Система|39': 139
+  };
+  const key = product + '|' + week;
+  return Object.prototype.hasOwnProperty.call(fixed, key)
+    ? fixed[key]
+    : number_(sourceGreen);
+}
+
 function getPulseDataFresh() {
   const result = buildDemoStats_(demoStatsSpreadsheet_());
   const today = todayIso_();
@@ -75,7 +89,7 @@ function getPulseDataFresh() {
       const raw = result.totals[product + '|' + week] || emptyDemoTotal_(product, week);
       const red = number_(raw.red);
       const yellow = number_(raw.yellow);
-      const green = number_(raw.green);
+      const green = pulseGreenFact_(product, week, raw.green);
       const plan = number_(raw.plan);
       return {
         product: product,
