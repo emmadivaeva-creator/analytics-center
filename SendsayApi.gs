@@ -179,6 +179,30 @@ function testSendsayApiConnection() {
  * Compatibility entry point used by the existing UI button.
  * Reads the last three calendar days from Sendsay API.
  */
+function diagnoseSendsayFreshness() {
+  assertAdmin_();
+
+  const storage = openStorage_();
+  const status = readImportStatus_(storage);
+  const triggers = ScriptApp.getProjectTriggers()
+    .filter(function(t){ return t.getHandlerFunction() === SENDSAY_API.dailyTriggerHandler; })
+    .map(function(t){ return { handler:t.getHandlerFunction(), id:t.getUniqueId() }; });
+
+  const result = {
+    ok: true,
+    latestSendDate: status.latestSendDate || '',
+    importedTotal: status.total || 0,
+    dailyHandler: SENDSAY_API.dailyTriggerHandler,
+    triggerCount: triggers.length,
+    triggers: triggers,
+    expectedSchedule: 'ежедневно около 09:00 Europe/Moscow',
+    checkedAt: new Date().toISOString()
+  };
+
+  console.log(JSON.stringify(result, null, 2));
+  return result;
+}
+
 function syncSendsayApiLast3Days() {
   assertAdmin_();
 
@@ -253,7 +277,7 @@ function installDailySendsayApiTrigger() {
 
   ScriptApp.newTrigger(SENDSAY_API.dailyTriggerHandler)
     .timeBased()
-    .atHour(8)
+    .atHour(9)
     .nearMinute(0)
     .everyDays(1)
     .inTimezone('Europe/Moscow')
@@ -262,7 +286,7 @@ function installDailySendsayApiTrigger() {
   return {
     ok: true,
     handler: SENDSAY_API.dailyTriggerHandler,
-    schedule: 'ежедневно около 08:00 Europe/Moscow',
+    schedule: 'ежедневно около 09:00 Europe/Moscow',
     daysRefreshed: SENDSAY_API.dailyDays
   };
 }
