@@ -54,12 +54,16 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261005-mail-cache-v5-portal-history';
+    const script=document.createElement('script');script.src='app.js?v=20261005-pulse-direct-source-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
   window.analyticsRpc = async function(method, ...parameters) {
-    if(config.publicReadUrl && readMethods.has(method))return publicRead(method,parameters);
+    // Anonymous viewers use the public Web App. Once the owner is signed in,
+    // always prefer Apps Script API so reads use the latest saved project code
+    // instead of an accidentally stale /exec deployment.
+    const hasLiveToken = Boolean(token && Date.now() < expiresAt);
+    if(config.publicReadUrl && readMethods.has(method) && !hasLiveToken)return publicRead(method,parameters);
     if (!allowed.has(method)) throw new Error('Этот раздел пока недоступен на новом адресе.');
     if (!token || Date.now() >= expiresAt) {
       token = '';
@@ -69,7 +73,7 @@
     const response = await fetch('https://script.googleapis.com/v1/scripts/' + encodeURIComponent(config.scriptId) + ':run', {
       method: 'POST', credentials: 'omit', cache: 'no-store',
       headers: {Authorization: 'Bearer ' + token, 'Content-Type': 'application/json'},
-      body: JSON.stringify({function: method, parameters, devMode: false})
+      body: JSON.stringify({function: method, parameters, devMode: true})
     });
     if (response.status === 401) {
       token = '';
