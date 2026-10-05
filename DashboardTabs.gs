@@ -153,7 +153,11 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
     const isNews=canonicalNewsCampaign_(campaign);
     const demoStatus=String(valueAt_(row,idx.demoStatus)||'').trim();
     const hasDemoData=demoStatus==='Связано точно';
+    const campaignText=fileName+' '+campaign;
+    const isTrigger=/trigg?er/i.test(campaignText);
+    const isPortalTrigger=isTrigger&&/portal/i.test(campaignText);
     if(!isNews&&!hasDemoData)return;
+    if(!isNews&&isTrigger&&!isPortalTrigger)return;
 
     const date=normalizeDate_(valueAt_(row,idx.date));
     const subject=String(valueAt_(row,idx.subject)||'').trim();
