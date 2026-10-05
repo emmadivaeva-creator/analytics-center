@@ -154,10 +154,9 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
     const demoStatus=String(valueAt_(row,idx.demoStatus)||'').trim();
     const hasDemoData=demoStatus==='Связано точно';
     const campaignText=fileName+' '+campaign;
-    const isTrigger=/trigg?er/i.test(campaignText);
-    const isPortalCustomTrigger=isTrigger&&/portal_custom/i.test(campaignText);
+    const isTrigger=/trigg?er|триггер/i.test(campaignText);
+    if(!isNews&&isTrigger)return;
     if(!isNews&&!hasDemoData)return;
-    if(!isNews&&isTrigger&&!isPortalCustomTrigger)return;
 
     const date=normalizeDate_(valueAt_(row,idx.date));
     const subject=String(valueAt_(row,idx.subject)||'').trim();
@@ -185,7 +184,7 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
       type:String(valueAt_(row,idx.type)||'demo').trim(),
       product:product,
       productFlow:String(valueAt_(row,idx.flow)||product).trim(),
-      segment:/trigg?er/i.test(fileName+' '+campaign)?'Триггер':String(valueAt_(row,idx.segment)||'').trim(),
+      segment:String(valueAt_(row,idx.segment)||'').trim(),
       campaignId:String(valueAt_(row,idx.campaignId)||'').trim(),
       campaign:campaign,
       sendsay:url_(valueAt_(row,idx.sendsay)),
