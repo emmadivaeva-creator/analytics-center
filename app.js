@@ -165,6 +165,13 @@ const REGISTRY_CACHE_VERSION=4;
 let registryCacheTimer=null;
 
 function isNewsMail(x){return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(x.campaign||'')||/^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(x.campaign||'');}
+function keepMailInReport_(x){
+ if(isNewsMail(x))return true;
+ const text=[x&&x.campaign,x&&x.segment,x&&x.type,x&&x.fileName,x&&x.issueName,x&&x.name].filter(Boolean).join(' ');
+ const isTrigger=/trigg?er|триггер/i.test(text);
+ if(!isTrigger)return true;
+ return /portal/i.test(text);
+}
 function mailDate(x){const t=String(x.time||'00:00').split(':').map(v=>v.padStart(2,'0')).join(':');return String(x.date||'')+'T'+t;}
 function safeLink(url,label){return /^https?:\/\//i.test(String(url||''))?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'';}
 
@@ -204,7 +211,7 @@ function scheduleRegistryCacheSave_(){
  registryCacheTimer=setTimeout(()=>{if(registryData)registryCacheWrite_(registryData).catch(()=>{});},1200);
 }
 function applyRegistryData_(emails,savedAt){
- registryData=(emails||[]).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
+ registryData=(emails||[]).filter(keepMailInReport_).slice().sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
  registryCacheSavedAt=savedAt||registryCacheSavedAt||'';
  for(const key of ['mail','news']){
   const el=document.getElementById(key+'Product'),prev=el.value;
@@ -251,9 +258,9 @@ async function loadRegistry(){
 }
 async function mergeRegistryRecent_(recent){
  const payload=recent||{},from=String(payload.from||''),to=String(payload.to||'');
- const current=Array.isArray(registryData)?registryData:[];
+ const current=(Array.isArray(registryData)?registryData:[]).filter(keepMailInReport_);
  const previous=new Map(current.map(item=>[item.id,item]));
- const fresh=(payload.emails||[]).map(item=>{
+ const fresh=(payload.emails||[]).filter(keepMailInReport_).map(item=>{
    const old=previous.get(item.id);
    if(old&&old.materialData&&!item.materialData)item.materialData=old.materialData;
    return item;
