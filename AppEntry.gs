@@ -9,7 +9,7 @@
  * - UI можно менять в GitHub без нового Apps Script deployment.
  */
 const V2_ASSET_BASE_ = 'https://emmadivaeva-creator.github.io/analytics-center/';
-const V2_BACKEND_BUILD_ = 'v2-backend-mail-cache-2026-09-30-01';
+const V2_BACKEND_BUILD_ = 'v2-pulse-direct-source-2026-10-05-01';
 
 function buildAnalyticsWebApp_() {
   const cacheBust = Date.now() + '-mail-cache-20260930-01';
@@ -47,13 +47,184 @@ function v2HealthCheck() {
   };
 }
 
+function pulseNorm_(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function pulseNumber_(value) {
+  if (typeof value === 'number') return isFinite(value) ? value : 0;
+  const cleaned = String(value || '')
+    .replace(/≈/g, '')
+    .replace(/[\s\u202f\u00a0]/g, '')
+    .replace(/%/g, '')
+    .replace(',', '.')
+    .replace(/[^0-9.-]/g, '');
+  const parsed = Number(cleaned);
+  return isFinite(parsed) ? parsed : 0;
+}
+
+function pulseMetric_(value) {
+  const text = pulseNorm_(value);
+  if (text.indexOf('красн') >= 0) return 'red';
+  if (text.indexOf('желт') >= 0) return 'yellow';
+  if (text.indexOf('зелен') >= 0) return 'green';
+  return '';
+}
+
+function pulseGroup_(value) {
+  const text = pulseNorm_(value);
+  if (text.indexOf('госзаказ') >= 0) return 'ГЗ';
+  if (text.indexOf('госфинанс') >= 0) return 'ГФ';
+  return '';
+}
+
+function readPulsePlans_(spreadsheet, observedWeeks) {
+  const sheet = spreadsheet.getSheetByName('Планы на год');
+  if (!sheet) return {};
+
+  const rows = sheet.getDataRange().getDisplayValues();
+  const plans = {};
+  let family = '';
+  let weekColumns = {};
+
+  for (let i = 0; i < rows.length; i++) {
+    const first = pulseNorm_(rows[i][0]);
+
+    if (first === 'школа') { family = 'Школа'; weekColumns = {}; continue; }
+    if (first === 'система') { family = 'Система'; weekColumns = {}; continue; }
+    if (first === 'периодика') { family = 'Периодика'; weekColumns = {}; continue; }
+    if (!family) continue;
+
+    const candidateWeeks = {};
+    for (let column = 1; column < rows[i].length; column++) {
+      const week = Number(rows[i][column]);
+      if (observedWeeks[week]) candidateWeeks[column] = week;
+    }
+
+    if ((first === 'неделя' || first === '') && Object.keys(candidateWeeks).length >= 3) {
+      weekColumns = candidateWeeks;
+      continue;
+    }
+
+    const group = pulseGroup_(rows[i][0]);
+    if (!group || !Object.keys(weekColumns).length) continue;
+
+    const planRow = rows[i + 1] || [];
+    if (pulseNorm_(planRow[0]) !== 'план') continue;
+
+    Object.keys(weekColumns).forEach(function(column) {
+      const week = weekColumns[column];
+      plans[group + ' ' + family + '|' + week] = pulseNumber_(planRow[Number(column)]);
+    });
+  }
+
+  return plans;
+}
+
+function buildPulseSourceTruth_() {
+  // Intentionally read the canonical source directly. This Pulse path does not
+  // call buildDemoStats_, so any stale/duplicate global implementation cannot
+  // double the System fact again.
+  const spreadsheet = SpreadsheetApp.openById(APP.defaultDemoStatsId);
+  const totals = {};
+  const observedWeeks = {};
+  const updatedAt = new Date().toISOString();
+
+  APP.demoSheets.forEach(function(spec) {
+    const sheet = spreadsheet.getSheetByName(spec.name);
+    if (!sheet) throw new Error('В «Статистике по ДЕМО» нет листа «' + spec.name + '».');
+
+    const rows = sheet.getDataRange().getDisplayValues();
+    const headerIndex = rows.findIndex(function(row) {
+      return pulseNorm_(row[0]) === 'издательская группа' &&
+        pulseNorm_(row[1]).indexOf('utm ') === 0;
+    });
+
+    if (headerIndex < 1) {
+      throw new Error('На листе «' + spec.name + '» не найдена таблица UTM.');
+    }
+
+    const weekRow = rows[headerIndex - 1] || [];
+    const headers = rows[headerIndex] || [];
+    const metricColumns = [];
+
+    for (let column = 2; column < headers.length; column++) {
+      const weekMatch = String(weekRow[column] || '').match(/\d{1,2}/);
+      const metric = pulseMetric_(headers[column]);
+      if (!weekMatch || !metric) continue;
+
+      const week = Number(weekMatch[0]);
+      observedWeeks[week] = true;
+      metricColumns.push({column: column, week: week, metric: metric});
+    }
+
+    for (let rowIndex = headerIndex + 1; rowIndex < rows.length; rowIndex++) {
+      const row = rows[rowIndex] || [];
+
+      // Critical rule: the Systems source contains another analytical slice
+      // after the first "Общий итог". It repeats the same events in another
+      // breakdown, so Pulse must stop here.
+      if (spec.family === 'Система' && pulseNorm_(row[0]) === 'общий итог') break;
+
+      const group = pulseGroup_(row[0]);
+      const sourceKey = String(row[1] || '').trim();
+      if (!group || !sourceKey || /итог/i.test(sourceKey)) continue;
+
+      const product = group + ' ' + spec.family;
+
+      metricColumns.forEach(function(info) {
+        const amount = pulseNumber_(row[info.column]);
+        if (!amount) return;
+
+        const key = product + '|' + info.week;
+        if (!totals[key]) {
+          totals[key] = {
+            product: product,
+            week: info.week,
+            red: 0,
+            yellow: 0,
+            green: 0,
+            plan: 0
+          };
+        }
+        totals[key][info.metric] += amount;
+      });
+    }
+  });
+
+  const weeks = Object.keys(observedWeeks).map(Number).filter(Boolean).sort(function(a,b){ return a-b; });
+  const plans = readPulsePlans_(spreadsheet, observedWeeks);
+
+  APP.productOrder.forEach(function(product) {
+    weeks.forEach(function(week) {
+      const key = product + '|' + week;
+      if (!totals[key]) {
+        totals[key] = {product: product, week: week, red: 0, yellow: 0, green: 0, plan: 0};
+      }
+      totals[key].plan = pulseNumber_(plans[key]);
+    });
+  });
+
+  return {
+    totals: totals,
+    currentWeek: weeks.length ? weeks[weeks.length - 1] : null,
+    updatedAt: updatedAt,
+    sourceUrl: spreadsheet.getUrl(),
+    parserBuild: 'pulse-direct-source-first-system-section-20261005'
+  };
+}
+
 /**
  * Пульс читает DEMO напрямую из исходной «Статистики по ДЕМО».
  * Служебный лист _DEMO v2 здесь намеренно не используется: он может отставать
  * от дозревающего факта прошлой недели и первых событий текущей недели.
  */
 function auditPulseNumbers() {
-  const result = buildDemoStats_(demoStatsSpreadsheet_());
+  const result = buildPulseSourceTruth_();
   const rows = [];
 
   Object.keys(result.totals || {})
@@ -86,7 +257,7 @@ function auditPulseNumbers() {
 }
 
 function getPulseDataFresh() {
-  const result = buildDemoStats_(demoStatsSpreadsheet_());
+  const result = buildPulseSourceTruth_();
   const today = todayIso_();
   const calendarWeek = isoWeek_(today);
   const year = Number(String(today).slice(0, 4)) || new Date().getFullYear();
@@ -142,7 +313,8 @@ function getPulseDataFresh() {
       currentWeek: selectedWeek,
       year: year,
       sourceReadAt: result.updatedAt,
-      sourceUrl: result.sourceUrl
+      sourceUrl: result.sourceUrl,
+      parserBuild: result.parserBuild
     },
     products: selected.products,
     summary: selected.summary,
