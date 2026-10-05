@@ -170,7 +170,7 @@ function keepMailInReport_(x){
  const text=[x&&x.campaign,x&&x.segment,x&&x.type,x&&x.fileName,x&&x.issueName,x&&x.name].filter(Boolean).join(' ');
  const isTrigger=/trigg?er|триггер/i.test(text);
  if(!isTrigger)return true;
- return /portal/i.test(text);
+ return /portal_custom/i.test(text);
 }
 function mailDate(x){const t=String(x.time||'00:00').split(':').map(v=>v.padStart(2,'0')).join(':');return String(x.date||'')+'T'+t;}
 function safeLink(url,label){return /^https?:\/\//i.test(String(url||''))?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'';}
