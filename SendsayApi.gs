@@ -668,8 +668,14 @@ function isAnalyticsSendsayIssue_(issueName, campaign) {
   // точный состав вкладки «Письма» определяется не названием кампании,
   // а совпадением Campaign со «Статистикой по ДЕМО».
   if (/\|\s*demo\s*\|/i.test(name)) return true;
-  if (/\|\s*trigger\s*\|/i.test(name)) return true;
-  if (/portal[_-]/i.test(text)) return true;
+
+  // Из trigger/triger забираем только portal-цепочки.
+  // Обычные триггеры больше не нужны ни в отчёте, ни в новых API-обновлениях.
+  const isTrigger = /trigg?er/i.test(text);
+  if (isTrigger) return /portal/i.test(text);
+
+  // Portal без явной метки trigger оставляем как рабочую portal-цепочку.
+  if (/portal[_-]|[_-]portal|learn-portal/i.test(text)) return true;
 
   return false;
 }
