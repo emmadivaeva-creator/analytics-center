@@ -169,8 +169,8 @@ let registryData=null,registryPromise=null,registryCacheSavedAt='';
 const registryLimits={mail:100,news:100};
 const REGISTRY_CACHE_DB='analytics-center-cache';
 const REGISTRY_CACHE_STORE='kv';
-const REGISTRY_CACHE_KEY='mail-registry-v4';
-const REGISTRY_CACHE_VERSION=4;
+const REGISTRY_CACHE_KEY='mail-registry-v5';
+const REGISTRY_CACHE_VERSION=5;
 let registryCacheTimer=null;
 
 function isNewsMail(x){return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(x.campaign||'')||/^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(x.campaign||'');}
