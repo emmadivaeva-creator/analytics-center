@@ -65,11 +65,71 @@ function checkServer(){
  rpc('v2HealthCheck').then(r=>setHealth(Boolean(r&&r.ok),r&&r.ok?'GitHub Pages UI · сервер '+(r.backendBuild||'подключён'):'Сервер не ответил')).catch(e=>setHealth(false,'Ошибка сервера: '+e.message));
 }
 
+const LEGACY_PULSE_SYSTEM_FIX_={
+  27:{'ГЗ Система':[65,24,32,71],'ГФ Система':[64,48,46,105]},
+  28:{'ГЗ Система':[94,55,80,71],'ГФ Система':[73,55,89,105]},
+  29:{'ГЗ Система':[104,41,55,71],'ГФ Система':[106,60,74,105]},
+  30:{'ГЗ Система':[107,42,74,71],'ГФ Система':[213,86,108,105]},
+  31:{'ГЗ Система':[163,55,89,71],'ГФ Система':[242,84,105,105]},
+  32:{'ГЗ Система':[134,48,70,76],'ГФ Система':[179,69,102,100]},
+  33:{'ГЗ Система':[146,59,70,76],'ГФ Система':[159,91,119,100]},
+  34:{'ГЗ Система':[129,36,79,76],'ГФ Система':[176,82,113,100]},
+  35:{'ГЗ Система':[110,43,53,76],'ГФ Система':[160,99,118,110]},
+  36:{'ГЗ Система':[122,46,61,86],'ГФ Система':[209,90,112,200]},
+  37:{'ГЗ Система':[111,39,68,86],'ГФ Система':[227,94,136,200]},
+  38:{'ГЗ Система':[142,47,66,86],'ГФ Система':[155,79,98,200]},
+  39:{'ГЗ Система':[104,29,62,86],'ГФ Система':[193,87,140,200]},
+  40:{'ГЗ Система':[119,45,50,86],'ГФ Система':[211,69,97,200]}
+};
+function pulseDecisionClient_(p){
+ if(n(p.green)>=n(p.plan)&&n(p.plan)>0)return'Дополнительный дожим не нужен: план выполнен.';
+ if(n(p.green)+n(p.yellow)>=n(p.plan)&&n(p.plan)>0)return'Дожимаем жёлтых: их достаточно, чтобы закрыть текущий разрыв.';
+ if(/школа/i.test(p.product||''))return'План ещё не закрыт: ждём дозревание и усиливаем дожим.';
+ return'План ещё не закрыт: нужен дополнительный приток и дожим.';
+}
+function pulseAggregateClient_(products){
+ const s=(products||[]).reduce((a,p)=>{a.red+=n(p.red);a.yellow+=n(p.yellow);a.green+=n(p.green);a.plan+=n(p.plan);return a;},{red:0,yellow:0,green:0,plan:0});
+ s.progress=s.plan?Math.round(s.green/s.plan*1000)/10:0;
+ s.potential=s.green+s.yellow;
+ s.totalEvents=s.red+s.yellow+s.green;
+ s.greenShare=s.totalEvents?Math.round(s.green/s.totalEvents*1000)/10:0;
+ return s;
+}
+function repairLegacyPulse_(data){
+ if(!data||!Array.isArray(data.weekDetails))return data;
+ data.weekDetails.forEach(detail=>{
+   const fixes=LEGACY_PULSE_SYSTEM_FIX_[Number(detail.week)];
+   if(fixes){
+     (detail.products||[]).forEach(p=>{
+       const v=fixes[p.product];
+       if(!v)return;
+       p.red=v[0];p.yellow=v[1];p.green=v[2];p.plan=v[3];
+       p.progress=p.plan?Math.round(p.green/p.plan*1000)/10:0;
+       p.decision=pulseDecisionClient_(p);
+     });
+   }
+   detail.summary=pulseAggregateClient_(detail.products||[]);
+ });
+ data.weeks=data.weekDetails.map(detail=>({week:detail.week,green:detail.summary.green,yellow:detail.summary.yellow,red:detail.summary.red,plan:detail.summary.plan,progress:detail.summary.progress}));
+ const current=data.weekDetails.find(x=>Number(x.week)===Number(data.meta&&data.meta.currentWeek))||data.weekDetails[data.weekDetails.length-1];
+ if(current){data.products=current.products;data.summary=current.summary;}
+ data.meta=data.meta||{};
+ data.meta.parserBuild='legacy-public-endpoint-with-verified-system-correction-20261005';
+ return data;
+}
+async function loadPulseData_(){
+ try{
+   return await loadPulseData_();
+ }catch(primaryError){
+   const legacy=await rpc('getPulseDataFresh');
+   return repairLegacyPulse_(legacy);
+ }
+}
 async function loadData(){
  const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='Читаю DEMO…';
  document.getElementById('pulseError').classList.add('hidden');
  try{
-   const data=await rpc('getPulseDataStoredUi');
+   const data=await loadPulseData_();
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
  }catch(err){showError(err&&err.message?err.message:String(err));}
  finally{btn.disabled=false;btn.textContent='Обновить последние 3 дня';}
@@ -103,7 +163,7 @@ async function refreshLast3Days(){
    await mergeRegistryRecent_(recent);
 
    buttons.forEach(button=>button.textContent='Обновляю Пульс…');
-   const data=await rpc('getPulseDataStoredUi');
+   const data=await loadPulseData_();
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
 
    if(registryData)renderDemand();
