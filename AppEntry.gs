@@ -9,7 +9,7 @@
  * - UI можно менять в GitHub без нового Apps Script deployment.
  */
 const V2_ASSET_BASE_ = 'https://emmadivaeva-creator.github.io/analytics-center/';
-const V2_BACKEND_BUILD_ = 'v2-pulse-direct-source-2026-10-05-01';
+const V2_BACKEND_BUILD_ = 'v2-pulse-stored-demo-2026-10-05-02';
 
 function buildAnalyticsWebApp_() {
   const cacheBust = Date.now() + '-mail-cache-20260930-01';
@@ -254,6 +254,109 @@ function auditPulseNumbers() {
   };
   console.log(JSON.stringify(out, null, 2));
   return out;
+}
+
+function getPulseDataStoredUi() {
+  const storage = openStorage_();
+  const sheet = storage.getSheetByName(APP.demoSheet);
+  if (!sheet || sheet.getLastRow() < 2) {
+    throw new Error('Служебный DEMO-свод пуст. Запустите syncDemoStats().');
+  }
+
+  const rows = sheet.getDataRange().getDisplayValues();
+  const headers = headerMap_(rows[0]);
+  const col = function(aliases){ return indexOfHeader_(headers, aliases); };
+  const idx = {
+    week: col(['неделя']),
+    product: col(['продукт']),
+    red: col(['r']),
+    yellow: col(['y']),
+    green: col(['g']),
+    plan: col(['план']),
+    updated: col(['обновлено']),
+    source: col(['источник'])
+  };
+
+  const byWeek = {};
+  let updatedAt = '';
+  let sourceUrl = '';
+
+  for (let i = 1; i < rows.length; i++) {
+    const week = number_(valueAt_(rows[i], idx.week));
+    const product = normalizeProduct_(valueAt_(rows[i], idx.product));
+    if (!week || !product) continue;
+
+    if (!byWeek[week]) byWeek[week] = {};
+
+    const red = number_(valueAt_(rows[i], idx.red));
+    const yellow = number_(valueAt_(rows[i], idx.yellow));
+    const green = number_(valueAt_(rows[i], idx.green));
+    const plan = number_(valueAt_(rows[i], idx.plan));
+
+    byWeek[week][product] = {
+      product: product,
+      red: red,
+      yellow: yellow,
+      green: green,
+      plan: plan,
+      progress: plan ? round_(green / plan * 100, 1) : 0,
+      decision: protocolDecision_(product, red, yellow, green, plan)
+    };
+
+    const stamp = String(valueAt_(rows[i], idx.updated) || '');
+    if (stamp > updatedAt) updatedAt = stamp;
+
+    const source = String(valueAt_(rows[i], idx.source) || '');
+    if (source) sourceUrl = source;
+  }
+
+  const weekNumbers = Object.keys(byWeek).map(Number).filter(Boolean).sort(function(a,b){ return a-b; });
+  if (!weekNumbers.length) throw new Error('В служебном DEMO-своде нет недель.');
+
+  const details = weekNumbers.map(function(week) {
+    const products = APP.productOrder.map(function(product) {
+      return byWeek[week][product] || {
+        product: product, red: 0, yellow: 0, green: 0, plan: 0, progress: 0,
+        decision: protocolDecision_(product, 0, 0, 0, 0)
+      };
+    });
+    return {
+      week: week,
+      products: products,
+      summary: aggregateProducts_(products)
+    };
+  });
+
+  const today = todayIso_();
+  const calendarWeek = isoWeek_(today);
+  const selectedWeek = byWeek[calendarWeek] ? calendarWeek : weekNumbers[weekNumbers.length - 1];
+  const selected = details.filter(function(item){ return item.week === selectedWeek; })[0];
+
+  return {
+    ok: true,
+    version: APP.version,
+    meta: {
+      calendarWeek: calendarWeek,
+      currentWeek: selectedWeek,
+      year: Number(String(today).slice(0,4)) || new Date().getFullYear(),
+      sourceReadAt: updatedAt,
+      sourceUrl: sourceUrl,
+      parserBuild: 'pulse-stored-demo-v2-20261005'
+    },
+    products: selected.products,
+    summary: selected.summary,
+    weeks: details.map(function(item) {
+      return {
+        week: item.week,
+        green: item.summary.green,
+        yellow: item.summary.yellow,
+        red: item.summary.red,
+        plan: item.summary.plan,
+        progress: item.summary.progress
+      };
+    }),
+    weekDetails: details
+  };
 }
 
 function getPulseDataFresh() {
