@@ -89,6 +89,15 @@ async function refreshLast3Days(){
 
  document.getElementById('pulseError').classList.add('hidden');
  try{
+   buttons.forEach(button=>button.textContent='Обновляю Sendsay…');
+   try{
+     await rpc('syncSendsayApiLast3Days');
+     await rpc('syncDemoStats');
+   }catch(syncError){
+     const message=String(syncError&&syncError.message?syncError.message:syncError||'');
+     if(!/Требуется вход|Сеанс Google|недоступен|not found|not sufficient|permissions/i.test(message))throw syncError;
+   }
+
    buttons.forEach(button=>button.textContent='Забираю 3 дня…');
    const recent=await rpc('getMailRegistryRecentUi',3);
    await mergeRegistryRecent_(recent);
