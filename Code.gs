@@ -1501,11 +1501,25 @@ function demoGroup_(value) {
 }
 
 function demoCampaignKey_(value) {
-  return norm_(value)
+  let key = norm_(value)
     .replace(/[^a-zа-я0-9]+/gi, '_')
     .replace(/^_+|_+$/g, '')
-    .replace(/_+/g, '_')
-    .replace(/^letter_demo_20\d{2}_\d{2}_\d{2}_/, '');
+    .replace(/_+/g, '_');
+
+  // «Статистика по ДЕМО» часто оборачивает реальный Campaign датой:
+  // letter_demo_2026.07.06_letter_demo_goszakaz_gzru_06.07.2026
+  // Sendsay хранит: letter_demo_goszakaz_gzru_06.07.2026
+  // То же бывает у trigger/triger. Снимаем только служебную внешнюю обёртку,
+  // а внутренний Campaign оставляем целиком, поэтому ложных совпадений по хвосту нет.
+  let previous = '';
+  while (key && key !== previous) {
+    previous = key;
+    key = key
+      .replace(/^letter_(?:demo|trigger|triger)_20\d{2}_\d{2}_\d{2}_/, '')
+      .replace(/^demo_20\d{2}_\d{2}_\d{2}_/, '');
+  }
+
+  return key;
 }
 
 function demoCampaignLookupKey_(product, week, campaign) {
