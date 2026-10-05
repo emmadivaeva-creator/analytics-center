@@ -69,7 +69,7 @@ async function loadData(){
  const btn=document.getElementById('refreshBtn');btn.disabled=true;btn.textContent='Читаю DEMO…';
  document.getElementById('pulseError').classList.add('hidden');
  try{
-   const data=await rpc('getPulseDataFresh');
+   const data=await rpc('getPulseDataStoredUi');
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
  }catch(err){showError(err&&err.message?err.message:String(err));}
  finally{btn.disabled=false;btn.textContent='Обновить последние 3 дня';}
@@ -103,7 +103,7 @@ async function refreshLast3Days(){
    await mergeRegistryRecent_(recent);
 
    buttons.forEach(button=>button.textContent='Обновляю Пульс…');
-   const data=await rpc('getPulseDataFresh');
+   const data=await rpc('getPulseDataStoredUi');
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
 
    if(registryData)renderDemand();
