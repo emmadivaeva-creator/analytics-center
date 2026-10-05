@@ -220,14 +220,18 @@ function mailWeekSummaryHtml_(rows,selectedWeek){
  const map=new Map();
  logical.forEach(x=>{
    const product=String(x.product||'Не указано'),segment=String(x.segment||'Демо');
-   if(!map.has(product))map.set(product,{product,total:0,segments:{}});
+   if(!map.has(product))map.set(product,{product,total:0,red:0,yellow:0,green:0,segments:{}});
    const row=map.get(product),delivered=n(x.delivered);
-   row.total+=delivered;row.segments[segment]=(row.segments[segment]||0)+delivered;
+   row.total+=delivered;
+   row.red+=n(x.red);
+   row.yellow+=n(x.yellow);
+   row.green+=n(x.green);
+   row.segments[segment]=(row.segments[segment]||0)+delivered;
  });
  const products=[...map.values()].sort((a,b)=>a.product.localeCompare(b.product,'ru'));
- const header='<tr><th>Продукт</th>'+segments.map(s=>'<th>'+esc(s)+'</th>').join('')+'<th>Доставлено всего</th></tr>';
- const body=products.map(r=>'<tr><td><b>'+esc(r.product)+'</b></td>'+segments.map(s=>'<td>'+fmt(r.segments[s]||0)+'</td>').join('')+'<td><b>'+fmt(r.total)+'</b></td></tr>').join('');
- return '<div class="mail-week-head"><div><b>Доставлено за неделю '+esc(String(selectedWeek))+'</b><span>Сумма доставленных писем по сегментам и продуктам. Это не уникальная аудитория: один человек может получить несколько писем.</span></div></div><div class="registry mail-week-table"><table><thead>'+header+'</thead><tbody>'+body+'</tbody></table></div>';
+ const header='<tr><th>Продукт</th>'+segments.map(s=>'<th>'+esc(s)+'</th>').join('')+'<th>Доставлено всего</th><th>DEMO R / Y / G</th></tr>';
+ const body=products.map(r=>'<tr><td><b>'+esc(r.product)+'</b></td>'+segments.map(s=>'<td>'+fmt(r.segments[s]||0)+'</td>').join('')+'<td><b>'+fmt(r.total)+'</b></td><td><b class="demo-r">'+fmt(r.red)+'</b> / <b class="demo-y">'+fmt(r.yellow)+'</b> / <b class="demo-g">'+fmt(r.green)+'</b></td></tr>').join('');
+ return '<div class="mail-week-head"><div><b>Доставлено за неделю '+esc(String(selectedWeek))+'</b><span>Сумма доставленных писем по сегментам и продуктам. Справа — DEMO: красные / жёлтые / зелёные за ту же неделю.</span></div></div><div class="registry mail-week-table"><table><thead>'+header+'</thead><tbody>'+body+'</tbody></table></div>';
 }
 function safeLink(url,label){return /^https?:\/\//i.test(String(url||''))?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'';}
 
