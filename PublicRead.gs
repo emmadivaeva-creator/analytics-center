@@ -9,6 +9,7 @@ function publicDashboardRead_(event) {
     const methods = {
       v2HealthCheck: v2HealthCheck,
       getPulseDataFresh: getPulseDataFresh,
+      getPulseDataStoredUi: getPulseDataStoredUi,
       getMailRegistryUi: getMailRegistryUi,
       getMailRegistryRecentUi: getMailRegistryRecentUi,
       getMailRegistryPageUi: getMailRegistryPageUi,
