@@ -1466,7 +1466,7 @@ function linkImportedReportsToDemo_(storage, campaigns) {
     } else {
       unmatched++;
       output.push([
-        product ? 'Не найдено точное Campaign' : 'Не определён продукт',
+        product ? 'В статистике DEMO событий нет' : 'Не определён продукт',
         '',
         lookupKey,
         '', '', '',
@@ -1579,12 +1579,13 @@ function readImportedEmails_(storage) {
     const demoStatus = String(valueAt_(row, idx.demoStatus) || '').trim();
     const hasDemoData = demoStatus === 'Связано точно';
 
-    // Вкладка «Письма» — только DEMO-рассылки из исходного DEMO-отчёта.
-    // Любые trigger/triger исключаем целиком, даже если в имени есть demo.
-    const campaignText = fileName + ' ' + campaign;
+    // Вкладка «Письма» — обычные DEMO-рассылки. Наличие строки Campaign
+    // в фактовой DEMO-таблице не обязательно: если строки нет, считаем R/Y/G = 0.
+    const campaignText = fileName + ' ' + campaign + ' ' + String(valueAt_(row, idx.type) || '');
     const isTrigger = /trigg?er|триггер/i.test(campaignText);
+    const isDemo = norm_(valueAt_(row, idx.type)) === 'demo' || /(?:^|[_\s|])demo(?:[_\s|]|$)/i.test(campaignText);
     if (!isNews && isTrigger) continue;
-    if (!isNews && !hasDemoData) continue;
+    if (!isNews && !isDemo) continue;
 
     const date = normalizeDate_(valueAt_(row, idx.date));
     const subject = String(valueAt_(row, idx.subject) || '').trim();
@@ -1644,11 +1645,11 @@ function readImportedEmails_(storage) {
 
       maturity: hasDemoData
         ? demoMaturity_(date, product)
-        : demoStatus || 'Sendsay загружен · DEMO ещё не сопоставлено',
+        : 'В статистике DEMO событий нет',
 
       score: hasDemoData
         ? scoreEmail_(red, yellow, green, openRate, ctor)
-        : 'Только верхняя воронка Sendsay',
+        : 'DEMO 0 / 0 / 0',
 
       worked: hasDemoData
         ? workedLabel_(red, yellow, green)
@@ -1671,7 +1672,7 @@ function readImportedEmails_(storage) {
         : (
           norm_(valueAt_(row, idx.type)) === 'news'
             ? 'Новостному письму не назначаем R / Y / G без точной UTM Content/Term-привязки.'
-            : 'Отправка подтверждена, результат конкретной рассылки пока не сопоставлен.'
+            : 'Campaign отсутствует в фактовой DEMO-таблице: считаем R / Y / G = 0.'
         ),
 
       body: '',
