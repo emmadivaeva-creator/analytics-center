@@ -1579,13 +1579,12 @@ function readImportedEmails_(storage) {
     const demoStatus = String(valueAt_(row, idx.demoStatus) || '').trim();
     const hasDemoData = demoStatus === 'Связано точно';
 
-    // Вкладка «Письма» — зеркало исходного DEMO-отчёта.
-    // Среди trigger/triger оставляем только portal-цепочки.
+    // Вкладка «Письма» — только DEMO-рассылки из исходного DEMO-отчёта.
+    // Любые trigger/triger исключаем целиком, даже если в имени есть demo.
     const campaignText = fileName + ' ' + campaign;
-    const isTrigger = /trigg?er/i.test(campaignText);
-    const isPortalCustomTrigger = isTrigger && /portal_custom/i.test(campaignText);
+    const isTrigger = /trigg?er|триггер/i.test(campaignText);
+    if (!isNews && isTrigger) continue;
     if (!isNews && !hasDemoData) continue;
-    if (!isNews && isTrigger && !isPortalCustomTrigger) continue;
 
     const date = normalizeDate_(valueAt_(row, idx.date));
     const subject = String(valueAt_(row, idx.subject) || '').trim();
@@ -1623,9 +1622,7 @@ function readImportedEmails_(storage) {
       type: String(valueAt_(row, idx.type) || 'demo').trim(),
       product: product,
       productFlow: String(valueAt_(row, idx.flow) || product).trim(),
-      segment: /trigg?er/i.test(fileName + ' ' + campaign)
-        ? 'Триггер'
-        : String(valueAt_(row, idx.segment) || '').trim(),
+      segment: String(valueAt_(row, idx.segment) || '').trim(),
       campaignId: String(valueAt_(row, idx.campaignId) || '').trim(),
       campaign: campaign,
       sendsay: url_(valueAt_(row, idx.sendsay)),
