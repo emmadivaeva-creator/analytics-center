@@ -153,10 +153,11 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
     const isNews=canonicalNewsCampaign_(campaign);
     const demoStatus=String(valueAt_(row,idx.demoStatus)||'').trim();
     const hasDemoData=demoStatus==='Связано точно';
-    const campaignText=fileName+' '+campaign;
+    const campaignText=fileName+' '+campaign+' '+String(valueAt_(row,idx.type)||'');
     const isTrigger=/trigg?er|триггер/i.test(campaignText);
+    const isDemo=norm_(valueAt_(row,idx.type))==='demo'||/(?:^|[_\s|])demo(?:[_\s|]|$)/i.test(campaignText);
     if(!isNews&&isTrigger)return;
-    if(!isNews&&!hasDemoData)return;
+    if(!isNews&&!isDemo)return;
 
     const date=normalizeDate_(valueAt_(row,idx.date));
     const subject=String(valueAt_(row,idx.subject)||'').trim();
@@ -201,8 +202,8 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
       yellow:yellow,
       green:green,
       potential:yellow+green,
-      maturity:hasDemoData?demoMaturity_(date,product):(demoStatus||'Sendsay загружен · DEMO ещё не сопоставлено'),
-      score:hasDemoData?scoreEmail_(red,yellow,green,openRate,ctor):'Только верхняя воронка Sendsay',
+      maturity:hasDemoData?demoMaturity_(date,product):'В статистике DEMO событий нет',
+      score:hasDemoData?scoreEmail_(red,yellow,green,openRate,ctor):'DEMO 0 / 0 / 0',
       worked:hasDemoData?workedLabel_(red,yellow,green):'',
       failed:hasDemoData?failedLabel_(red,yellow,green):'',
       source:'Фактический Sendsay',
@@ -215,7 +216,7 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
         ?'R / Y / G связаны только по точному совпадению Campaign.'
         :(norm_(valueAt_(row,idx.type))==='news'
           ?'Новостному письму не назначаем R / Y / G без точной UTM Content/Term-привязки.'
-          :'Отправка подтверждена, результат конкретной рассылки пока не сопоставлен.'),
+          :'Campaign отсутствует в фактовой DEMO-таблице: считаем R / Y / G = 0.'),
       body:'',
       innerTitle:'',
       cta:'',
@@ -263,7 +264,7 @@ function dashboardMatchMails_(emails,facts) {
     matches.forEach(r=>{const weeks=r.weeks.filter(w=>w.week>=mail.week);if(!weeks.length)return;const totals={red:0,yellow:0,green:0};weeks.forEach(w=>['red','yellow','green'].forEach(k=>totals[k]+=w[k]));mail.demoEvidence.push({product:r.product,campaign:r.key,source:r.source,sourceUrl:r.sourceUrl,weeks,...totals});['red','yellow','green'].forEach(k=>mail[k]+=totals[k]);});
     mail.hasDemoData=mail.demoEvidence.length>0;
     mail.potential=mail.yellow+mail.green;
-    mail.note=mail.hasDemoData?'Совпадение Campaign с исходной статистикой. Результат с недели отправки, включая последующие недели.'+(counts[demoCampaignKey_(mail.campaign)]>1?' Одна метка встречается у нескольких записей отправки; результат общий для метки.':''):'В листах «Факт» нет совпадения Campaign в доступных неделях. Проверка материалов по Content / Term доступна ниже.';
+    mail.note=mail.hasDemoData?'Совпадение Campaign с исходной статистикой. Результат с недели отправки, включая последующие недели.'+(counts[demoCampaignKey_(mail.campaign)]>1?' Одна метка встречается у нескольких записей отправки; результат общий для метки.':''):'В фактовой DEMO-таблице событий по Campaign нет: R / Y / G = 0.';
   });
   return emails;
 }
