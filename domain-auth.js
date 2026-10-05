@@ -2,7 +2,7 @@
   'use strict';
   const config = window.ANALYTICS_DOMAIN_CONFIG;
   let token = '', expiresAt = 0, client, started = false;
-  const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'syncDriveReportsReliable',
+  const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'getPulseDataStoredUi', 'syncDriveReportsReliable',
     'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
     'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi',
     'getVikaPlanUi', 'getVikaEditorialUi', 'getVioTrendsUi']);
@@ -15,7 +15,7 @@
     status.textContent = message;
     button.disabled = !client;
   }
-  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
   async function publicRead(method, parameters) {
     const url = new URL(config.publicReadUrl);
     url.searchParams.set('method', method);
@@ -54,7 +54,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261005-pulse-direct-source-01';
+    const script=document.createElement('script');script.src='app.js?v=20261005-pulse-stored-demo-02';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
