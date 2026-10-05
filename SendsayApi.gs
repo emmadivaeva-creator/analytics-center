@@ -688,18 +688,12 @@ function isAnalyticsSendsayIssue_(issueName, campaign) {
   // NEWS берём только две канонические редакционные рассылки.
   if (canonicalNewsCampaign_(normalizedCampaign)) return true;
 
-  // Сырое API-хранилище держим шире, чем витрину сервиса:
-  // точный состав вкладки «Письма» определяется не названием кампании,
-  // а совпадением Campaign со «Статистикой по ДЕМО».
-  // Если это trigger/triger, правило жёсткое: только portal.
-  // Проверяем раньше DEMO, чтобы trigger_demo без portal тоже не просочился.
-  const isTrigger = /trigg?er/i.test(text);
-  if (isTrigger) return /portal_custom/i.test(text);
+  // Триггерные цепочки больше вообще не участвуют в отчёте писем.
+  // Проверяем до DEMO, потому что встречаются имена вроде "Trigger | UBU_demo_5day".
+  if (/trigg?er|триггер/i.test(text)) return false;
 
+  // Оставляем только явные DEMO-рассылки. NEWS уже обработаны выше.
   if (/\|\s*demo\s*\|/i.test(name)) return true;
-
-  // Portal без явной метки trigger оставляем как рабочую portal-цепочку.
-  if (/portal[_-]|[_-]portal|learn-portal/i.test(text)) return true;
 
   return false;
 }
