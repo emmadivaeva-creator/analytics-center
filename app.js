@@ -169,17 +169,18 @@ let registryData=null,registryPromise=null,registryCacheSavedAt='';
 const registryLimits={mail:100,news:100};
 const REGISTRY_CACHE_DB='analytics-center-cache';
 const REGISTRY_CACHE_STORE='kv';
-const REGISTRY_CACHE_KEY='mail-registry-v5';
-const REGISTRY_CACHE_VERSION=5;
+const REGISTRY_CACHE_KEY='mail-registry-v6';
+const REGISTRY_CACHE_VERSION=6;
 let registryCacheTimer=null;
 
 function isNewsMail(x){return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(x.campaign||'')||/^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(x.campaign||'');}
 function keepMailInReport_(x){
  if(isNewsMail(x))return true;
  const text=[x&&x.campaign,x&&x.segment,x&&x.type,x&&x.fileName,x&&x.issueName,x&&x.name].filter(Boolean).join(' ');
- const isTrigger=/trigg?er|триггер/i.test(text);
- if(!isTrigger)return true;
- return /portal_custom/i.test(text);
+ // Вкладка «Письма» содержит только DEMO-рассылки. Любые trigger/triger/триггер
+ // исключаем целиком, даже если внутри имени есть demo или portal_custom.
+ if(/trigg?er|триггер/i.test(text))return false;
+ return true;
 }
 function mailDate(x){const t=String(x.time||'00:00').split(':').map(v=>v.padStart(2,'0')).join(':');return String(x.date||'')+'T'+t;}
 function mailWeek_(x){
@@ -210,7 +211,7 @@ function mailWeekSummaryHtml_(rows,selectedWeek){
  if(!selectedWeek)return '<div class="mail-week-note">Выберите неделю, чтобы сравнить объём отправок по продуктам и сегментам.</div>';
  const logical=logicalMailRows_(rows||[]);
  if(!logical.length)return '<div class="mail-week-note">За эту неделю писем по выбранным условиям нет.</div>';
- const preferred=['Живые','Дожим демо','Триггер','Все доступные','Клики','Демо','Несколько сегментов'];
+ const preferred=['Живые','Дожим демо','Все доступные','Клики','Демо','Несколько сегментов'];
  const segmentSet=new Set(logical.map(x=>String(x.segment||'Демо')));
  const segments=[...segmentSet].sort((a,b)=>{
    const ai=preferred.indexOf(a),bi=preferred.indexOf(b);
