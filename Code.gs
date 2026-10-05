@@ -1569,9 +1569,9 @@ function readImportedEmails_(storage) {
     // Среди trigger/triger оставляем только portal-цепочки.
     const campaignText = fileName + ' ' + campaign;
     const isTrigger = /trigg?er/i.test(campaignText);
-    const isPortalTrigger = isTrigger && /portal/i.test(campaignText);
+    const isPortalCustomTrigger = isTrigger && /portal_custom/i.test(campaignText);
     if (!isNews && !hasDemoData) continue;
-    if (!isNews && isTrigger && !isPortalTrigger) continue;
+    if (!isNews && isTrigger && !isPortalCustomTrigger) continue;
 
     const date = normalizeDate_(valueAt_(row, idx.date));
     const subject = String(valueAt_(row, idx.subject) || '').trim();
