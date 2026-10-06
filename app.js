@@ -117,12 +117,69 @@ function repairLegacyPulse_(data){
  data.meta.parserBuild='legacy-public-endpoint-with-verified-system-correction-20261005';
  return data;
 }
+const PULSE_PLAN_FALLBACK_={
+  41:{'ГЗ Периодика':28,'ГФ Периодика':57,'ГЗ Система':95,'ГФ Система':210,'ГЗ Школа':27,'ГФ Школа':53},
+  42:{'ГЗ Периодика':28,'ГФ Периодика':57,'ГЗ Система':92,'ГФ Система':215,'ГЗ Школа':27,'ГФ Школа':53},
+  43:{'ГЗ Периодика':28,'ГФ Периодика':57,'ГЗ Система':92,'ГФ Система':220,'ГЗ Школа':27,'ГФ Школа':53},
+  44:{'ГЗ Периодика':28,'ГФ Периодика':57,'ГЗ Система':92,'ГФ Система':220,'ГЗ Школа':27,'ГФ Школа':53},
+  45:{'ГЗ Периодика':14,'ГФ Периодика':34,'ГЗ Система':45,'ГФ Система':93,'ГЗ Школа':7,'ГФ Школа':35},
+  46:{'ГЗ Периодика':24,'ГФ Периодика':59,'ГЗ Система':80,'ГФ Система':250,'ГЗ Школа':20,'ГФ Школа':60},
+  47:{'ГЗ Периодика':24,'ГФ Периодика':59,'ГЗ Система':80,'ГФ Система':250,'ГЗ Школа':20,'ГФ Школа':60},
+  48:{'ГЗ Периодика':24,'ГФ Периодика':59,'ГЗ Система':80,'ГФ Система':250,'ГЗ Школа':20,'ГФ Школа':60},
+  49:{'ГЗ Периодика':32,'ГФ Периодика':54,'ГЗ Система':100,'ГФ Система':250,'ГЗ Школа':16,'ГФ Школа':33},
+  50:{'ГЗ Периодика':32,'ГФ Периодика':54,'ГЗ Система':100,'ГФ Система':250,'ГЗ Школа':16,'ГФ Школа':33},
+  51:{'ГЗ Периодика':32,'ГФ Периодика':54,'ГЗ Система':100,'ГФ Система':250,'ГЗ Школа':16,'ГФ Школа':33},
+  52:{'ГЗ Периодика':32,'ГФ Периодика':54,'ГЗ Система':100,'ГФ Система':250,'ГЗ Школа':16,'ГФ Школа':33},
+  53:{'ГЗ Периодика':11,'ГФ Периодика':14,'ГЗ Система':21,'ГФ Система':67,'ГЗ Школа':1,'ГФ Школа':3}
+};
+function currentIsoWeekClient_(){
+ const now=new Date(),d=new Date(Date.UTC(now.getFullYear(),now.getMonth(),now.getDate(),12));
+ const day=d.getUTCDay()||7;
+ d.setUTCDate(d.getUTCDate()+4-day);
+ const start=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+ return Math.ceil((((d-start)/86400000)+1)/7);
+}
+function ensureCalendarPulseWeek_(data){
+ if(!data||!Array.isArray(data.weekDetails))return data;
+ data.meta=data.meta||{};
+ const week=currentIsoWeekClient_();
+ data.meta.calendarWeek=week;
+ data.meta.currentWeek=week;
+ data.meta.year=new Date().getFullYear();
+
+ let detail=data.weekDetails.find(x=>Number(x.week)===week);
+ if(!detail){
+   const plans=PULSE_PLAN_FALLBACK_[week]||{};
+   const order=['ГЗ Периодика','ГЗ Система','ГЗ Школа','ГФ Периодика','ГФ Система','ГФ Школа'];
+   const products=order.map(product=>{
+     const plan=n(plans[product]);
+     const p={product,red:0,yellow:0,green:0,plan,progress:0};
+     p.decision=pulseDecisionClient_(p);
+     return p;
+   });
+   detail={week,products,summary:pulseAggregateClient_(products)};
+   data.weekDetails.push(detail);
+   data.weekDetails.sort((a,b)=>Number(a.week)-Number(b.week));
+ }
+ data.weeks=data.weekDetails.map(item=>({
+   week:item.week,
+   green:n(item.summary?.green),
+   yellow:n(item.summary?.yellow),
+   red:n(item.summary?.red),
+   plan:n(item.summary?.plan),
+   progress:n(item.summary?.progress)
+ }));
+ data.products=detail.products;
+ data.summary=detail.summary;
+ return data;
+}
 async function loadPulseData_(){
  try{
-   return await rpc('getPulseDataStoredUi');
+   const fresh=await rpc('getPulseDataStoredUi');
+   return ensureCalendarPulseWeek_(fresh);
  }catch(primaryError){
    const legacy=await rpc('getPulseDataFresh');
-   return repairLegacyPulse_(legacy);
+   return ensureCalendarPulseWeek_(repairLegacyPulse_(legacy));
  }
 }
 async function loadData(){
