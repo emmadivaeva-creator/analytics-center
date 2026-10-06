@@ -366,9 +366,23 @@ async function registryCacheRead_(){
  const db=await registryDb_();
  return new Promise((resolve,reject)=>{
   const tx=db.transaction(REGISTRY_CACHE_STORE,'readonly');
-  const req=tx.objectStore(REGISTRY_CACHE_STORE).get(REGISTRY_CACHE_KEY);
-  req.onsuccess=()=>{db.close();const value=req.result;resolve(value&&value.version===REGISTRY_CACHE_VERSION?value:null);};
-  req.onerror=()=>{db.close();reject(req.error||new Error('Не удалось прочитать кэш'));};
+  const store=tx.objectStore(REGISTRY_CACHE_STORE);
+  const keys=[REGISTRY_CACHE_KEY,'mail-registry-v6','mail-registry-v5','mail-registry-v4'];
+  let index=0;
+  const next=()=>{
+    if(index>=keys.length){db.close();resolve(null);return;}
+    const key=keys[index++];
+    const req=store.get(key);
+    req.onsuccess=()=>{
+      const value=req.result;
+      if(value&&Array.isArray(value.emails)&&value.emails.length){
+        db.close();
+        resolve({...value,_fallbackKey:key});
+      }else next();
+    };
+    req.onerror=()=>next();
+  };
+  next();
  });
 }
 async function registryCacheWrite_(emails){
@@ -423,6 +437,9 @@ async function loadRegistry(){
      const cached=await registryCacheRead_();
      if(cached&&Array.isArray(cached.emails)&&cached.emails.length){
        applyRegistryData_(cached.emails,cached.savedAt);
+       if(cached._fallbackKey&&cached._fallbackKey!==REGISTRY_CACHE_KEY){
+         registryCacheWrite_(registryData).catch(()=>{});
+       }
        return registryData;
      }
    }catch(cacheError){}
