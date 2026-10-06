@@ -9,7 +9,7 @@
  * - UI можно менять в GitHub без нового Apps Script deployment.
  */
 const V2_ASSET_BASE_ = 'https://emmadivaeva-creator.github.io/analytics-center/';
-const V2_BACKEND_BUILD_ = 'v2-pulse-stored-demo-2026-10-05-02';
+const V2_BACKEND_BUILD_ = 'v2-pulse-week41-2026-10-06-01';
 
 function buildAnalyticsWebApp_() {
   const cacheBust = Date.now() + '-mail-cache-20260930-01';
@@ -196,6 +196,8 @@ function buildPulseSourceTruth_() {
     }
   });
 
+  const calendarWeek = isoWeek_(todayIso_());
+  observedWeeks[calendarWeek] = true;
   const weeks = Object.keys(observedWeeks).map(Number).filter(Boolean).sort(function(a,b){ return a-b; });
   const plans = readPulsePlans_(spreadsheet, observedWeeks);
 
@@ -310,6 +312,41 @@ function getPulseDataStoredUi() {
     if (source) sourceUrl = source;
   }
 
+  const today = todayIso_();
+  const calendarWeek = isoWeek_(today);
+
+  // The DEMO pivot can lag at the start of a new ISO week. Pulse must still
+  // switch to the real calendar week immediately. Until fact columns appear,
+  // R/Y/G are zero and the plan is read from "Планы на год".
+  if (!byWeek[calendarWeek]) byWeek[calendarWeek] = {};
+
+  const planWeeks = {};
+  Object.keys(byWeek).forEach(function(week){ planWeeks[Number(week)] = true; });
+  planWeeks[calendarWeek] = true;
+  const currentPlans = readPulsePlans_(demoStatsSpreadsheet_(), planWeeks);
+
+  APP.productOrder.forEach(function(product) {
+    const existing = byWeek[calendarWeek][product];
+    const plan = pulseNumber_(currentPlans[product + '|' + calendarWeek]);
+
+    if (existing) {
+      existing.plan = plan || existing.plan;
+      existing.progress = existing.plan ? round_(existing.green / existing.plan * 100, 1) : 0;
+      existing.decision = protocolDecision_(product, existing.red, existing.yellow, existing.green, existing.plan);
+      return;
+    }
+
+    byWeek[calendarWeek][product] = {
+      product: product,
+      red: 0,
+      yellow: 0,
+      green: 0,
+      plan: plan,
+      progress: 0,
+      decision: protocolDecision_(product, 0, 0, 0, plan)
+    };
+  });
+
   const weekNumbers = Object.keys(byWeek).map(Number).filter(Boolean).sort(function(a,b){ return a-b; });
   if (!weekNumbers.length) throw new Error('В служебном DEMO-своде нет недель.');
 
@@ -327,9 +364,7 @@ function getPulseDataStoredUi() {
     };
   });
 
-  const today = todayIso_();
-  const calendarWeek = isoWeek_(today);
-  const selectedWeek = byWeek[calendarWeek] ? calendarWeek : weekNumbers[weekNumbers.length - 1];
+  const selectedWeek = calendarWeek;
   const selected = details.filter(function(item){ return item.week === selectedWeek; })[0];
 
   return {
