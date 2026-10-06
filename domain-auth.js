@@ -54,7 +54,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261006-pulse-recursion-week41-02';
+    const script=document.createElement('script');script.src='app.js?v=20261006-mail-cache-recover-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
