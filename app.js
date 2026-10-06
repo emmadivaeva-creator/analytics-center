@@ -119,7 +119,7 @@ function repairLegacyPulse_(data){
 }
 async function loadPulseData_(){
  try{
-   return await loadPulseData_();
+   return await rpc('getPulseDataStoredUi');
  }catch(primaryError){
    const legacy=await rpc('getPulseDataFresh');
    return repairLegacyPulse_(legacy);
