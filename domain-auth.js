@@ -82,18 +82,13 @@
     // instead of an accidentally stale /exec deployment.
     const hasLiveToken = Boolean(token && Date.now() < expiresAt);
     if(config.publicReadUrl && readMethods.has(method) && !hasLiveToken){
-      try {
-        return await publicRead(method,parameters);
-      } catch (publicError) {
-        showGate('Публичный доступ к серверу сейчас закрыт. Войдите через Google, чтобы открыть аналитику.');
-        throw publicError;
-      }
+      return publicRead(method,parameters);
     }
     if (!allowed.has(method)) throw new Error('Этот раздел пока недоступен на новом адресе.');
     if (!token || Date.now() >= expiresAt) {
       token = '';
-      showGate('Войдите через Google, чтобы продолжить.');
-      throw new Error('Требуется вход через Google.');
+      showGate('Обновление доступно только владельцу. Просмотр аналитики остаётся открытым для всех.');
+      throw new Error('Для обновления данных нужен вход владельца.');
     }
     const response = await fetch('https://script.googleapis.com/v1/scripts/' + encodeURIComponent(config.scriptId) + ':run', {
       method: 'POST', credentials: 'omit', cache: 'no-store',
@@ -121,7 +116,6 @@
       return;
     }
     if (!window.google?.accounts?.oauth2) {
-      if (!config?.publicReadUrl) showGate('Не удалось загрузить вход Google. Обновите страницу.');
       return;
     }
     client = google.accounts.oauth2.initTokenClient({
@@ -148,7 +142,17 @@
     });
     button.disabled = false;
     status.textContent = 'Для обновления исходных данных войдите в аккаунт владельца. Просмотр доступен без входа.';
-    button.onclick = () => { button.disabled = true; client.requestAccessToken({prompt: ''}); };
+    const requestOwnerLogin = () => {
+      showGate('Вход нужен только владельцу для обновления исходных данных.');
+      if (!client) {
+        status.textContent = 'Google-вход ещё загружается. Повторите через несколько секунд.';
+        return;
+      }
+      button.disabled = true;
+      client.requestAccessToken({prompt: ''});
+    };
+    button.onclick = requestOwnerLogin;
+    window.analyticsRequestOwnerLogin = requestOwnerLogin;
   }
   window.addEventListener('load', init, {once: true});
 })();
