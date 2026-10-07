@@ -9,41 +9,46 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Final HTTP is 200
-        continue-on-error: true
+      - name: Probe endpoint
+        id: probe
+        shell: bash
         run: |
-          code="$(curl -L -sS -o /tmp/body -w '%{http_code}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
-          test "$code" = "200"
-      - name: Final HTTP is 404
-        if: always()
-        continue-on-error: true
-        run: |
-          code="$(curl -L -sS -o /tmp/body -w '%{http_code}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
-          test "$code" = "404"
-      - name: Final URL is Google login
-        if: always()
-        continue-on-error: true
-        run: |
-          url="$(curl -L -sS -o /tmp/body -w '%{url_effective}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
-          echo "$url" | grep -Eq 'accounts\.google\.com|ServiceLogin'
-      - name: Final URL is script googleusercontent
-        if: always()
-        continue-on-error: true
-        run: |
-          url="$(curl -L -sS -o /tmp/body -w '%{url_effective}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
-          echo "$url" | grep -q 'script.googleusercontent.com'
-      - name: Body contains ok true
-        if: always()
-        continue-on-error: true
-        run: |
-          curl -L -sS --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D' | grep -q '"ok":true'
-      - name: Body looks like Google sign in
-        if: always()
-        continue-on-error: true
-        run: |
-          curl -L -sS --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D' | grep -Eqi 'sign in|accounts.google.com|ServiceLogin'
-      - name: JSONP works
-        if: always()
-        continue-on-error: true
-        run: |
-          curl -L -sS --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D&callback=analyticsJsonp_Test1' | grep -q '^analyticsJsonp_Test1('
+          URL='https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D'
+          code="$(curl -L -sS -o /tmp/body -w '%{http_code}' --max-time 30 "$URL" || true)"
+          final="$(curl -L -sS -o /dev/null -w '%{url_effective}' --max-time 30 "$URL" || true)"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if echo "$final" | grep -Eq 'accounts\.google\.com|ServiceLogin'; then echo "kind=login" >> "$GITHUB_OUTPUT";
+          elif echo "$final" | grep -q 'script.googleusercontent.com'; then echo "kind=googleusercontent" >> "$GITHUB_OUTPUT";
+          else echo "kind=other" >> "$GITHUB_OUTPUT"; fi
+          if grep -q '"ok":true' /tmp/body; then echo "bodyok=yes" >> "$GITHUB_OUTPUT"; else echo "bodyok=no" >> "$GITHUB_OUTPUT"; fi
+          if grep -Eqi 'sign in|accounts.google.com|ServiceLogin' /tmp/body; then echo "bodylogin=yes" >> "$GITHUB_OUTPUT"; else echo "bodylogin=no" >> "$GITHUB_OUTPUT"; fi
+      - name: HTTP 200 detected
+        if: steps.probe.outputs.code == '200'
+        run: echo yes
+      - name: HTTP 404 detected
+        if: steps.probe.outputs.code == '404'
+        run: echo yes
+      - name: Other HTTP detected
+        if: steps.probe.outputs.code != '200' && steps.probe.outputs.code != '404'
+        run: echo yes
+      - name: Redirected to login
+        if: steps.probe.outputs.kind == 'login'
+        run: echo yes
+      - name: Redirected to googleusercontent
+        if: steps.probe.outputs.kind == 'googleusercontent'
+        run: echo yes
+      - name: Other final URL
+        if: steps.probe.outputs.kind == 'other'
+        run: echo yes
+      - name: Body has ok true
+        if: steps.probe.outputs.bodyok == 'yes'
+        run: echo yes
+      - name: Body missing ok true
+        if: steps.probe.outputs.bodyok == 'no'
+        run: echo yes
+      - name: Body is login page
+        if: steps.probe.outputs.bodylogin == 'yes'
+        run: echo yes
+      - name: Body is not login page
+        if: steps.probe.outputs.bodylogin == 'no'
+        run: echo yes
