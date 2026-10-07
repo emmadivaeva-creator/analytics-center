@@ -1015,14 +1015,18 @@ function sourceProductOptions(){
 function setupSourceFilters(){
  if(!sourceData)return;
  const meta=sourceData.meta||{};
- if(!sourceWeek)sourceWeek=String(meta.currentWeek||40);
+ const current=currentIsoWeekClient_();
+ const fullLabel='27–'+Math.max(27,current-1);
+ meta.currentWeek=current;
+ meta.fullWeeks=fullLabel;
+ meta.weeks='27–'+current;
+ if(!sourceWeek||Number(sourceWeek)<27||Number(sourceWeek)>current)sourceWeek=String(current);
  sourceProductOptions();
  const select=document.getElementById('sourcesWeek');
  if(select){
-  const current=Number(meta.currentWeek||40);
   const weeks=[];
   for(let w=current;w>=27;w--)weeks.push(w);
-  select.innerHTML='<option value="all">Все полные недели '+esc(meta.fullWeeks||'27–39')+'</option>'+
+  select.innerHTML='<option value="all">Все полные недели '+esc(fullLabel)+'</option>'+
    weeks.map(w=>'<option value="'+w+'">Неделя '+w+(w===current?' · текущая, неполная':'')+'</option>').join('');
   select.value=sourceWeek;
   if(!select.value){sourceWeek=String(current);select.value=sourceWeek;}
@@ -1051,7 +1055,8 @@ function sourceRowGroup(row){
  };
 }
 function sourceAggregateScope(scope){
- const rows=sourceWeeklyRows(scope).filter(x=>Number(x.week)>=27&&Number(x.week)<=39);
+ const current=currentIsoWeekClient_();
+ const rows=sourceWeeklyRows(scope).filter(x=>Number(x.week)>=27&&Number(x.week)<current);
  const sourceIds=['letter','trigger','landing','refer'],siteIds=['unmarked','paywall','news','blocks','articles','vio','other'];
  const sourceLabels=(sourceData.labels&&sourceData.labels.sources)||{},siteLabels=(sourceData.labels&&sourceData.labels.site)||{};
  const acc={
@@ -1065,10 +1070,7 @@ function sourceAggregateScope(scope){
  return sourceRowGroup(acc);
 }
 function selectedSourceGroup(scope){
- if(sourceWeek==='all'){
-  if(sourceData.groups&&sourceData.groups[scope])return sourceData.groups[scope];
-  return sourceAggregateScope(scope);
- }
+ if(sourceWeek==='all')return sourceAggregateScope(scope);
  const week=Number(sourceWeek);
  const row=sourceWeeklyRows(scope).find(x=>Number(x.week)===week);
  return sourceRowGroup(row||{});
@@ -1102,7 +1104,7 @@ function sourceAnswerHtml(group,scope){
  const sources=(group.sources||[]).slice().sort((a,b)=>n(b.green)-n(a.green)||n(b.total)-n(a.total));
  const green=n(group.green);
  const top=sources.filter(x=>n(x.green)>0).slice(0,4);
- const label=sourceWeek==='all'?'за полные недели 27–39':'за неделю '+sourceWeek;
+ const label=sourceWeek==='all'?'за полные недели '+String((sourceData.meta||{}).fullWeeks||('27–'+Math.max(27,currentIsoWeekClient_()-1))):'за неделю '+sourceWeek;
  if(!green)return '<b>'+esc(scope)+'</b>: '+esc(label)+' зелёных DEMO пока нет.';
  return '<b>'+esc(scope)+' · '+esc(label)+':</b> '+top.map(function(x){return esc(x.label)+' — <strong>'+fmt(x.green)+'</strong> зелёных ('+pct(sourcePct(n(x.green),green))+')';}).join(' · ')+'.';
 }
@@ -1122,8 +1124,12 @@ function sourceInsightsHtml(group){
  ].join('');
 }
 function sourcesWeeklyHtml(scope){
- const rows=sourceWeeklyRows(scope).slice().sort((a,b)=>Number(b.week)-Number(a.week));
- const meta=sourceData.meta||{},current=Number(meta.currentWeek||40);
+ const meta=sourceData.meta||{},current=currentIsoWeekClient_();
+ const rows=sourceWeeklyRows(scope).slice();
+ if(!rows.some(x=>Number(x.week)===current)){
+   rows.push({week:current,sources:{},site:{}});
+ }
+ rows.sort((a,b)=>Number(b.week)-Number(a.week));
  if(!rows.length)return '<div class="vio-empty">Нет недельной истории.</div>';
  const labels=(sourceData.labels&&sourceData.labels.sources)||{letter:'Letter',trigger:'Trigger',landing:'Landing',refer:'Refer / сайт'};
  const ids=['letter','trigger','landing','refer'];
@@ -1159,9 +1165,9 @@ function renderSources(){
  document.getElementById('sourcesAll').setAttribute('aria-pressed',String(sourceGroup==='Все'));
  document.getElementById('sourcesGf').setAttribute('aria-pressed',String(sourceGroup==='ГФ'));
  document.getElementById('sourcesGz').setAttribute('aria-pressed',String(sourceGroup==='ГЗ'));
- document.getElementById('sourcesPeriod').textContent=sourceWeek==='all'?'Полные недели '+String(meta.fullWeeks||'27–39'):'Неделя '+sourceWeek+(Number(sourceWeek)===Number(meta.currentWeek)?' · текущая':'');
+ document.getElementById('sourcesPeriod').textContent=sourceWeek==='all'?'Полные недели '+String(meta.fullWeeks||('27–'+Math.max(27,currentIsoWeekClient_()-1))):'Неделя '+sourceWeek+(Number(sourceWeek)===Number(meta.currentWeek)?' · текущая':'');
  const status=document.getElementById('sourcesStatus');
- status.textContent=scope+' · '+(sourceWeek==='all'?'полные недели '+String(meta.fullWeeks||'27–39'):'неделя '+sourceWeek+(Number(sourceWeek)===Number(meta.currentWeek)?' · неполная':''))+' · данные обновлены '+dateRu(meta.updatedAt||'');
+ status.textContent=scope+' · '+(sourceWeek==='all'?'полные недели '+String(meta.fullWeeks||('27–'+Math.max(27,currentIsoWeekClient_()-1))):'неделя '+sourceWeek+(Number(sourceWeek)===Number(meta.currentWeek)?' · неполная':''))+' · данные обновлены '+dateRu(meta.updatedAt||'');
  const total=n(group.total),green=n(group.green),refer=sourceById(group,'refer');
  const leader=(group.sources||[]).slice().sort((a,b)=>n(b.green)-n(a.green))[0]||{};
  document.getElementById('sourcesSummary').innerHTML=
