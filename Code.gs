@@ -55,14 +55,135 @@ const SENDSAY_HEADERS = Object.freeze([
   'DEMO обновлено'
 ]);
 
+var PUBLIC_DASHBOARD_READ_ = false;
+
 const DEMO_HEADERS = Object.freeze([
   'Неделя', 'Продукт', 'R', 'Y', 'G', 'План', 'Обновлено', 'Источник'
 ]);
 
 function doGet(e) {
   const params = e && e.parameter ? e.parameter : {};
-  if (params.method || params.callback) return publicDashboardRead_(e);
+  if (params.method || params.callback) return analyticsPublicReadCompat_(e);
   return buildAnalyticsWebApp_();
+}
+
+/**
+ * Самодостаточный публичный read-only шлюз.
+ * Он живёт прямо в Code.gs, чтобы GitHub Pages не зависел от того,
+ * синхронизирован ли отдельный PublicRead.gs в текущем Web App deployment.
+ */
+function analyticsPublicReadCompat_(event) {
+  const p = event && event.parameter ? event.parameter : {};
+  const method = String(p.method || '');
+  const callback = String(p.callback || '');
+
+  if (callback && !/^analyticsJsonp_[A-Za-z0-9]+$/.test(callback)) {
+    return ContentService.createTextOutput('Invalid callback')
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+
+  let envelope;
+  PUBLIC_DASHBOARD_READ_ = true;
+
+  try {
+    const args = JSON.parse(p.args || '[]');
+    if (!Array.isArray(args) || args.length > 1) {
+      throw new Error('Некорректные параметры.');
+    }
+
+    let result;
+
+    if (method === 'v2HealthCheck') {
+      result = (typeof v2HealthCheck === 'function')
+        ? v2HealthCheck()
+        : {ok:true, backendBuild:'compat-code-gs', checkedAt:new Date().toISOString()};
+    } else if (method === 'getPulseDataStoredUi') {
+      if (typeof getPulseDataStoredUi === 'function') {
+        result = getPulseDataStoredUi.apply(null, args);
+      } else if (typeof getPulseDataFresh === 'function') {
+        result = getPulseDataFresh.apply(null, args);
+      } else {
+        throw new Error('Пульс недоступен в текущей версии сервера.');
+      }
+    } else if (method === 'getPulseDataFresh') {
+      if (typeof getPulseDataFresh !== 'function') {
+        throw new Error('Пульс недоступен в текущей версии сервера.');
+      }
+      result = getPulseDataFresh.apply(null, args);
+    } else if (method === 'getMailRegistryUi') {
+      if (typeof getMailRegistryUi === 'function') {
+        result = getMailRegistryUi.apply(null, args);
+      } else {
+        result = {
+          emails: readImportedEmails_(openStorage_()),
+          mode: 'full-compat',
+          readAt: new Date().toISOString()
+        };
+      }
+    } else if (method === 'getMailRegistryRecentUi') {
+      if (typeof getMailRegistryRecentUi === 'function') {
+        result = getMailRegistryRecentUi.apply(null, args);
+      } else {
+        const days = Math.max(1, Math.min(7, Number(args[0]) || 3));
+        const to = todayIso_();
+        const from = shiftIsoDate_(to, -(days - 1));
+        result = {
+          emails: readImportedEmails_(openStorage_()).filter(function(mail){
+            return mail.date >= from && mail.date <= to;
+          }),
+          mode: 'recent-compat',
+          days: days,
+          from: from,
+          to: to,
+          readAt: new Date().toISOString()
+        };
+      }
+    } else if (method === 'getMailRegistryPageUi') {
+      if (typeof getMailRegistryPageUi === 'function') {
+        result = getMailRegistryPageUi.apply(null, args);
+      } else {
+        const all = readImportedEmails_(openStorage_());
+        const start = Math.max(0, Number(args[0]) || 0);
+        const pageSize = 2000;
+        const page = all.slice(start, start + pageSize);
+        result = {
+          emails: page,
+          offset: start,
+          nextOffset: start + page.length,
+          done: start + page.length >= all.length,
+          totalRows: all.length,
+          readAt: new Date().toISOString()
+        };
+      }
+    } else if (method === 'getMailDemoDetailsUi' && typeof getMailDemoDetailsUi === 'function') {
+      result = getMailDemoDetailsUi.apply(null, args);
+    } else if (method === 'getVikaPlanUi' && typeof getVikaPlanUi === 'function') {
+      result = getVikaPlanUi.apply(null, args);
+    } else if (method === 'getVikaEditorialUi' && typeof getVikaEditorialUi === 'function') {
+      result = getVikaEditorialUi.apply(null, args);
+    } else if (method === 'getVioTrendsUi' && typeof getVioTrendsUi === 'function') {
+      result = getVioTrendsUi.apply(null, args);
+    } else {
+      throw new Error('Доступен только просмотр аналитики.');
+    }
+
+    envelope = {ok:true, result:result};
+  } catch (error) {
+    envelope = {ok:false, error:String(error && error.message ? error.message : error)};
+  } finally {
+    PUBLIC_DASHBOARD_READ_ = false;
+  }
+
+  const json = JSON.stringify(envelope)
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+
+  return ContentService.createTextOutput(
+      callback ? callback + '(' + json + ');' : json
+    )
+    .setMimeType(
+      callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON
+    );
 }
 
 /**
