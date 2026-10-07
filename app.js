@@ -44,14 +44,14 @@ window.addEventListener('analytics-authenticated',()=>{
   checkServer();
   loadData();
   const page=rememberedPage();
-  if(page==='mail'||page==='news'||page==='demand'){
+  if(page==='mail'||page==='news'){
     registryData=null;
     registryPromise=null;
     loadRegistry().then(()=>{
       if(page==='news')startMaterialMatching();
-      if(page==='demand')renderDemand();
     }).catch(()=>{});
   }
+  if(page==='demand'){demandData=null;loadDemand(true);}
   if(page==='sources'){sourceData=null;loadSources();}
   if(page==='vio'){vioData=null;loadVio();}
   if(page==='vika'){vikaData=null;loadVika();}
@@ -681,7 +681,7 @@ document.getElementById('callsAnalyze').onclick=analyzeCalls;
 document.getElementById('callsStop').onclick=()=>{stopCalls=true;callState('Останавливаемся после текущей партии…');};
 
 
-let demandBusy=false,demandShowAll=false;
+let demandBusy=false,demandShowAll=false,demandData=null;
 let demandPlanRows=null,demandPlanPromise=null,demandPlanError='',demandPlanLoaded=false,demandPlanLoadedCount=0;
 let demandTempRows=null,demandTempPromise=null,demandTempError='',demandTempLoaded=false;
 const DEMAND_TEMPPLAN_ID='12FtI2gu4lv3x8azRYu8F8aGEFzwi8ESUpUzFlPuipFo';
@@ -923,39 +923,112 @@ function demandMailTopics(emails){
  }
  return [...groups.values()].sort((a,b)=>b.green-a.green||b.yellow-a.yellow||b.lastDate.localeCompare(a.lastDate));
 }
+function demandEvidenceTopics_(rows){
+ const groups=new Map();
+ (rows||[]).forEach(e=>{
+  const subject=String(e.subject||'Без темы').trim();
+  const key=String(e.product||'')+'|'+demandNormText(subject);
+  if(!groups.has(key)){
+   groups.set(key,{
+    title:subject,product:e.product||'',red:0,yellow:0,green:0,
+    evidence:[],sendingIds:new Set(),kinds:new Set(),lastDate:''
+   });
+  }
+  const item=groups.get(key);
+  item.red+=n(e.red);item.yellow+=n(e.yellow);item.green+=n(e.green);
+  item.evidence.push(e);
+  item.kinds.add(e.kind||'demo');
+  (e.sendings||[]).forEach(m=>item.sendingIds.add(String(m.id||m.sendsay||m.date+'|'+m.time+'|'+m.campaign)));
+  const dates=(e.sendings||[]).map(m=>m.date).filter(Boolean).concat(e.factDate||[]);
+  dates.forEach(d=>{if(String(d)>item.lastDate)item.lastDate=String(d);});
+ });
+ return [...groups.values()].map(item=>({
+  ...item,
+  mailCount:item.sendingIds.size,
+  kinds:[...item.kinds]
+ })).sort((a,b)=>b.green-a.green||b.yellow-a.yellow||b.red-a.red||b.lastDate.localeCompare(a.lastDate));
+}
+function demandKindLabel_(kinds){
+ const set=new Set(kinds||[]);
+ if(set.has('trigger')&&set.has('demo'))return'DEMO + триггер';
+ if(set.has('trigger'))return'Триггер';
+ return'DEMO-письмо';
+}
+function demandProofHtml_(e){
+ const kind=e.kind==='trigger'?'Триггер':'DEMO-письмо';
+ const sends=(e.sendings||[]).map((m,i)=>{
+   const stats=[
+     n(m.delivered)?'доставлено '+fmt(m.delivered):'',
+     n(m.openRate)?'OR '+pct(m.openRate):'',
+     n(m.clicks)?'клики '+fmt(m.clicks):''
+   ].filter(Boolean).join(' · ');
+   return '<div class="demand-proof-mail"><b>'+esc(m.date||e.factDate||'')+(m.time?' · '+esc(m.time):'')+'</b> · '+
+     safeLink(m.sendsay,'Sendsay')+
+     '<br><span>'+esc(m.subject||e.subject||'')+'</span>'+
+     '<br><small>'+esc(m.campaign||e.campaign||'')+(stats?' · '+esc(stats):'')+'</small></div>';
+ }).join('');
+ const activeWeeks=(e.weeks||[]).filter(w=>n(w.red)+n(w.yellow)+n(w.green)>0)
+   .map(w=>'W'+w.week+': G '+fmt(w.green)+' / Y '+fmt(w.yellow)+' / R '+fmt(w.red)).join(' · ');
+ return '<div class="demand-proof"><p><b>'+kind+'</b> · DEMO: <b>G '+fmt(e.green)+'</b> / Y '+fmt(e.yellow)+' / R '+fmt(e.red)+
+   ' · '+safeLink(e.demoSourceUrl,'строка DEMO')+'</p>'+
+   (activeWeeks?'<small>'+esc(activeWeeks)+'</small>':'')+
+   sends+'</div>';
+}
 async function loadDemand(force=false){
  if(demandBusy)return;
- demandBusy=true;document.getElementById('demandReload').disabled=true;document.getElementById('demandStatus').textContent='Сопоставляю темы с результатами DEMO…';
+ demandBusy=true;
+ const button=document.getElementById('demandReload');
+ button.disabled=true;
+ document.getElementById('demandStatus').textContent='Читаю фактические письма Sendsay и DEMO-метки…';
  try{
-  await loadRegistry(force);
-  if(!registryData)throw new Error('Реестр писем не загружен');
+  demandData=await rpc('getDemandEvidenceUi',force?1:null);
   renderDemand();
-  await Promise.allSettled([loadDemandTempRows(force),loadDemandPlanRows(force)]);
-  renderDemand();
- }catch(e){document.getElementById('demandStatus').textContent='Не удалось загрузить спрос: '+e.message;}
- finally{demandBusy=false;document.getElementById('demandReload').disabled=false;}
+ }catch(e){
+  document.getElementById('demandStatus').textContent='Не удалось загрузить спрос: '+(e&&e.message?e.message:String(e));
+ }finally{
+  demandBusy=false;
+  button.disabled=false;
+ }
 }
 function renderDemand(){
- if(!registryData)return;
- const q=document.getElementById('demandSearch').value.trim().toLowerCase(),group=document.getElementById('demandGroup').value;
- const emails=registryData.filter(m=>!group||String(m.product||'').startsWith(group));
- const topics=demandMailTopics(registryData).filter(t=>(!group||String(t.product||'').startsWith(group))&&[t.title,t.product].join(' ').toLowerCase().includes(q));
- const matched=emails.filter(m=>m.hasDemoData).length;
- const linked=topics.filter(t=>demandResolvedLinksForTopic(t).length).length;
- const tempState=!demandTempLoaded?' · темплан загружается':demandTempError?' · темплан загружен частично':' · темплан: '+fmt((demandTempRows||[]).length)+' строк';
- const linkState=!demandPlanLoaded?' · план Вики загружается':demandPlanError?' · план Вики загружен частично':'';
- document.getElementById('demandStatus').textContent='Письма: '+fmt(emails.length)+' · Campaign сопоставлен: '+fmt(matched)+' · с материалом: '+fmt(linked)+tempState+linkState;
- document.getElementById('demandSummary').innerHTML=`<div><b>${fmt(topics.filter(t=>t.green>0).length)}</b><span>тем с зелёными демо</span></div><div><b>${fmt(topics.reduce((sum,t)=>sum+t.green,0))}</b><span>зелёных демо по этим темам</span></div><div><b>${fmt(topics.length)}</b><span>тем с сопоставленной статистикой</span></div>`;
- const visibleTopics=topics.slice(0,demandShowAll?topics.length:20);
- document.getElementById('demandDemo').innerHTML=topics.length?`<table><thead><tr><th>Тема / продукт</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Основание</th></tr></thead><tbody>${visibleTopics.map(t=>{
-  const resolved=demandResolvedLinksForTopic(t),primary=resolved[0]?.url||'';
-  const family=demandProductKey(t.product),needsLink=/ (?:Периодика|Система)$/.test(family);
-  const extra=resolved.length>1?`<div class="demand-material-links">${resolved.slice(1).map((m,i)=>`<p>↗ ${safeLink(m.url,'Материал '+(i+2))}</p>`).join('')}</div>`:needsLink&&!primary?`<div class="demand-material-links"><small>${demandTempLoaded&&demandPlanLoaded?'Ссылка на материал не найдена в темплане и плане Вики.':'Сопоставляю материал…'}</small></div>`:'';
-  return `<tr><td><b>${primary?safeLink(primary,t.title):esc(t.title)}</b><small>${esc(t.product)}</small>${extra}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>Метки: ${t.letters.length}</summary>${t.letters.map(m=>`<p>${esc(m.date)} · ${esc(m.campaign)}<br>${safeLink(m.url,'Статистика DEMO')} · ${safeLink(m.sendsay,m.material?'Материал':'Письмо в Sendsay')}</p>`).join('')}</details></td></tr>`;
- }).join('')}</tbody></table>${topics.length>20?`<button id="demandMore">${demandShowAll?'Показать первые 20':'Показать все темы: '+topics.length}</button>`:''}`:'<p>Нет сопоставленных тем по выбранному запросу.</p>';
- const more=document.getElementById('demandMore');if(more)more.onclick=()=>{demandShowAll=!demandShowAll;renderDemand();};
+ if(!demandData)return;
+ const q=document.getElementById('demandSearch').value.trim().toLowerCase();
+ const group=document.getElementById('demandGroup').value;
+ const evidence=(demandData.evidence||[]).filter(e=>
+   (!group||String(e.product||'').startsWith(group))&&
+   (!q||[e.subject,e.product,e.campaign,e.factCampaign].join(' ').toLowerCase().includes(q))
+ );
+ const topics=demandEvidenceTopics_(evidence);
+ const meta=demandData.meta||{};
+ const sourceStamp=demandData.sourceUpdatedAt?dateRu(demandData.sourceUpdatedAt):dateRu(demandData.readAt);
+ const sendingCount=new Set(evidence.flatMap(e=>(e.sendings||[]).map(m=>m.id||m.sendsay))).size;
+ document.getElementById('demandStatus').textContent=
+   'Фактических DEMO-связок: '+fmt(evidence.length)+
+   ' · отправок Sendsay: '+fmt(sendingCount)+
+   ' · триггерных связок: '+fmt(evidence.filter(e=>e.kind==='trigger').length)+
+   ' · данные DEMO обновлены '+sourceStamp;
+ document.getElementById('demandSummary').innerHTML=
+   '<div><b>'+fmt(topics.filter(t=>t.green>0).length)+'</b><span>тем с зелёными DEMO</span></div>'+
+   '<div><b>'+fmt(topics.reduce((sum,t)=>sum+t.green,0))+'</b><span>зелёных DEMO по темам</span></div>'+
+   '<div><b>'+fmt(topics.length)+'</b><span>фактических тем</span></div>'+
+   '<div><b>'+fmt(meta.triggerEvidence||0)+'</b><span>триггерных DEMO-меток</span></div>';
+ const visible=topics.slice(0,demandShowAll?topics.length:20);
+ document.getElementById('demandDemo').innerHTML=topics.length?
+   '<table><thead><tr><th>Тема / продукт</th><th>Тип</th><th>Писем</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Доказательства</th></tr></thead><tbody>'+
+   visible.map(t=>'<tr><td><b>'+esc(t.title)+'</b><small>'+esc(t.product)+'</small></td>'+
+     '<td>'+esc(demandKindLabel_(t.kinds))+'</td>'+
+     '<td>'+fmt(t.mailCount)+'</td>'+
+     '<td><b>'+fmt(t.green)+'</b></td><td>'+fmt(t.yellow)+'</td><td>'+fmt(t.red)+'</td>'+
+     '<td><details><summary>'+fmt(t.evidence.length)+' DEMO-связок · '+fmt(t.mailCount)+' отправок</summary>'+
+       t.evidence.map(demandProofHtml_).join('')+
+     '</details></td></tr>').join('')+
+   '</tbody></table>'+
+   (topics.length>20?'<button id="demandMore">'+(demandShowAll?'Показать первые 20':'Показать все темы: '+topics.length)+'</button>':'')
+   :'<p>Нет фактических писем с DEMO по выбранному фильтру.</p>';
+ const more=document.getElementById('demandMore');
+ if(more)more.onclick=()=>{demandShowAll=!demandShowAll;renderDemand();};
 }
-document.getElementById('demandReload').onclick=async()=>{registryData=null;demandPlanRows=null;demandPlanLoaded=false;demandPlanLoadedCount=0;demandPlanError='';demandTempRows=null;demandTempLoaded=false;demandTempError='';await loadDemand(true);};
+document.getElementById('demandReload').onclick=async()=>{demandData=null;await loadDemand(true);};
 document.getElementById('demandSearch').oninput=renderDemand;
 document.getElementById('demandGroup').onchange=()=>{demandShowAll=false;renderDemand();};
 
