@@ -16,45 +16,63 @@
     button.disabled = !client;
   }
   const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
-  async function publicRead(method, parameters) {
-    const url = new URL(config.publicReadUrl);
-    url.searchParams.set('method', method);
-    url.searchParams.set('args', JSON.stringify(parameters));
-    // Anonymous CORS reads avoid account redirects and cross-site script blocking.
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 120000);
-      let data;
-      try {
-        const response = await fetch(url.href, {
-          method: 'GET', credentials: 'omit', redirect: 'follow',
-          cache: 'no-store', signal: controller.signal
-        });
-        if (!response.ok) {
-          const error = new Error('Сервер аналитики временно недоступен (' + response.status + ').');
-          error.retryable = response.status === 429 || response.status >= 500;
-          throw error;
-        }
-        data = await response.json();
-      } catch (error) {
-        if (attempt === 2 || error.retryable === false) {
-          throw new Error(error.name === 'AbortError'
-            ? 'Данные загружаются слишком долго. Повторите попытку.'
-            : 'Не удалось подключиться к данным аналитики. Нажмите «Проверить сервер» или обновите страницу.');
-        }
-        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-        continue;
-      } finally {
+  let jsonpSeq = 0;
+  function publicReadOnce_(method, parameters, timeoutMs) {
+    return new Promise((resolve, reject) => {
+      const callback = 'analyticsJsonp_' + Date.now() + String(++jsonpSeq);
+      const url = new URL(config.publicReadUrl);
+      url.searchParams.set('method', method);
+      url.searchParams.set('args', JSON.stringify(parameters));
+      url.searchParams.set('callback', callback);
+      url.searchParams.set('_', String(Date.now()));
+
+      const script = document.createElement('script');
+      let settled = false;
+      const cleanup = () => {
         clearTimeout(timer);
+        try { delete window[callback]; } catch (e) { window[callback] = undefined; }
+        script.remove();
+      };
+      const finish = (fn, value) => {
+        if (settled) return;
+        settled = true;
+        cleanup();
+        fn(value);
+      };
+
+      window[callback] = data => {
+        if (!data || data.ok !== true) {
+          finish(reject, new Error(data?.error || 'Не удалось прочитать данные.'));
+          return;
+        }
+        finish(resolve, data.result);
+      };
+
+      script.async = true;
+      script.src = url.href;
+      script.onerror = () => finish(reject, new Error('Не удалось подключиться к серверу аналитики.'));
+      const timer = setTimeout(
+        () => finish(reject, new Error('Сервер аналитики не ответил вовремя.')),
+        timeoutMs || 90000
+      );
+      document.head.append(script);
+    });
+  }
+  async function publicRead(method, parameters) {
+    let lastError;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        return await publicReadOnce_(method, parameters, 90000);
+      } catch (error) {
+        lastError = error;
+        if (attempt === 0) await new Promise(resolve => setTimeout(resolve, 1200));
       }
-      // Application errors are not network failures and must not be retried.
-      if (!data || data.ok !== true) throw new Error(data?.error || 'Не удалось прочитать данные.');
-      return data.result;
     }
+    throw new Error(lastError?.message || 'Не удалось подключиться к данным аналитики.');
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261006-mail-cache-recover-01';
+    const script=document.createElement('script');script.src='app.js?v=20261007-jsonp-public-read-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
