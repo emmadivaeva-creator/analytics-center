@@ -419,11 +419,31 @@ function registryCacheNote_(){
 }
 async function fetchFullRegistryPaged_(){
  ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent=
-   'Загружаю полный архив писем. Это делается один раз для этого браузера…');
+   'Загружаю архив писем порциями…');
 
- const data=await rpc('getMailRegistryUi');
- const emails=Array.isArray(data&&data.emails)?data.emails:[];
- applyRegistryData_(emails,data&&data.readAt?data.readAt:new Date().toISOString());
+ const all=[];
+ let offset=0;
+ let readAt='';
+ let guard=0;
+
+ while(guard++<100){
+   const page=await rpc('getMailRegistryPageUi',offset);
+   const part=Array.isArray(page&&page.emails)?page.emails:[];
+   all.push(...part);
+   readAt=page&&page.readAt?String(page.readAt):readAt;
+
+   const total=Number(page&&page.totalRows)||0;
+   const next=Number(page&&page.nextOffset);
+   ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent=
+     'Загружаю архив писем… '+fmt(Math.min(next||offset,total||next||offset))+
+     (total?' из '+fmt(total):''));
+
+   if(page&&page.done)break;
+   if(!Number.isFinite(next)||next<=offset)throw new Error('Сервер вернул некорректную страницу писем.');
+   offset=next;
+ }
+
+ applyRegistryData_(all,readAt||new Date().toISOString());
  await registryCacheWrite_(registryData);
  return registryData;
 }
