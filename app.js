@@ -341,9 +341,57 @@ function populateMailWeeks_(){
  else if(weeks.length)select.value=String(weeks[0]);
 }
 function mailWeekSummaryHtml_(rows,selectedWeek){
- if(!selectedWeek)return '<div class="mail-week-note">Выберите неделю, чтобы сравнить объём отправок по продуктам и сегментам.</div>';
  const logical=logicalMailRows_(rows||[]);
- if(!logical.length)return '<div class="mail-week-note">За эту неделю писем по выбранным условиям нет.</div>';
+ if(!logical.length)return '<div class="mail-week-note">Писем по выбранным условиям нет.</div>';
+
+ if(!selectedWeek){
+   const weeks=[...new Set(logical.map(mailWeek_).filter(Boolean))].sort((a,b)=>a-b);
+   if(!weeks.length)return '<div class="mail-week-note">Не удалось определить недели по письмам.</div>';
+
+   const productOrder=['ГЗ Периодика','ГЗ Система','ГЗ Школа','ГФ Периодика','ГФ Система','ГФ Школа'];
+   const map=new Map();
+
+   logical.forEach(x=>{
+     const product=String(x.product||'Не указано');
+     const week=mailWeek_(x);
+     if(!week)return;
+     if(!map.has(product))map.set(product,{product,total:0,weeks:{}});
+     const row=map.get(product);
+     const delivered=n(x.delivered);
+     row.total+=delivered;
+     row.weeks[week]=(row.weeks[week]||0)+delivered;
+   });
+
+   const products=[...map.values()].sort((a,b)=>{
+     const ai=productOrder.indexOf(a.product),bi=productOrder.indexOf(b.product);
+     if(ai>=0||bi>=0)return (ai<0?999:ai)-(bi<0?999:bi);
+     return a.product.localeCompare(b.product,'ru');
+   });
+
+   const weekTotals={};
+   weeks.forEach(w=>weekTotals[w]=0);
+   products.forEach(r=>weeks.forEach(w=>weekTotals[w]+=n(r.weeks[w])));
+   const grandTotal=products.reduce((sum,r)=>sum+n(r.total),0);
+
+   const header='<tr><th>Продукт</th>'+
+     weeks.map(w=>'<th>W'+w+'</th>').join('')+
+     '<th>Итого</th></tr>';
+
+   const body=products.map(r=>
+     '<tr><td><b>'+esc(r.product)+'</b></td>'+
+     weeks.map(w=>'<td>'+fmt(r.weeks[w]||0)+'</td>').join('')+
+     '<td><b>'+fmt(r.total)+'</b></td></tr>'
+   ).join('');
+
+   const footer='<tr><td><b>Все продукты</b></td>'+
+     weeks.map(w=>'<td><b>'+fmt(weekTotals[w]||0)+'</b></td>').join('')+
+     '<td><b>'+fmt(grandTotal)+'</b></td></tr>';
+
+   return '<div class="mail-week-head"><div><b>Доставлено по неделям</b>'+
+     '<span>По строкам — продукты, по столбцам — недели. В ячейках сумма доставленных DEMO-писем.</span></div></div>'+
+     '<div class="registry mail-week-table"><table><thead>'+header+'</thead><tbody>'+body+'</tbody><tfoot>'+footer+'</tfoot></table></div>';
+ }
+
  const preferred=['Живые','Дожим демо','Все доступные','Клики','Демо','Несколько сегментов'];
  const segmentSet=new Set(logical.map(x=>String(x.segment||'Демо')));
  const segments=[...segmentSet].sort((a,b)=>{
