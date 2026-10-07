@@ -110,6 +110,8 @@ function analyticsPublicReadCompat_(event) {
         throw new Error('Пульс недоступен в текущей версии сервера.');
       }
       result = getPulseDataFresh.apply(null, args);
+    } else if (method === 'getDemandEvidenceUi') {
+      result = getDemandEvidenceUi.apply(null, args);
     } else if (method === 'getMailRegistryUi') {
       if (typeof getMailRegistryUi === 'function') {
         result = getMailRegistryUi.apply(null, args);
@@ -1645,6 +1647,313 @@ function demoCampaignKey_(value) {
 
 function demoCampaignLookupKey_(product, week, campaign) {
   return product + '|' + week + '|' + demoCampaignKey_(campaign);
+}
+
+
+function demandFactDate_(value) {
+  const text = String(value || '');
+  const match = text.match(/(?:letter_(?:demo|trigger|triger)|demo)[_.-]+(20\d{2})[_.-](\d{2})[_.-](\d{2})(?:[_.-]|$)/i);
+  if (!match) return '';
+  return match[1] + '-' + match[2] + '-' + match[3];
+}
+
+function demandFactRows_() {
+  const book = demoStatsSpreadsheet_();
+  const out = [];
+
+  APP.demoSheets.forEach(function(spec) {
+    const sheet = book.getSheetByName(spec.name);
+    if (!sheet) return;
+
+    const rows = sheet.getDataRange().getDisplayValues();
+    const headerIndex = rows.findIndex(function(row) {
+      return norm_(row[0]) === 'издательская группа' &&
+        /^utm /i.test(String(row[1] || ''));
+    });
+    if (headerIndex < 1) return;
+
+    const weekRow = rows[headerIndex - 1] || [];
+    const header = rows[headerIndex] || [];
+    const metricColumns = [];
+    const seen = {};
+
+    for (let column = 2; column < header.length; column++) {
+      const metric = demoMetric_(header[column]);
+      const weekMatch = String(weekRow[column] || '').match(/^\s*(\d{1,2})(?:\s|$)/);
+      if (!metric || !weekMatch) continue;
+      const week = Number(weekMatch[1]);
+      const seenKey = week + '|' + metric;
+      if (seen[seenKey]) continue;
+      seen[seenKey] = true;
+      metricColumns.push({ column: column, week: week, metric: metric });
+    }
+
+    for (let rowIndex = headerIndex + 1; rowIndex < rows.length; rowIndex++) {
+      const row = rows[rowIndex] || [];
+
+      // В системах после первого "Общий итог" идёт повторный аналитический срез.
+      // Для спроса его не читаем, иначе одни и те же DEMO задвоятся.
+      if (spec.family === 'Система' && norm_(row[0]) === 'общий итог') break;
+
+      const group = demoGroup_(row[0]);
+      const rawKey = String(row[1] || '').trim();
+      if (!group || !rawKey || /итог/i.test(rawKey)) continue;
+
+      const weeks = {};
+      metricColumns.forEach(function(info) {
+        if (!weeks[info.week]) {
+          weeks[info.week] = { week: info.week, red: 0, yellow: 0, green: 0 };
+        }
+        weeks[info.week][info.metric] += number_(row[info.column]);
+      });
+
+      const weekValues = Object.values(weeks);
+      const totals = { red: 0, yellow: 0, green: 0 };
+      weekValues.forEach(function(item) {
+        totals.red += number_(item.red);
+        totals.yellow += number_(item.yellow);
+        totals.green += number_(item.green);
+      });
+
+      if (!totals.red && !totals.yellow && !totals.green) continue;
+
+      out.push({
+        product: group + ' ' + spec.family,
+        key: rawKey,
+        canonicalCampaign: demoCampaignKey_(rawKey),
+        factDate: demandFactDate_(rawKey),
+        weeks: weekValues,
+        red: totals.red,
+        yellow: totals.yellow,
+        green: totals.green,
+        source: spec.name,
+        sourceUrl: book.getUrl() + '#gid=' + sheet.getSheetId() + '&range=A' + (rowIndex + 1)
+      });
+    }
+  });
+
+  return out;
+}
+
+function demandSendsayRows_() {
+  const storage = openStorage_();
+  const sheet = storage.getSheetByName(APP.sendsaySheet);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+
+  const rows = sheet.getDataRange().getDisplayValues();
+  const headers = headerMap_(rows[0]);
+  const col = function(aliases) { return indexOfHeader_(headers, aliases); };
+  const idx = {
+    fileId: col(['file id']),
+    fileName: col(['имя файла']),
+    status: col(['статус']),
+    campaignId: col(['campaign id']),
+    date: col(['дата отправки']),
+    time: col(['время отправки']),
+    type: col(['тип']),
+    product: col(['продукт']),
+    flow: col(['поток']),
+    segment: col(['сегмент']),
+    campaign: col(['campaign']),
+    sendsay: col(['sendsay']),
+    subject: col(['тема письма']),
+    delivered: col(['доставлено']),
+    uniqueOpened: col(['уник. открытия']),
+    openRate: col(['or']),
+    clicks: col(['уник. клики']),
+    clickRate: col(['click rate']),
+    ctor: col(['ctor'])
+  };
+
+  const out = [];
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (String(valueAt_(row, idx.status) || '') !== 'Готово') continue;
+
+    const sourceId = String(valueAt_(row, idx.fileId) || '').trim();
+    if (!/^api:/i.test(sourceId)) continue;
+
+    const campaign = String(valueAt_(row, idx.campaign) || '').trim();
+    const fileName = String(valueAt_(row, idx.fileName) || '').trim();
+    const type = String(valueAt_(row, idx.type) || '').trim();
+    const segment = String(valueAt_(row, idx.segment) || '').trim();
+    const marker = [fileName, campaign, type, segment].join(' ');
+
+    if (!campaign || canonicalNewsCampaign_(campaign)) continue;
+
+    const isTrigger = /trigg?er|триггер/i.test(marker);
+    const isDemo = norm_(type) === 'demo' || /(?:^|[_\s|])demo(?:[_\s|]|$)/i.test(marker);
+    if (!isTrigger && !isDemo) continue;
+
+    const date = normalizeDate_(valueAt_(row, idx.date));
+    const subject = String(valueAt_(row, idx.subject) || '').trim();
+    const product = normalizeProduct_(valueAt_(row, idx.product));
+    if (!date || !subject || !product) continue;
+
+    const delivered = number_(valueAt_(row, idx.delivered));
+    const uniqueOpened = number_(valueAt_(row, idx.uniqueOpened));
+    const clicks = number_(valueAt_(row, idx.clicks));
+
+    out.push({
+      id: sourceId,
+      campaignId: String(valueAt_(row, idx.campaignId) || '').trim(),
+      date: date,
+      week: isoWeek_(date),
+      time: String(valueAt_(row, idx.time) || '').trim(),
+      product: product,
+      productFlow: String(valueAt_(row, idx.flow) || product).trim(),
+      segment: segment,
+      campaign: campaign,
+      canonicalCampaign: demoCampaignKey_(campaign),
+      subject: subject,
+      sendsay: url_(valueAt_(row, idx.sendsay)),
+      delivered: delivered,
+      uniqueOpened: uniqueOpened,
+      openRate: delivered > 0
+        ? round_(uniqueOpened / delivered * 100, 2)
+        : percent_(valueAt_(row, idx.openRate)),
+      clicks: clicks,
+      clickRate: delivered > 0
+        ? round_(clicks / delivered * 100, 2)
+        : percent_(valueAt_(row, idx.clickRate)),
+      ctor: uniqueOpened > 0
+        ? round_(clicks / uniqueOpened * 100, 2)
+        : percent_(valueAt_(row, idx.ctor)),
+      isTrigger: isTrigger
+    });
+  }
+
+  return out;
+}
+
+function getDemandEvidenceUi() {
+  const facts = demandFactRows_();
+  const sendsayRows = demandSendsayRows_();
+  const byKey = {};
+
+  sendsayRows.forEach(function(mail) {
+    const key = mail.product + '|' + mail.canonicalCampaign;
+    if (!byKey[key]) byKey[key] = [];
+    byKey[key].push(mail);
+  });
+
+  const evidence = [];
+  let unmatchedFacts = 0;
+
+  facts.forEach(function(fact) {
+    const lookupKey = fact.product + '|' + fact.canonicalCampaign;
+    let matches = (byKey[lookupKey] || []).slice();
+
+    if (fact.factDate) {
+      const exactDate = matches.filter(function(mail) {
+        return mail.date === fact.factDate;
+      });
+      if (exactDate.length) {
+        matches = exactDate;
+      } else {
+        const targetWeek = isoWeek_(fact.factDate);
+        const sameWeek = matches.filter(function(mail) {
+          return mail.week === targetWeek;
+        });
+        if (sameWeek.length) matches = sameWeek;
+      }
+    }
+
+    if (!matches.length) {
+      unmatchedFacts++;
+      return;
+    }
+
+    const triggerByFact = /trigg?er|триггер/i.test(String(fact.key || ''));
+    const kind = triggerByFact || matches.some(function(mail) { return mail.isTrigger; })
+      ? 'trigger'
+      : 'demo';
+
+    // Для триггеров берём только те письма, которые реально присутствуют
+    // в фактовой DEMO-таблице. Сам факт уже гарантирует это условие.
+    const uniqueSendings = [];
+    const seenSendings = {};
+    matches.forEach(function(mail) {
+      const id = String(mail.id || mail.campaignId || (mail.date + '|' + mail.time + '|' + mail.campaign));
+      if (seenSendings[id]) return;
+      seenSendings[id] = true;
+      uniqueSendings.push(mail);
+    });
+
+    const subjects = {};
+    uniqueSendings.forEach(function(mail) {
+      const title = String(mail.subject || '').trim();
+      if (!title) return;
+      subjects[title] = (subjects[title] || 0) + 1;
+    });
+    const subject = Object.keys(subjects)
+      .sort(function(a, b) { return subjects[b] - subjects[a] || a.localeCompare(b, 'ru'); })[0] || 'Без темы';
+
+    evidence.push({
+      id: fact.source + '|' + fact.product + '|' + fact.key,
+      kind: kind,
+      product: fact.product,
+      subject: subject,
+      factDate: fact.factDate,
+      campaign: uniqueSendings[0] ? uniqueSendings[0].campaign : fact.canonicalCampaign,
+      factCampaign: fact.key,
+      red: fact.red,
+      yellow: fact.yellow,
+      green: fact.green,
+      demoSource: fact.source,
+      demoSourceUrl: fact.sourceUrl,
+      weeks: fact.weeks,
+      sendings: uniqueSendings.map(function(mail) {
+        return {
+          id: mail.id,
+          date: mail.date,
+          time: mail.time,
+          subject: mail.subject,
+          campaign: mail.campaign,
+          sendsay: mail.sendsay,
+          delivered: mail.delivered,
+          uniqueOpened: mail.uniqueOpened,
+          openRate: mail.openRate,
+          clicks: mail.clicks,
+          clickRate: mail.clickRate,
+          ctor: mail.ctor,
+          segment: mail.segment,
+          productFlow: mail.productFlow
+        };
+      })
+    });
+  });
+
+  return {
+    ok: true,
+    readAt: new Date().toISOString(),
+    sourceUpdatedAt: (function() {
+      const storage = openStorage_();
+      const sheet = storage.getSheetByName(APP.sendsaySheet);
+      if (!sheet || sheet.getLastRow() < 2) return '';
+      const header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+      const headers = headerMap_(header);
+      const idx = indexOfHeader_(headers, ['demo обновлено']);
+      if (idx < 0) return '';
+      const values = sheet.getRange(2, idx + 1, sheet.getLastRow() - 1, 1).getDisplayValues();
+      let latest = '';
+      values.forEach(function(row) {
+        const value = String(row[0] || '');
+        if (value > latest) latest = value;
+      });
+      return latest;
+    })(),
+    evidence: evidence,
+    meta: {
+      factsWithDemo: facts.length,
+      matchedFacts: evidence.length,
+      unmatchedFacts: unmatchedFacts,
+      triggerEvidence: evidence.filter(function(item) { return item.kind === 'trigger'; }).length,
+      demoEvidence: evidence.filter(function(item) { return item.kind === 'demo'; }).length,
+      sendsayRowsScanned: sendsayRows.length
+    }
+  };
 }
 
 function readImportedEmails_(storage) {
