@@ -72,7 +72,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261007-jsonp-public-read-01';
+    const script=document.createElement('script');script.src='app.js?v=20261007-auth-fallback-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
@@ -81,7 +81,14 @@
     // always prefer Apps Script API so reads use the latest saved project code
     // instead of an accidentally stale /exec deployment.
     const hasLiveToken = Boolean(token && Date.now() < expiresAt);
-    if(config.publicReadUrl && readMethods.has(method) && !hasLiveToken)return publicRead(method,parameters);
+    if(config.publicReadUrl && readMethods.has(method) && !hasLiveToken){
+      try {
+        return await publicRead(method,parameters);
+      } catch (publicError) {
+        showGate('Публичный доступ к серверу сейчас закрыт. Войдите через Google, чтобы открыть аналитику.');
+        throw publicError;
+      }
+    }
     if (!allowed.has(method)) throw new Error('Этот раздел пока недоступен на новом адресе.');
     if (!token || Date.now() >= expiresAt) {
       token = '';
@@ -134,6 +141,7 @@
           await window.analyticsRpc('v2HealthCheck');
           startApp();
           gate.hidden = true;
+          window.dispatchEvent(new Event('analytics-authenticated'));
         } catch (error) { showGate(error.message); }
       },
       error_callback: () => showGate('Окно входа закрыто или заблокировано. Нажмите «Войти через Google» снова.')
