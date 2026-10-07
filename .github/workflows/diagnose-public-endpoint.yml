@@ -9,31 +9,41 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Health JSON
-        shell: bash
+      - name: Final HTTP is 200
+        continue-on-error: true
         run: |
-          set -euo pipefail
-          URL='https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D'
-          BODY="$(curl -L --fail --silent --show-error --max-time 30 "$URL")"
-          echo "$BODY" | grep -q '"ok":true'
-      - name: Health JSONP
-        shell: bash
+          code="$(curl -L -sS -o /tmp/body -w '%{http_code}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
+          test "$code" = "200"
+      - name: Final HTTP is 404
+        if: always()
+        continue-on-error: true
         run: |
-          set -euo pipefail
-          URL='https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D&callback=analyticsJsonp_Test1'
-          BODY="$(curl -L --fail --silent --show-error --max-time 30 "$URL")"
-          echo "$BODY" | grep -q '^analyticsJsonp_Test1('
-      - name: Pulse public read
-        shell: bash
+          code="$(curl -L -sS -o /tmp/body -w '%{http_code}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
+          test "$code" = "404"
+      - name: Final URL is Google login
+        if: always()
+        continue-on-error: true
         run: |
-          set -euo pipefail
-          URL='https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=getPulseDataFresh&args=%5B%5D'
-          BODY="$(curl -L --fail --silent --show-error --max-time 60 "$URL")"
-          echo "$BODY" | grep -q '"ok":true'
-      - name: Mail page public read
-        shell: bash
+          url="$(curl -L -sS -o /tmp/body -w '%{url_effective}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
+          echo "$url" | grep -Eq 'accounts\.google\.com|ServiceLogin'
+      - name: Final URL is script googleusercontent
+        if: always()
+        continue-on-error: true
         run: |
-          set -euo pipefail
-          URL='https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=getMailRegistryPageUi&args=%5B0%5D'
-          BODY="$(curl -L --fail --silent --show-error --max-time 60 "$URL")"
-          echo "$BODY" | grep -q '"ok":true'
+          url="$(curl -L -sS -o /tmp/body -w '%{url_effective}' --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D')"
+          echo "$url" | grep -q 'script.googleusercontent.com'
+      - name: Body contains ok true
+        if: always()
+        continue-on-error: true
+        run: |
+          curl -L -sS --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D' | grep -q '"ok":true'
+      - name: Body looks like Google sign in
+        if: always()
+        continue-on-error: true
+        run: |
+          curl -L -sS --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D' | grep -Eqi 'sign in|accounts.google.com|ServiceLogin'
+      - name: JSONP works
+        if: always()
+        continue-on-error: true
+        run: |
+          curl -L -sS --max-time 30 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec?method=v2HealthCheck&args=%5B%5D&callback=analyticsJsonp_Test1' | grep -q '^analyticsJsonp_Test1('
