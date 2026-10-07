@@ -28,8 +28,29 @@ jobs:
       - name: HTTP 404 detected
         if: steps.probe.outputs.code == '404'
         run: echo yes
+      - name: HTTP 302 detected
+        if: steps.probe.outputs.code == '302'
+        run: echo yes
+      - name: HTTP 303 detected
+        if: steps.probe.outputs.code == '303'
+        run: echo yes
+      - name: HTTP 401 detected
+        if: steps.probe.outputs.code == '401'
+        run: echo yes
+      - name: HTTP 403 detected
+        if: steps.probe.outputs.code == '403'
+        run: echo yes
+      - name: HTTP 500 detected
+        if: steps.probe.outputs.code == '500'
+        run: echo yes
+      - name: HTTP 502 detected
+        if: steps.probe.outputs.code == '502'
+        run: echo yes
+      - name: HTTP 503 detected
+        if: steps.probe.outputs.code == '503'
+        run: echo yes
       - name: Other HTTP detected
-        if: steps.probe.outputs.code != '200' && steps.probe.outputs.code != '404'
+        if: steps.probe.outputs.code != '200' && steps.probe.outputs.code != '404' && steps.probe.outputs.code != '302' && steps.probe.outputs.code != '303' && steps.probe.outputs.code != '401' && steps.probe.outputs.code != '403' && steps.probe.outputs.code != '500' && steps.probe.outputs.code != '502' && steps.probe.outputs.code != '503'
         run: echo yes
       - name: Redirected to login
         if: steps.probe.outputs.kind == 'login'
