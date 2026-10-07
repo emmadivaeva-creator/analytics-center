@@ -40,6 +40,22 @@ function openPage(name,persist=true){
  if(persist)rememberPage(name);
 }
 buttons.forEach(b=>b.addEventListener('click',()=>openPage(b.dataset.page)));
+window.addEventListener('analytics-authenticated',()=>{
+  checkServer();
+  loadData();
+  const page=rememberedPage();
+  if(page==='mail'||page==='news'||page==='demand'){
+    registryData=null;
+    registryPromise=null;
+    loadRegistry().then(()=>{
+      if(page==='news')startMaterialMatching();
+      if(page==='demand')renderDemand();
+    }).catch(()=>{});
+  }
+  if(page==='sources'){sourceData=null;loadSources();}
+  if(page==='vio'){vioData=null;loadVio();}
+  if(page==='vika'){vikaData=null;loadVika();}
+});
 function setHealth(ok,text){document.getElementById('serverDot').className='dot '+(ok?'ok':'bad');document.getElementById('serverStatus').textContent=text;}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function n(v){const x=Number(v);return Number.isFinite(x)?x:0}
