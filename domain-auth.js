@@ -4,7 +4,7 @@
   let token = '', expiresAt = 0, client, started = false;
   const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'getPulseDataStoredUi', 'syncDriveReportsReliable',
     'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
-    'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi', 'getDemandEvidenceUi',
+    'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi', 'getMailBodyUi', 'getDemandEvidenceUi',
     'getVikaPlanUi', 'getVikaEditorialUi', 'getVioTrendsUi']);
   const gate = document.getElementById('authGate');
   const button = document.getElementById('signIn');
@@ -15,7 +15,7 @@
     status.textContent = message;
     button.disabled = !client;
   }
-  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getDemandEvidenceUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getMailBodyUi','getDemandEvidenceUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
   let jsonpSeq = 0;
   function publicReadOnce_(method, parameters, timeoutMs) {
     return new Promise((resolve, reject) => {
@@ -72,7 +72,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261009-vika-preview-01';
+    const script=document.createElement('script');script.src='app.js?v=20261009-mail-body-preview-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
