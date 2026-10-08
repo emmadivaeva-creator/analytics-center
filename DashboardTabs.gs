@@ -177,6 +177,7 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
 
     output.push({
       id:'import-'+String(valueAt_(row,idx.fileId)||physicalOffset+i+1),
+      bodyRef:String(valueAt_(row,idx.fileId)||'').replace(/^api:/i,''),
       importedOnly:true,
       hasDemoData:hasDemoData,
       date:date,
