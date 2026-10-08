@@ -157,6 +157,8 @@ function analyticsPublicReadCompat_(event) {
           readAt: new Date().toISOString()
         };
       }
+    } else if (method === 'getMailBodyUi' && typeof getMailBodyUi === 'function') {
+      result = getMailBodyUi.apply(null, args);
     } else if (method === 'getMailDemoDetailsUi' && typeof getMailDemoDetailsUi === 'function') {
       result = getMailDemoDetailsUi.apply(null, args);
     } else if (method === 'getVikaPlanUi' && typeof getVikaPlanUi === 'function') {
@@ -2044,6 +2046,7 @@ function readImportedEmails_(storage) {
 
     output.push({
       id: 'import-' + String(valueAt_(row, idx.fileId) || i),
+      bodyRef: String(valueAt_(row, idx.fileId) || '').replace(/^api:/i, ''),
       importedOnly: true,
       hasDemoData: hasDemoData,
 
