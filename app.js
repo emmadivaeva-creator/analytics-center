@@ -417,6 +417,51 @@ function mailWeekSummaryHtml_(rows,selectedWeek){
 }
 function safeLink(url,label){return /^https?:\/\//i.test(String(url||''))?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'';}
 
+function mailBodyRef_(x){
+ const direct=String(x&&x.bodyRef||'').trim();
+ if(/^(?:52|61):\d+$/.test(direct))return direct;
+ const id=String(x&&x.id||'').replace(/^import-/i,'').replace(/^api:/i,'');
+ const m=id.match(/(?:^|,)(52|61):(\d+)(?:,|$)/);
+ return m?m[1]+':'+m[2]:'';
+}
+function mailBodyPreviewHtml_(x){
+ const ref=mailBodyRef_(x);
+ if(!ref)return '<small class="mail-body-unavailable">Текст письма через API недоступен</small>';
+ return '<details class="mail-body-preview" data-body-ref="'+esc(ref)+'">'+
+   '<summary>Посмотреть текст письма</summary>'+
+   '<div class="mail-body-content">Откройте блок, чтобы загрузить текст из Sendsay.</div>'+
+ '</details>';
+}
+async function loadMailBodyPreview_(details){
+ if(!details||details.dataset.loaded==='1'||details.dataset.loading==='1')return;
+ const box=details.querySelector('.mail-body-content');
+ const ref=String(details.dataset.bodyRef||'').trim();
+ if(!ref||!box)return;
+ details.dataset.loading='1';
+ box.textContent='Загружаю текст письма из Sendsay…';
+ try{
+   const data=await rpc('getMailBodyUi',ref);
+   details.dataset.loaded='1';
+   const title=String(data&&data.subject||'').trim();
+   const text=String(data&&data.text||'').trim();
+   const note=String(data&&data.note||'').trim();
+   box.innerHTML=(title?'<b class="mail-body-subject">'+esc(title)+'</b>':'')+
+     (text?'<div class="mail-body-text">'+esc(text)+'</div>':'<p class="mail-body-empty">'+esc(note||'Текст письма не найден в Sendsay.')+'</p>');
+ }catch(e){
+   box.innerHTML='<p class="mail-body-error">Не удалось загрузить текст: '+esc(e&&e.message?e.message:String(e))+'</p>';
+ }finally{
+   delete details.dataset.loading;
+ }
+}
+function bindMailBodyPreviews_(){
+ document.querySelectorAll('#mailRows .mail-body-preview').forEach(details=>{
+   if(details.dataset.bound==='1')return;
+   details.dataset.bound='1';
+   details.addEventListener('toggle',()=>{if(details.open)loadMailBodyPreview_(details);});
+ });
+}
+
+
 function registryDb_(){
  return new Promise((resolve,reject)=>{
   if(!window.indexedDB)return reject(new Error('IndexedDB недоступен'));
@@ -579,8 +624,10 @@ function logicalMailRows_(rows){
    const campaigns=[...new Set(members.map(item=>item.campaign).filter(Boolean))];
    const segments=[...new Set(members.map(item=>item.segment).filter(Boolean))];
    const links=members.map(item=>({campaign:item.campaign,url:item.sendsay})).filter(item=>item.url);
+   const bodyRefs=[...new Set(members.map(item=>String(item.bodyRef||'').trim()).filter(Boolean))];
 
    group.id='logical:'+members.map(item=>item.id).join(',');
+   group.bodyRef=bodyRefs[0]||'';
    group.sent=sent;
    group.delivered=delivered;
    group.uniqueOpened=opened;
@@ -606,9 +653,10 @@ function renderRegistries(){for(const key of ['mail','news']){
  const rows=key==='mail'?logicalMailRows_(sourceRows):sourceRows;
  const summary=document.getElementById('mailWeekSummary');if(summary)summary.innerHTML=mailWeekSummaryHtml_(sourceRows,selectedWeek);
  document.getElementById(key+'Status').textContent='Писем в кэше: '+fmt(rows.length)+' · показано '+fmt(Math.min(rows.length,registryLimits[key]))+' · от новых к старым'+registryCacheNote_()+(key==='news'?' · Новости сопоставлены: '+(registryData||[]).filter(m=>isNewsMail(m)&&m.materialData).length+'/'+(registryData||[]).filter(isNewsMail).length:'');
- document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}${x.campaignCount>1?' · '+fmt(x.campaignCount)+' сегмента Sendsay':''}</small></td><td>${key==='mail'?`<b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>`:`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):x.hasDemoData===true?`R ${fmt(x.red)} / Y ${fmt(x.yellow)} / G ${fmt(x.green)}`:`R 0 / Y 0 / G 0<small>В статистике DEMO событий нет</small>`}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
+ document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}${x.campaignCount>1?' · '+fmt(x.campaignCount)+' сегмента Sendsay':''}</small></td><td>${key==='mail'?`<b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>${mailBodyPreviewHtml_(x)}`:`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):x.hasDemoData===true?`R ${fmt(x.red)} / Y ${fmt(x.yellow)} / G ${fmt(x.green)}`:`R 0 / Y 0 / G 0<small>В статистике DEMO событий нет</small>`}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
  document.getElementById(key+'More').classList.toggle('hidden',rows.length<=registryLimits[key]);
  document.getElementById(key+'Rows').querySelectorAll('.material-demo').forEach(button=>button.onclick=()=>loadMaterialDemo(button));
+ if(key==='mail')bindMailBodyPreviews_();
 }}
 function renderNewsLetters(){
  const query=document.getElementById('newsSearch').value.trim().toLowerCase(),product=document.getElementById('newsProduct').value;
