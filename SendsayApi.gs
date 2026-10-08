@@ -621,6 +621,131 @@ function sendsayApiRowToReport_(row, policy) {
   };
 }
 
+
+function sendsayHtmlToPlainText_(html) {
+  let text = String(html || '');
+  if (!text) return '';
+
+  text = text
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(?:p|div|h[1-6]|li|tr|table|section|article|blockquote)>/gi, '\n')
+    .replace(/<li\b[^>]*>/gi, '• ')
+    .replace(/<[^>]+>/g, ' ');
+
+  const named = {
+    nbsp: ' ', amp: '&', quot: '"', apos: "'", lt: '<', gt: '>',
+    ndash: '–', mdash: '—', laquo: '«', raquo: '»'
+  };
+
+  text = text
+    .replace(/&([a-z]+);/gi, function(match, name) {
+      return Object.prototype.hasOwnProperty.call(named, String(name).toLowerCase())
+        ? named[String(name).toLowerCase()]
+        : ' ';
+    })
+    .replace(/&#(\d+);/g, function(match, code) {
+      const n = Number(code);
+      return n > 0 && n <= 1114111 ? String.fromCodePoint(n) : '';
+    })
+    .replace(/&#x([0-9a-f]+);/gi, function(match, code) {
+      const n = parseInt(code, 16);
+      return n > 0 && n <= 1114111 ? String.fromCodePoint(n) : '';
+    })
+    .replace(/\r/g, '')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  return text;
+}
+
+function getMailBodyUi(ref) {
+  const raw = String(ref || '').trim()
+    .replace(/^logical:/i, '')
+    .replace(/^import-/i, '')
+    .replace(/^api:/i, '');
+
+  const match = raw.match(/^(52|61):(\d+)$/);
+  if (!match) throw new Error('Не удалось определить выпуск Sendsay.');
+
+  const policyId = match[1];
+  const issueId = match[2];
+  const cacheKey = 'mail-body:' + policyId + ':' + issueId;
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    try { return JSON.parse(cached); } catch (e) {}
+  }
+
+  const stat = sendsayApiRequest_({
+    action: 'stat.uni',
+    select: [
+      'issue.id',
+      'issue.subject',
+      'issue.draft.id',
+      'issue.draft.name'
+    ],
+    filter: [
+      { a: 'issue.id', op: '==', v: issueId }
+    ],
+    first: 1
+  }, policyId);
+
+  const row = Array.isArray(stat.list) && stat.list.length ? stat.list[0] : null;
+  if (!row) throw new Error('Выпуск Sendsay не найден.');
+
+  const draftId = String(row[2] || '').trim();
+  if (!draftId) {
+    return {
+      ok: true,
+      issueId: issueId,
+      subject: String(row[1] || ''),
+      text: '',
+      note: 'У этого выпуска Sendsay не указан черновик, поэтому текст через API не получен.'
+    };
+  }
+
+  const draft = sendsayApiRequest_({
+    action: 'issue.draft.get',
+    id: draftId,
+    novars: 1
+  }, policyId);
+
+  const obj = draft && draft.obj || {};
+  const letter = obj.letter || {};
+  const message = letter.message || {};
+  let text = String(message.text || '').trim();
+
+  if (!text) text = sendsayHtmlToPlainText_(message.html || '');
+
+  const maxLength = 60000;
+  const truncated = text.length > maxLength;
+  if (truncated) text = text.slice(0, maxLength).trim() + '\n\n[Текст сокращён в предпросмотре]';
+
+  const result = {
+    ok: true,
+    issueId: issueId,
+    draftId: draftId,
+    draftName: String(obj.name || row[3] || ''),
+    subject: String(letter.subject || row[1] || ''),
+    text: text,
+    truncated: truncated,
+    publicPreview: String(obj.public_preview || '')
+  };
+
+  try {
+    const serialized = JSON.stringify(result);
+    if (serialized.length < 90000) cache.put(cacheKey, serialized, 21600);
+  } catch (e) {}
+
+  return result;
+}
+
 function sendsayApiRate_(value) {
   // issue.delivery_rate / open_rate / click_rate / click_open_rate
   // уже приходят из stat.uni в процентных пунктах.
