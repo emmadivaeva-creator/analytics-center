@@ -624,7 +624,7 @@ function logicalMailRows_(rows){
    const campaigns=[...new Set(members.map(item=>item.campaign).filter(Boolean))];
    const segments=[...new Set(members.map(item=>item.segment).filter(Boolean))];
    const links=members.map(item=>({campaign:item.campaign,url:item.sendsay})).filter(item=>item.url);
-   const bodyRefs=[...new Set(members.map(item=>String(item.bodyRef||'').trim()).filter(Boolean))];
+   const bodyRefs=[...new Set(members.map(item=>mailBodyRef_(item)).filter(Boolean))];
 
    group.id='logical:'+members.map(item=>item.id).join(',');
    group.bodyRef=bodyRefs[0]||'';
