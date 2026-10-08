@@ -1085,26 +1085,7 @@ async function loadVika(id){if(vikaLoading)return;vikaLoading=true;const status=
 async function loadVikaEditorial(plan){try{const result=await rpc('getVikaEditorialUi',plan.selected.id);if(vikaData!==plan)return;plan.editorial=result;}catch(e){if(vikaData!==plan)return;plan.editorialError='Редакционный оригинал не загружен: '+e.message;}renderVika();}
 function vikaEditorialParts(i){const e=vikaData.editorial?.rows?.[i];if(!e?.text)return {body:'',notes:[]};const body=e.text.split(/\n\s*рассылка\s+(?:по|для)\s+открыто[йм]/i)[0];const notes=[];const lines=body.split('\n').filter(line=>{if(/^\s*(?:\(?Вик(?:а)?(?=[\s,.:()]|$)|Для Юры|Можешь добавить|зага в верстке нет|\(кнопка)/i.test(line)){notes.push(line.trim());return false;}return true;});return {body:lines.join('\n').trim(),notes};}
 function vikaEditorialNotes(i){const notes=vikaEditorialParts(i).notes;return notes.length?`<div class="vika-field"><h4>Примечания редакции из документа</h4><p>${esc(notes.join('\n'))}</p></div>`:'';}
-function vikaEditorialHtml(i){
- const e=vikaData.editorial?.rows?.[i];
- if(!e)return '';
- const parts=vikaEditorialParts(i);
- if(e.error)return `<div class="vika-editorial"><p>${esc(e.error)}</p></div>`;
- return `<div class="vika-editorial vika-quick-preview">
-   <div class="vika-quick-actions">
-     <span>${safeLink(e.sourceUrl,'Открыть оригинал')}</span>
-     <span class="vika-match-note">${esc(e.subjectMatches?'Тема совпадает с планом':'Тема отличается от плана')}</span>
-   </div>
-   <details class="vika-preview-details">
-     <summary>Быстро посмотреть текст</summary>
-     <p class="editorial-original">${esc(parts.body)}</p>
-   </details>
-   <details class="vika-source-details">
-     <summary>Весь раздел источника за ${esc(e.date)}</summary>
-     <p class="editorial-original">${esc(e.text)}</p>
-   </details>
- </div>`;
-}
+function vikaEditorialHtml(i){const e=vikaData.editorial?.rows?.[i];if(!e)return '';const parts=vikaEditorialParts(i);return `<div class="vika-editorial"><p>${safeLink(e.sourceUrl,'Оригинал редакции · '+e.tabTitle)}</p>${e.error?`<p>${esc(e.error)}</p>`:`<p>${e.subjectMatches?'Тема совпадает с планом':'Тема редакции отличается от подготовленной версии — проверьте перед постановкой'}</p><details><summary>Текст редакции из Google Документа</summary><p class="editorial-original">${esc(parts.body)}</p></details><details><summary>Весь раздел источника за ${esc(e.date)}</summary><p class="editorial-original">${esc(e.text)}</p></details>`}</div>`;}
 function renderVika(){
   if(!vikaData)return;
   const dateSelect=document.getElementById('vikaDate'),previousDate=dateSelect.value;
@@ -1116,7 +1097,7 @@ function renderVika(){
   const rows=vikaData.rows.map((r,i)=>({r,i})).filter(({r,i})=>(!selectedDate||String(r[0]||'').trim()===selectedDate)&&(!q||(r.join(' ')+' '+(vikaData.editorial?.rows?.[i]?.text||'')).toLowerCase().includes(q)));
   document.getElementById('vikaStatus').textContent=vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt)+(vikaData.editorial?' · Оригиналы редакции обновлены':vikaData.editorialError?' · '+vikaData.editorialError:' · Читаю оригиналы редакции…');
   const fields=(r,indices)=>indices.map(i=>r[i]?`<div class="vika-field"><h4>${esc(vikaData.headers[i]||'Дополнительно')}</h4><p>${i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i])}</p></div>`:'').join('');
-  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема / письмо</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b>${vikaEditorialHtml(i)}<details class="vika-plan-preview"><summary>Посмотреть подготовленный текст</summary>${fields(r,[4,5,6,7])}</details></td><td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
+  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b>${vikaEditorialHtml(i)}<details><summary>Подготовленный текст плана</summary>${fields(r,[4,5,6,7])}</details></td><td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
 }
 
 
