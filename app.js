@@ -235,6 +235,16 @@ async function refreshLast3Days(){
    const recent=await rpc('getMailRegistryRecentUi',3);
    await mergeRegistryRecent_(recent);
 
+   const recentMail=(registryData||[]).filter(item=>
+     !isNewsMail(item)&&
+     (!recent.from||item.date>=recent.from)&&
+     (!recent.to||item.date<=recent.to)
+   );
+   buttons.forEach(button=>button.textContent='Загружаю тексты…');
+   await preloadMailBodyPreviews_(recentMail,progress=>{
+     buttons.forEach(button=>button.textContent='Тексты '+progress.done+'/'+progress.total+'…');
+   });
+
    buttons.forEach(button=>button.textContent='Обновляю Пульс…');
    const data=await loadPulseData_();
    appData=data;activeWeek=data.meta.currentWeek;setupWeeks();renderSelectedWeek();
@@ -263,8 +273,15 @@ async function refreshAllMailRegistry(){
 
  try{
    await fetchFullRegistryPaged_();
+   const demoRows=(registryData||[]).filter(item=>!isNewsMail(item));
+   const latestWeek=Math.max(0,...demoRows.map(mailWeek_).filter(Boolean));
+   const newestWeekRows=demoRows.filter(item=>mailWeek_(item)===latestWeek);
+   buttons.forEach(button=>button.textContent='Загружаю тексты свежей недели…');
+   await preloadMailBodyPreviews_(newestWeekRows,progress=>{
+     buttons.forEach(button=>button.textContent='Тексты '+progress.done+'/'+progress.total+'…');
+   },120);
    renderDemand();
-   setHealth(true,'Полный архив писем обновлён · в браузере '+fmt((registryData||[]).length)+' записей');
+   setHealth(true,'Полный архив писем обновлён · тексты свежей недели сохранены · в браузере '+fmt((registryData||[]).length)+' записей');
  }catch(err){
    ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Не удалось обновить полный архив: '+(err&&err.message?err.message:String(err)));
    setHealth(false,'Ошибка полного обновления писем');
@@ -424,24 +441,41 @@ function mailBodyRef_(x){
  const m=id.match(/(?:^|,)(52|61):(\d+)(?:,|$)/);
  return m?m[1]+':'+m[2]:'';
 }
+function mailBodyPayloadHtml_(data){
+ const title=String(data&&data.subject||'').trim();
+ const text=String(data&&data.text||'').trim();
+ const note=String(data&&data.note||'').trim();
+ return (title?'<b class="mail-body-subject">'+esc(title)+'</b>':'')+
+   (text?'<div class="mail-body-text">'+esc(text)+'</div>':'<p class="mail-body-empty">'+esc(note||'Текст письма не найден в Sendsay.')+'</p>');
+}
 function mailBodyPreviewHtml_(x){
  const ref=mailBodyRef_(x);
  if(!ref)return '<small class="mail-body-unavailable">Текст письма через API недоступен</small>';
+ const cached=x&&x.bodyPreview;
+ if(cached&&(cached.text||cached.note||cached.subject)){
+   return '<details class="mail-body-preview" data-body-ref="'+esc(ref)+'" data-loaded="1">'+
+     '<summary>Быстро посмотреть текст</summary>'+
+     '<div class="mail-body-content">'+mailBodyPayloadHtml_(cached)+'</div>'+
+   '</details>';
+ }
  return '<details class="mail-body-preview" data-body-ref="'+esc(ref)+'">'+
    '<summary>Быстро посмотреть текст</summary>'+
-   '<div class="mail-body-content">Загружаю текст только при первом раскрытии.</div>'+
+   '<div class="mail-body-content">Текст загрузится при первом раскрытии.</div>'+
  '</details>';
 }
-function mailLetterHtml_(x){
- const subject=String(x&&x.subject||'').trim()||'Без темы';
- const original=safeLink(x&&x.sendsay,'Открыть в Sendsay');
- return '<div class="mail-letter">'+
-   '<b class="mail-letter-subject">'+esc(subject)+'</b>'+
-   '<div class="mail-letter-actions">'+
-     (original||'')+
-     mailBodyPreviewHtml_(x)+
-   '</div>'+
- '</div>';
+function storeMailBodyPreview_(ref,data){
+ const normalized={
+   subject:String(data&&data.subject||''),
+   text:String(data&&data.text||''),
+   note:String(data&&data.note||''),
+   truncated:Boolean(data&&data.truncated),
+   loadedAt:new Date().toISOString()
+ };
+ (registryData||[]).forEach(item=>{
+   if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;
+ });
+ scheduleRegistryCacheSave_();
+ return normalized;
 }
 async function loadMailBodyPreview_(details){
  if(!details||details.dataset.loaded==='1'||details.dataset.loading==='1')return;
@@ -452,13 +486,10 @@ async function loadMailBodyPreview_(details){
  box.textContent='Загружаю текст письма из Sendsay…';
  try{
    const data=await rpc('getMailBodyUi',ref);
+   const normalized=storeMailBodyPreview_(ref,data);
    details.dataset.loaded='1';
    delete details.dataset.needsOwner;
-   const title=String(data&&data.subject||'').trim();
-   const text=String(data&&data.text||'').trim();
-   const note=String(data&&data.note||'').trim();
-   box.innerHTML=(title?'<b class="mail-body-subject">'+esc(title)+'</b>':'')+
-     (text?'<div class="mail-body-text">'+esc(text)+'</div>':'<p class="mail-body-empty">'+esc(note||'Текст письма не найден в Sendsay.')+'</p>');
+   box.innerHTML=mailBodyPayloadHtml_(normalized);
  }catch(e){
    const message=String(e&&e.message?e.message:e||'');
    if(/Доступен только просмотр аналитики|нужен вход владельца|Для обновления данных нужен вход владельца/i.test(message)){
@@ -479,6 +510,39 @@ function bindMailBodyPreviews_(){
    details.dataset.bound='1';
    details.addEventListener('toggle',()=>{if(details.open)loadMailBodyPreview_(details);});
  });
+}
+async function preloadMailBodyPreviews_(rows,onProgress,maxCount){
+ const source=(rows||[]).filter(item=>item&&!isNewsMail(item));
+ const cachedRefs=new Set((registryData||[])
+   .filter(item=>item&&item.bodyPreview&&(item.bodyPreview.text||item.bodyPreview.note||item.bodyPreview.subject))
+   .map(mailBodyRef_).filter(Boolean));
+ const refs=[...new Set(source.map(mailBodyRef_).filter(Boolean))]
+   .filter(ref=>!cachedRefs.has(ref))
+   .slice(0,Number.isFinite(maxCount)?Math.max(0,maxCount):undefined);
+ const total=refs.length;
+ if(!total)return {total:0,loaded:0,failed:0};
+
+ let cursor=0,loaded=0,failed=0;
+ const report=()=>{if(typeof onProgress==='function')onProgress({total,loaded,failed,done:loaded+failed});};
+ async function worker(){
+   while(cursor<total){
+     const index=cursor++;
+     const ref=refs[index];
+     try{
+       const data=await rpc('getMailBodyUi',ref);
+       storeMailBodyPreview_(ref,data);
+       loaded++;
+     }catch(e){
+       failed++;
+     }
+     report();
+   }
+ }
+ const concurrency=Math.min(4,total);
+ await Promise.all(Array.from({length:concurrency},()=>worker()));
+ try{await registryCacheWrite_(registryData);}catch(e){}
+ renderRegistries();
+ return {total,loaded,failed};
 }
 
 
@@ -608,6 +672,7 @@ async function mergeRegistryRecent_(recent){
  const fresh=(payload.emails||[]).filter(keepMailInReport_).map(item=>{
    const old=previous.get(item.id);
    if(old&&old.materialData&&!item.materialData)item.materialData=old.materialData;
+   if(old&&old.bodyPreview&&!item.bodyPreview)item.bodyPreview=old.bodyPreview;
    return item;
  });
  const kept=current.filter(item=>!from||!to||item.date<from||item.date>to);
@@ -1165,7 +1230,12 @@ function renderVika(){
   const rows=vikaData.rows.map((r,i)=>({r,i})).filter(({r,i})=>(!selectedDate||String(r[0]||'').trim()===selectedDate)&&(!q||(r.join(' ')+' '+(vikaData.editorial?.rows?.[i]?.text||'')).toLowerCase().includes(q)));
   document.getElementById('vikaStatus').textContent=vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt)+(vikaData.editorial?' · Оригиналы редакции обновлены':vikaData.editorialError?' · '+vikaData.editorialError:' · Читаю оригиналы редакции…');
   const fields=(r,indices)=>indices.map(i=>r[i]?`<div class="vika-field"><h4>${esc(vikaData.headers[i]||'Дополнительно')}</h4><p>${i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i])}</p></div>`:'').join('');
-  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b>${vikaEditorialHtml(i)}<details><summary>Подготовленный текст плана</summary>${fields(r,[4,5,6,7])}</details></td><td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
+  const planText=(r,i)=>{
+    const editorial=vikaData.editorial?.rows?.[i];
+    const open=!editorial||editorial.error||vikaData.editorialError;
+    return `<details class="vika-plan-text" ${open?'open':''}><summary>Текст рассылки из плана</summary>${fields(r,[4,5,6,7])||'<p>В плане текст пока не заполнен.</p>'}</details>`;
+  };
+  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b>${vikaEditorialHtml(i)}${planText(r,i)}</td><td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
 }
 
 
