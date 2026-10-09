@@ -1216,9 +1216,44 @@ document.getElementById('demandGroup').onchange=()=>{demandShowAll=false;renderD
 let vikaData=null,vikaLoading=false;
 async function loadVika(id){if(vikaLoading)return;vikaLoading=true;const status=document.getElementById('vikaStatus');status.textContent='Читаю рабочий план…';try{vikaData=await rpc('getVikaPlanUi',id||null);document.getElementById('vikaPeriod').innerHTML=vikaData.plans.slice().sort((a,b)=>b.week-a.week).map(p=>`<option value="${p.id}" ${p.id===vikaData.selected.id?'selected':''}>${esc(p.name)}</option>`).join('');document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть исходную таблицу');renderVika();loadVikaEditorial(vikaData);}catch(e){status.textContent='Не удалось загрузить план: '+e.message;}finally{vikaLoading=false;}}
 async function loadVikaEditorial(plan){try{const result=await rpc('getVikaEditorialUi',plan.selected.id);if(vikaData!==plan)return;plan.editorial=result;}catch(e){if(vikaData!==plan)return;plan.editorialError='Редакционный оригинал не загружен: '+e.message;}renderVika();}
-function vikaEditorialParts(i){const e=vikaData.editorial?.rows?.[i];if(!e?.text)return {body:'',notes:[]};const body=e.text.split(/\n\s*рассылка\s+(?:по|для)\s+открыто[йм]/i)[0];const notes=[];const lines=body.split('\n').filter(line=>{if(/^\s*(?:\(?Вик(?:а)?(?=[\s,.:()]|$)|Для Юры|Можешь добавить|зага в верстке нет|\(кнопка)/i.test(line)){notes.push(line.trim());return false;}return true;});return {body:lines.join('\n').trim(),notes};}
-function vikaEditorialNotes(i){const notes=vikaEditorialParts(i).notes;return notes.length?`<div class="vika-field"><h4>Примечания редакции из документа</h4><p>${esc(notes.join('\n'))}</p></div>`:'';}
-function vikaEditorialHtml(i){const e=vikaData.editorial?.rows?.[i];if(!e)return '';const parts=vikaEditorialParts(i);return `<div class="vika-editorial"><p>${safeLink(e.sourceUrl,'Оригинал редакции · '+e.tabTitle)}</p>${e.error?`<p>${esc(e.error)}</p>`:`<p>${e.subjectMatches?'Тема совпадает с планом':'Тема редакции отличается от подготовленной версии — проверьте перед постановкой'}</p><details><summary>Текст редакции из Google Документа</summary><p class="editorial-original">${esc(parts.body)}</p></details><details><summary>Весь раздел источника за ${esc(e.date)}</summary><p class="editorial-original">${esc(e.text)}</p></details>`}</div>`;}
+function vikaEditorialParts(i){
+ const e=vikaData.editorial?.rows?.[i];
+ if(!e?.text)return {body:'',notes:[]};
+ const body=String(e.text||'').split(/\n\s*рассылка\s+(?:по|для)\s+открыто[йм]/i)[0];
+ const notes=[];
+ const lines=body.split('\n').filter(line=>{
+   if(/^\s*(?:\(?Вик(?:а)?(?=[\s,.:()]|$)|Для Юры|Можешь добавить|зага в верстке нет|\(кнопка)/i.test(line)){
+     notes.push(line.trim());
+     return false;
+   }
+   return true;
+ });
+ return {body:lines.join('\n').trim(),notes};
+}
+function vikaEditorialNotes(i){
+ const notes=vikaEditorialParts(i).notes;
+ return notes.length?`<div class="vika-field"><h4>Примечания редакции</h4><p>${esc(notes.join('\n'))}</p></div>`:'';
+}
+function vikaEditorialHtml(i){
+ const e=vikaData.editorial?.rows?.[i];
+ if(!e)return '';
+ const parts=vikaEditorialParts(i);
+ const label=String(e.sourceLabel||'Темплан по демкам');
+ const sourceLink=safeLink(e.sourceUrl,label+(e.tabTitle?' · '+e.tabTitle:''));
+ const tempLink=e.tempPlanUrl&&e.tempPlanUrl!==e.sourceUrl?safeLink(e.tempPlanUrl,'Открыть строку в Темплане по демкам'):'';
+ const subject=e.subject?`<p><b>Тема редакции:</b> ${esc(e.subject)}</p>`:'';
+ const title=e.title&&e.title!==e.subject?`<p><b>Заголовок:</b> ${esc(e.title)}</p>`:'';
+ const material=e.materialUrl?safeLink(e.materialUrl,'Открыть материал редакции'):'';
+ if(e.error){
+   return `<div class="vika-editorial"><p>${sourceLink||tempLink||esc(label)}</p><p>${esc(e.error)}</p></div>`;
+ }
+ return `<div class="vika-editorial">
+   <p>${sourceLink||esc(label)}${tempLink?' · '+tempLink:''}</p>
+   ${subject}${title}
+   <details open><summary>Текст редакции из Темплана</summary><p class="editorial-original">${esc(parts.body)}</p></details>
+   ${material?`<p>${material}</p>`:''}
+ </div>`;
+}
 function renderVika(){
   if(!vikaData)return;
   const dateSelect=document.getElementById('vikaDate'),previousDate=dateSelect.value;
@@ -1227,17 +1262,45 @@ function renderVika(){
   dateSelect.value=dates.includes(previousDate)?previousDate:'';
   const selectedDate=dateSelect.value;
   const q=document.getElementById('vikaSearch').value.toLowerCase().trim();
-  const rows=vikaData.rows.map((r,i)=>({r,i})).filter(({r,i})=>(!selectedDate||String(r[0]||'').trim()===selectedDate)&&(!q||(r.join(' ')+' '+(vikaData.editorial?.rows?.[i]?.text||'')).toLowerCase().includes(q)));
-  document.getElementById('vikaStatus').textContent=vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt)+(vikaData.editorial?' · Оригиналы редакции обновлены':vikaData.editorialError?' · '+vikaData.editorialError:' · Читаю оригиналы редакции…');
+  const rows=vikaData.rows.map((r,i)=>({r,i})).filter(({r,i})=>{
+    const e=vikaData.editorial?.rows?.[i]||{};
+    const hay=[...r,e.text,e.subject,e.title].join(' ').toLowerCase();
+    return (!selectedDate||String(r[0]||'').trim()===selectedDate)&&(!q||hay.includes(q));
+  });
+
+  document.getElementById('vikaStatus').textContent=
+    vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt)+
+    (vikaData.editorial?' · Редакционные источники обновлены':vikaData.editorialError?' · '+vikaData.editorialError:' · Читаю Темплан по демкам…');
+
   const fields=(r,indices)=>indices.map(i=>r[i]?`<div class="vika-field"><h4>${esc(vikaData.headers[i]||'Дополнительно')}</h4><p>${i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i])}</p></div>`:'').join('');
+
   const planText=(r,i)=>{
     const editorial=vikaData.editorial?.rows?.[i];
-    const open=!editorial||editorial.error||vikaData.editorialError;
-    return `<details class="vika-plan-text" ${open?'open':''}><summary>Текст рассылки из плана</summary>${fields(r,[4,5,6,7])||'<p>В плане текст пока не заполнен.</p>'}</details>`;
+    const active=/АКТИВДЕМО/i.test(String(r[2]||''));
+    const content=fields(r,[4,5,6,7]);
+    if(active){
+      return `<details class="vika-plan-text" open><summary>Наш текст АКТИВДЕМО</summary>${content||'<p class="vika-missing-active">Наш текст АКТИВДЕМО на этот слот пока не заполнен.</p>'}</details>`;
+    }
+    if(content){
+      return `<details class="vika-plan-text"><summary>Текст из собранного плана</summary>${content}</details>`;
+    }
+    if(!editorial){
+      return '<div class="vika-source-missing">Редакционный текст не найден ни в Темплане, ни в собранном плане.</div>';
+    }
+    return '';
   };
-  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>`<tr><td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td><td class="vika-letter"><b>${esc(r[3])}</b>${vikaEditorialHtml(i)}${planText(r,i)}</td><td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td><td>${esc(r[8])}</td></tr>`).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
-}
 
+  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>{
+    const e=vikaData.editorial?.rows?.[i];
+    const subject=String(r[3]||e?.subject||'Тема не заполнена');
+    return `<tr>
+      <td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td>
+      <td class="vika-letter"><b>${esc(subject)}</b>${vikaEditorialHtml(i)}${planText(r,i)}</td>
+      <td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td>
+      <td>${esc(r[8])}</td>
+    </tr>`;
+  }).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
+}
 
 async function loadSources(){
  const status=document.getElementById('sourcesStatus');
