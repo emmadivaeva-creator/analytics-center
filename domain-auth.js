@@ -72,7 +72,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261009-mail-body-preview-01';
+    const script=document.createElement('script');script.src='app.js?v=20261009-mail-text-preview-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
