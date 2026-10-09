@@ -91,6 +91,131 @@ function sendsayApiRequest_(payload, policyId) {
   return data;
 }
 
+
+function sendsayHtmlToText_(html) {
+  return String(html || '')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<(?:br|\/p|\/div|\/li|\/tr|\/h[1-6])\s*>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&#(\d+);/g, function(_, code) {
+      return String.fromCharCode(Number(code) || 32);
+    })
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+function sendsayIssueDraftMeta_(issueId, policy) {
+  const data = sendsayApiRequest_({
+    action: 'stat.uni',
+    select: [
+      'issue.id',
+      'issue.subject',
+      'issue.draft.id',
+      'issue.draft.name'
+    ],
+    filter: [
+      { a: 'issue.id', op: '==', v: String(issueId) }
+    ],
+    first: 5
+  }, policy.id);
+
+  const rows = Array.isArray(data.list) ? data.list : [];
+  if (!rows.length) return null;
+
+  const row = rows[0] || [];
+  return {
+    issueId: String(row[0] || issueId),
+    subject: String(row[1] || ''),
+    draftId: String(row[2] || ''),
+    draftName: String(row[3] || ''),
+    policyId: policy.id,
+    policyName: policy.name
+  };
+}
+
+function getMailContentUi(issueRef) {
+  const ref = String(issueRef || '').trim();
+  if (!ref) throw new Error('Не передан идентификатор письма Sendsay.');
+
+  const match = ref.match(/(?:(52|61):)?(\d{5,})$/);
+  if (!match) throw new Error('Не удалось разобрать идентификатор письма Sendsay.');
+
+  const policyHint = String(match[1] || '');
+  const issueId = String(match[2] || '');
+  const cache = CacheService.getScriptCache();
+  const cacheKey = 'mail-content-v1:' + policyHint + ':' + issueId;
+  const cached = cache.get(cacheKey);
+  if (cached) {
+    try { return JSON.parse(cached); } catch (e) {}
+  }
+
+  const policies = policyHint
+    ? SENDSAY_API.policies.filter(function(p){ return String(p.id) === policyHint; })
+    : SENDSAY_API.policies.slice();
+
+  let meta = null;
+  let lastError = null;
+
+  for (let i = 0; i < policies.length; i++) {
+    try {
+      meta = sendsayIssueDraftMeta_(issueId, policies[i]);
+      if (meta) break;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (!meta) {
+    if (lastError) throw lastError;
+    throw new Error('Письмо не найдено в доступных Sendsay-политиках.');
+  }
+
+  if (!meta.draftId) {
+    throw new Error('У выпуска Sendsay не найден исходный черновик.');
+  }
+
+  const draft = sendsayApiRequest_({
+    action: 'issue.draft.get',
+    id: meta.draftId,
+    novars: 1
+  }, meta.policyId);
+
+  const obj = draft && draft.obj ? draft.obj : {};
+  const letter = obj.letter || {};
+  const message = letter.message || {};
+  const html = String(message.html || '');
+  let text = String(message.text || '').trim();
+
+  if (!text && html) text = sendsayHtmlToText_(html);
+
+  const result = {
+    ok: true,
+    issueId: issueId,
+    draftId: meta.draftId,
+    subject: String(letter.subject || meta.subject || ''),
+    text: text,
+    hasHtml: Boolean(html),
+    sendsay: 'https://app.sendsay.ru/reports/campaigns/' + encodeURIComponent(issueId) + '/summary'
+  };
+
+  try {
+    cache.put(cacheKey, JSON.stringify(result), 21600);
+  } catch (e) {}
+
+  return result;
+}
+
 function testSendsayApiOneDay() {
   assertAdmin_();
 
