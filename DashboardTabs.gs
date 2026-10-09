@@ -514,104 +514,287 @@ function getMailDemoDetailsUi(id) {
 function dashboardEditorialSections_(text) {
   const months=['янв','фев','мар','апр','ма','июн','июл','авг','сен','окт','ноя','дек'];
   const sections=[];let current=null;
-  String(text).replace(/\r\n?/g,'\n').replace(/\u000b/g,'\n').split('\n').forEach(line=>{
-    const m=line.trim().match(/^(?:(основная|дополнительная)(?:\s+рассылка)?\s+)?(\d{1,2})(?:\.(\d{1,2})\.?|\s+([а-яё]+)\.?)(?:\s+(20\d{2})(?:\s*г\.?)?)?\s*$/i);
-    const month=m?(m[3]?Number(m[3]):months.findIndex(x=>m[4].toLowerCase().startsWith(x))+1):0;
-    if(m&&month){current={day:Number(m[2]),month,year:m[5]?Number(m[5]):null,kind:m[1]||'',lines:[]};sections.push(current);}else if(current)current.lines.push(line);
+  String(text||'').replace(/\r\n?/g,'\n').replace(/\u000b/g,'\n').split('\n').forEach(function(line){
+    const raw=String(line||'').trim();
+    const m=raw.match(/^(?:(основная|дополнительная)(?:\s+рассылка)?\s+)?(\d{1,2})(?:\s*\.\s*(\d{1,2})\.?|\s+([а-яё]+)\.?)?(?:\s+(20\d{2})(?:\s*г\.?)?)?(?:\s+(актив(?:демо)?|доп|дожим))?\s*$/i);
+    if(!m){if(current)current.lines.push(line);return;}
+    const month=m[3]?Number(m[3]):m[4]?months.findIndex(function(x){return m[4].toLowerCase().startsWith(x);})+1:0;
+    if(!month){if(current)current.lines.push(line);return;}
+    const rawKind=String(m[6]||m[1]||'').toLowerCase();
+    const kind=/актив/.test(rawKind)?'ACTIVE':/(доп|дожим|дополнительная)/.test(rawKind)?'DOZHIM':'MAIN';
+    current={day:Number(m[2]),month:month,year:m[5]?Number(m[5]):null,kind:kind,rawKind:rawKind,lines:[]};
+    sections.push(current);
   });
-  return sections.map(s=>({...s,text:s.lines.join('\n').trim()}));
+  return sections.map(function(s){
+    return Object.assign({},s,{text:s.lines.join('\n').trim()});
+  });
 }
-function dashboardEditorialMatch_(row,sections) {
-  const d=String(row[0]).match(/^(\d{1,2})\.(\d{1,2})\.(20\d{2})$/);if(!d)return null;
-  const found=sections.filter(s=>s.day===Number(d[1])&&s.month===Number(d[2])&&(!s.year||s.year===Number(d[3]))&&!/дополнительная/i.test(s.kind));
-  if(found.length!==1)return {error:found.length?'На дату найдено несколько редакционных писем. Откройте источник.':'На эту дату в документе нет основного письма.'};
-  const text=found[0].text;if(!text)return {error:'Раздел на эту дату пока пуст.'};
-  const clean=v=>String(v).toLowerCase().replace(/ё/g,'е').replace(/[^а-яa-z0-9]/g,'');
-  return {text,subjectMatches:clean(text).includes(clean(row[3])),date:row[0]};
+function dashboardEditorialMatch_(row,sections,kind) {
+  const d=String(row[0]||'').match(/^(\d{1,2})\.(\d{1,2})\.(20\d{2})$/);
+  if(!d)return null;
+  const wanted=kind||'MAIN';
+  const found=(sections||[]).filter(function(s){
+    return s.day===Number(d[1])&&
+      s.month===Number(d[2])&&
+      (!s.year||s.year===Number(d[3]))&&
+      s.kind===wanted;
+  }).filter(function(s){return String(s.text||'').trim();});
+  if(!found.length)return {error:wanted==='DOZHIM'?'На эту дату в редакционном источнике нет ДОПа.':'На эту дату в редакционном источнике нет основного письма.'};
+  const selected=found.slice().sort(function(a,b){return String(b.text||'').length-String(a.text||'').length;})[0];
+  const text=String(selected.text||'').trim();
+  const clean=function(v){return String(v||'').toLowerCase().replace(/ё/g,'е').replace(/[^а-яa-z0-9]/g,'');};
+  return {
+    text:text,
+    subjectMatches:row[3]?clean(text).includes(clean(row[3])):null,
+    date:row[0],
+    editorialKind:wanted
+  };
 }
+function vikaTempPlanNorm_(value){
+  return String(value||'').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim();
+}
+
+function vikaTempPlanSource_(product){
+  const p=String(product||'').trim();
+  const map={
+    'УБУ':{sheet:'ТемыГФ_Периодика',subgroup:'УБУ'},
+    'ЗБУ':{sheet:'ТемыГФ_Периодика',subgroup:'ЗБУ'},
+    'ГФ Система':{sheet:'ТемыГФ_СС'},
+    'ГФ Школа':{sheet:'Темы ГФ Школа'},
+    'ГЗ Периодика':{sheet:'Тема ГЗ Периодика',docTab:'t.0'},
+    'ГЗ Система':{sheet:'Темы ГЗ СС',docTab:'t.f0e9uysqbhge'},
+    'ГЗ Школа':{sheet:'Темы ГЗ Школа ',docTab:'t.z5vc00fi70ow'}
+  };
+  return map[p]||null;
+}
+
+function vikaMonthName_(month){
+  return ['','январ','феврал','март','апрел','ма','июн','июл','август','сентябр','октябр','ноябр','декабр'][Number(month)||0]||'';
+}
+
+function vikaPlanPeriod_(plan){
+  const dates=(plan.rows||[]).map(function(r){return String(r[0]||'');}).filter(function(x){return /^\d{2}\.\d{2}\.20\d{2}$/.test(x);});
+  if(!dates.length)return null;
+  const parse=function(x){const p=x.split('.').map(Number);return {day:p[0],month:p[1],year:p[2]};};
+  return {first:parse(dates[0]),last:parse(dates[dates.length-1]),week:Number(plan.selected&&plan.selected.week)||0};
+}
+
+function vikaTempPlanBlock_(values,period,subgroup){
+  if(!period)return [];
+  const weekNeedle=period.week?String(period.week)+' неделя':'';
+  const periodNeedle='с '+period.first.day+' по '+period.last.day;
+  const monthNeedle=vikaMonthName_(period.first.month);
+  const candidates=[];
+  (values||[]).forEach(function(row,i){
+    const text=vikaTempPlanNorm_((row||[]).slice(0,4).join(' '));
+    if(!text)return;
+    let score=0;
+    if(weekNeedle&&text.indexOf(weekNeedle)>=0)score+=2;
+    if(text.indexOf(periodNeedle)>=0)score+=4;
+    if(monthNeedle&&text.indexOf(monthNeedle)>=0)score+=1;
+    if(score)candidates.push({i:i,score:score});
+  });
+  if(!candidates.length)return [];
+  candidates.sort(function(a,b){return b.score-a.score||b.i-a.i;});
+  let start=candidates[0].i;
+  let end=values.length;
+  for(let i=start+1;i<values.length;i++){
+    const text=vikaTempPlanNorm_((values[i]||[]).slice(0,4).join(' '));
+    if(/^\d{1,2}\s+неделя/.test(text)||/^с\s+\d{1,2}\s+по\s+\d{1,2}/.test(text)){end=i;break;}
+  }
+  let block=values.slice(start,end);
+  if(subgroup){
+    const target=vikaTempPlanNorm_(subgroup);
+    let subStart=-1,subEnd=block.length;
+    for(let i=0;i<block.length;i++){
+      const head=vikaTempPlanNorm_((block[i]||[]).slice(0,4).join(' '));
+      if(head===target||head.endsWith(' '+target)||head.indexOf(target)>=0){
+        if(subStart<0)subStart=i;
+        else if(i>subStart){subEnd=i;break;}
+      }
+    }
+    if(subStart>=0)block=block.slice(subStart,subEnd);
+  }
+  return block;
+}
+
+function vikaTempPlanRecords_(plan){
+  const book=SpreadsheetApp.openById('12FtI2gu4lv3x8azRYu8F8aGEFzwi8ESUpUzFlPuipFo');
+  const period=vikaPlanPeriod_(plan);
+  const byProduct={};
+  const productNames=[...new Set((plan.rows||[]).map(function(r){return String(r[1]||'').trim();}).filter(Boolean))];
+
+  productNames.forEach(function(product){
+    const spec=vikaTempPlanSource_(product);
+    if(!spec)return;
+    const sheet=book.getSheetByName(spec.sheet);
+    if(!sheet)return;
+    const values=sheet.getDataRange().getDisplayValues();
+    const block=vikaTempPlanBlock_(values,period,spec.subgroup);
+    let currentDay='';
+    const records=[];
+
+    block.forEach(function(row){
+      const a=vikaTempPlanNorm_(row[0]);
+      const b=vikaTempPlanNorm_(row[1]);
+      const dayMatch=a.match(/^(пн|вт|ср|чт|пт)$/);
+      if(dayMatch)currentDay=dayMatch[1];
+      if(!currentDay)return;
+
+      let kind='';
+      if(/активдемо/.test(b))kind='ACTIVE';
+      else if(/дожим|на\s*13|доп/.test(b))kind='DOZHIM';
+      else if(/открыт/.test(b))kind='OPEN';
+      else if(dayMatch)kind='MAIN';
+      else return;
+
+      if(kind==='ACTIVE'||kind==='OPEN')return;
+
+      const theme=String(row[2]||'').trim();
+      const title=String(row[3]||'').trim();
+      const text=String(row[4]||'').trim();
+      const materialUrl=String(row[5]||'').trim();
+      const sendsay=String(row[8]||row[7]||'').trim();
+      if(!theme&&!title&&!text&&!materialUrl)return;
+      records.push({
+        day:currentDay,
+        kind:kind,
+        theme:theme,
+        title:title,
+        text:text,
+        materialUrl:materialUrl,
+        sendsay:sendsay,
+        docPointer:/рассылки\s+демо\s+периодика,\s*сс,\s*вшг/i.test(theme),
+        sourceUrl:book.getUrl()+'#gid='+sheet.getSheetId()
+      });
+    });
+    byProduct[product]={spec:spec,records:records};
+  });
+  return byProduct;
+}
+
+function vikaDateDay_(value){
+  const m=String(value||'').match(/^(\d{2})\.(\d{2})\.(20\d{2})$/);
+  if(!m)return '';
+  const d=new Date(Date.UTC(Number(m[3]),Number(m[2])-1,Number(m[1])));
+  return ['вс','пн','вт','ср','чт','пт','сб'][d.getUTCDay()]||'';
+}
+
 function getVikaEditorialUi(sheetId) {
   requireDashboardOwner_();
   const plan=getVikaPlanUi(sheetId);
+  const temp=vikaTempPlanRecords_(plan);
+
   const docId='1Z5xX0To-Q-9f9R0RzIuDQsSTkrv3mfLJlceiWzT0rF4';
-  const url='https://docs.googleapis.com/v1/documents/'+encodeURIComponent(docId)+'?includeTabsContent=true';
-  const response=UrlFetchApp.fetch(url,{
-    headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},
-    muteHttpExceptions:true
+  let doc=null,tabs=[],byTab={};
+  const needsDoc=(plan.rows||[]).some(function(r){
+    const segment=String(r[2]||'');
+    if(/АКТИВДЕМО/i.test(segment))return false;
+    const product=String(r[1]||'').trim();
+    const day=vikaDateDay_(r[0]);
+    const kind=/ДОЖИМ/i.test(segment)?'DOZHIM':'MAIN';
+    const bucket=temp[product];
+    const record=bucket&&(bucket.records||[]).find(function(x){return x.day===day&&x.kind===kind;});
+    return Boolean(record&&record.docPointer&&bucket.spec&&bucket.spec.docTab);
   });
-  const code=response.getResponseCode();
-  const raw=response.getContentText();
-  if(code!==200){
-    throw new Error('Не удалось прочитать редакционный документ через Google Docs API (HTTP '+code+').');
-  }
 
-  let doc;
-  try{doc=JSON.parse(raw);}catch(error){
-    throw new Error('Google Docs API вернул некорректный ответ.');
-  }
-
-  const tabs=[];
-  (function collect(items){
-    (items||[]).forEach(function(tab){
-      if(tab&&tab.tabProperties)tabs.push(tab);
-      if(tab&&tab.childTabs)collect(tab.childTabs);
+  if(needsDoc){
+    const url='https://docs.googleapis.com/v1/documents/'+encodeURIComponent(docId)+'?includeTabsContent=true';
+    const response=UrlFetchApp.fetch(url,{
+      headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},
+      muteHttpExceptions:true
     });
-  })(doc.tabs||[]);
+    const code=response.getResponseCode();
+    if(code!==200)throw new Error('Не удалось прочитать редакционный документ через Google Docs API (HTTP '+code+').');
+    try{doc=JSON.parse(response.getContentText());}catch(error){throw new Error('Google Docs API вернул некорректный ответ.');}
 
-  function bodyText(items){
-    return (items||[]).map(function(e){
-      if(e.paragraph){
-        return (e.paragraph.elements||[]).map(function(x){
-          const run=x.textRun;
-          if(!run)return '';
-          const link=run.textStyle&&run.textStyle.link&&run.textStyle.link.url;
-          return String(run.content||'')+(link&&!String(run.content||'').includes(link)?' ('+link+')':'');
-        }).join('');
-      }
-      if(e.table){
-        return (e.table.tableRows||[]).map(function(r){
-          return (r.tableCells||[]).map(function(cell){
-            return bodyText(cell.content);
+    (function collect(items){
+      (items||[]).forEach(function(tab){
+        if(tab&&tab.tabProperties)tabs.push(tab);
+        if(tab&&tab.childTabs)collect(tab.childTabs);
+      });
+    })(doc.tabs||[]);
+
+    function bodyText(items){
+      return (items||[]).map(function(e){
+        if(e.paragraph){
+          return (e.paragraph.elements||[]).map(function(x){
+            const run=x.textRun;
+            if(!run)return '';
+            const link=run.textStyle&&run.textStyle.link&&run.textStyle.link.url;
+            return String(run.content||'')+(link&&!String(run.content||'').includes(link)?' ('+link+')':'');
+          }).join('');
+        }
+        if(e.table){
+          return (e.table.tableRows||[]).map(function(r){
+            return (r.tableCells||[]).map(function(cell){return bodyText(cell.content);}).join('\n');
           }).join('\n');
-        }).join('\n');
-      }
-      return '';
-    }).join('');
-  }
+        }
+        return '';
+      }).join('');
+    }
 
-  const mapping={
-    'ГЗ Периодика':'t.0',
-    'ГЗ Система':'t.f0e9uysqbhge',
-    'ГЗ Школа':'t.z5vc00fi70ow'
-  };
-  const byTab={};
-  tabs.forEach(function(tab){
-    const props=tab.tabProperties||{};
-    const id=String(props.tabId||'');
-    const body=tab.documentTab&&tab.documentTab.body&&tab.documentTab.body.content;
-    if(id)byTab[id]=dashboardEditorialSections_(bodyText(body));
-  });
+    tabs.forEach(function(tab){
+      const props=tab.tabProperties||{},id=String(props.tabId||'');
+      const body=tab.documentTab&&tab.documentTab.body&&tab.documentTab.body.content;
+      if(id)byTab[id]=dashboardEditorialSections_(bodyText(body));
+    });
+  }
 
   const rows={};
-  plan.rows.forEach(function(r,i){
-    if(!/MAIN/.test(r[2]||'')||/АПФАС|ГЗВИО/.test(r[1]||''))return;
-    const product=Object.keys(mapping).find(function(p){return String(r[1]).startsWith(p);});
-    if(!product)return;
-    const tabId=mapping[product];
-    const match=dashboardEditorialMatch_(r,byTab[tabId]||[]);
-    if(!match)return;
-    const tab=tabs.find(function(item){
-      return item&&item.tabProperties&&String(item.tabProperties.tabId||'')===tabId;
-    });
-    rows[i]=Object.assign({},match,{
-      sourceUrl:'https://docs.google.com/document/d/'+docId+'/edit?tab='+tabId,
-      tabTitle:tab&&tab.tabProperties&&tab.tabProperties.title?tab.tabProperties.title:product
-    });
+  (plan.rows||[]).forEach(function(r,i){
+    const segment=String(r[2]||'');
+    if(/АКТИВДЕМО/i.test(segment))return; // Наши тексты: редакционные источники к ним не применяем.
+    if(/АПФАС|ГЗВИО/.test(String(r[1]||'')))return;
+
+    const product=String(r[1]||'').trim();
+    const bucket=temp[product];
+    if(!bucket)return;
+    const kind=/ДОЖИМ/i.test(segment)?'DOZHIM':'MAIN';
+    const day=vikaDateDay_(r[0]);
+    const record=(bucket.records||[]).find(function(x){return x.day===day&&x.kind===kind;});
+    if(!record)return;
+
+    if(record.docPointer&&bucket.spec&&bucket.spec.docTab){
+      const match=dashboardEditorialMatch_(r,byTab[bucket.spec.docTab]||[],kind);
+      if(!match)return;
+      const tab=tabs.find(function(item){
+        return item&&item.tabProperties&&String(item.tabProperties.tabId||'')===bucket.spec.docTab;
+      });
+      rows[i]=Object.assign({},match,{
+        subject:record.theme,
+        title:record.title,
+        materialUrl:record.materialUrl,
+        sourceType:'tempplan-doc',
+        sourceLabel:'Темплан по демкам → редакционный документ',
+        sourceUrl:'https://docs.google.com/document/d/'+docId+'/edit?tab='+bucket.spec.docTab,
+        tempPlanUrl:record.sourceUrl,
+        tabTitle:tab&&tab.tabProperties&&tab.tabProperties.title?tab.tabProperties.title:product
+      });
+      return;
+    }
+
+    rows[i]={
+      text:record.text,
+      subject:record.theme,
+      title:record.title,
+      materialUrl:record.materialUrl,
+      sendsay:record.sendsay,
+      date:r[0],
+      editorialKind:kind,
+      subjectMatches:r[3]?vikaTempPlanNorm_(record.theme).indexOf(vikaTempPlanNorm_(r[3]))>=0:null,
+      sourceType:'tempplan',
+      sourceLabel:'Темплан по демкам',
+      sourceUrl:record.sourceUrl,
+      tabTitle:bucket.spec.sheet
+    };
   });
 
   return {
     rows:rows,
     readAt:new Date().toISOString(),
-    documentTitle:String(doc.title||'рассылки демо периодика, сс, вшг'),
-    source:'google-docs-api'
+    documentTitle:doc?String(doc.title||'рассылки демо периодика, сс, вшг'):'',
+    source:'tempplan-first',
+    rule:'АКТИВДЕМО — только наш план; MAIN/ДОЖИМ — редакционный Темплан'
   };
 }
