@@ -453,13 +453,22 @@ async function loadMailBodyPreview_(details){
  try{
    const data=await rpc('getMailBodyUi',ref);
    details.dataset.loaded='1';
+   delete details.dataset.needsOwner;
    const title=String(data&&data.subject||'').trim();
    const text=String(data&&data.text||'').trim();
    const note=String(data&&data.note||'').trim();
    box.innerHTML=(title?'<b class="mail-body-subject">'+esc(title)+'</b>':'')+
      (text?'<div class="mail-body-text">'+esc(text)+'</div>':'<p class="mail-body-empty">'+esc(note||'Текст письма не найден в Sendsay.')+'</p>');
  }catch(e){
-   box.innerHTML='<p class="mail-body-error">Не удалось загрузить текст: '+esc(e&&e.message?e.message:String(e))+'</p>';
+   const message=String(e&&e.message?e.message:e||'');
+   if(/Доступен только просмотр аналитики|нужен вход владельца|Для обновления данных нужен вход владельца/i.test(message)){
+     details.dataset.needsOwner='1';
+     box.innerHTML='<div class="mail-body-auth-note"><b>Публичный сервер ещё не обновлён.</b><span>Текст уже доступен через API владельца.</span><button type="button" class="mail-body-owner-login">Войти владельцу и загрузить текст</button></div>';
+     const login=box.querySelector('.mail-body-owner-login');
+     if(login)login.onclick=()=>{if(window.analyticsRequestOwnerLogin)window.analyticsRequestOwnerLogin();};
+   }else{
+     box.innerHTML='<p class="mail-body-error">Не удалось загрузить текст: '+esc(message)+'</p>';
+   }
  }finally{
    delete details.dataset.loading;
  }
