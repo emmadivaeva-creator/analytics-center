@@ -159,6 +159,8 @@ function analyticsPublicReadCompat_(event) {
       }
     } else if (method === 'getMailBodyUi' && typeof getMailBodyUi === 'function') {
       result = getMailBodyUi.apply(null, args);
+    } else if (method === 'getMailContentUi' && typeof getMailContentUi === 'function') {
+      result = getMailContentUi.apply(null, args);
     } else if (method === 'getMailDemoDetailsUi' && typeof getMailDemoDetailsUi === 'function') {
       result = getMailDemoDetailsUi.apply(null, args);
     } else if (method === 'getVikaPlanUi' && typeof getVikaPlanUi === 'function') {
