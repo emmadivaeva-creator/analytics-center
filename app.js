@@ -428,9 +428,20 @@ function mailBodyPreviewHtml_(x){
  const ref=mailBodyRef_(x);
  if(!ref)return '<small class="mail-body-unavailable">Текст письма через API недоступен</small>';
  return '<details class="mail-body-preview" data-body-ref="'+esc(ref)+'">'+
-   '<summary>Посмотреть текст письма</summary>'+
-   '<div class="mail-body-content">Откройте блок, чтобы загрузить текст из Sendsay.</div>'+
+   '<summary>Быстро посмотреть текст</summary>'+
+   '<div class="mail-body-content">Загружаю текст только при первом раскрытии.</div>'+
  '</details>';
+}
+function mailLetterHtml_(x){
+ const subject=String(x&&x.subject||'').trim()||'Без темы';
+ const original=safeLink(x&&x.sendsay,'Открыть в Sendsay');
+ return '<div class="mail-letter">'+
+   '<b class="mail-letter-subject">'+esc(subject)+'</b>'+
+   '<div class="mail-letter-actions">'+
+     (original||'')+
+     mailBodyPreviewHtml_(x)+
+   '</div>'+
+ '</div>';
 }
 async function loadMailBodyPreview_(details){
  if(!details||details.dataset.loaded==='1'||details.dataset.loading==='1')return;
@@ -653,7 +664,7 @@ function renderRegistries(){for(const key of ['mail','news']){
  const rows=key==='mail'?logicalMailRows_(sourceRows):sourceRows;
  const summary=document.getElementById('mailWeekSummary');if(summary)summary.innerHTML=mailWeekSummaryHtml_(sourceRows,selectedWeek);
  document.getElementById(key+'Status').textContent='Писем в кэше: '+fmt(rows.length)+' · показано '+fmt(Math.min(rows.length,registryLimits[key]))+' · от новых к старым'+registryCacheNote_()+(key==='news'?' · Новости сопоставлены: '+(registryData||[]).filter(m=>isNewsMail(m)&&m.materialData).length+'/'+(registryData||[]).filter(isNewsMail).length:'');
- document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}${x.campaignCount>1?' · '+fmt(x.campaignCount)+' сегмента Sendsay':''}</small></td><td>${key==='mail'?`<b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>${mailBodyPreviewHtml_(x)}`:`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):x.hasDemoData===true?`R ${fmt(x.red)} / Y ${fmt(x.yellow)} / G ${fmt(x.green)}`:`R 0 / Y 0 / G 0<small>В статистике DEMO событий нет</small>`}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
+ document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}${x.campaignCount>1?' · '+fmt(x.campaignCount)+' сегмента Sendsay':''}</small></td><td>${key==='mail'?mailLetterHtml_(x):`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):x.hasDemoData===true?`R ${fmt(x.red)} / Y ${fmt(x.yellow)} / G ${fmt(x.green)}`:`R 0 / Y 0 / G 0<small>В статистике DEMO событий нет</small>`}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
  document.getElementById(key+'More').classList.toggle('hidden',rows.length<=registryLimits[key]);
  document.getElementById(key+'Rows').querySelectorAll('.material-demo').forEach(button=>button.onclick=()=>loadMaterialDemo(button));
  if(key==='mail')bindMailBodyPreviews_();
