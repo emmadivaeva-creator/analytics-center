@@ -14,7 +14,6 @@ function publicDashboardRead_(event) {
       getMailRegistryRecentUi: getMailRegistryRecentUi,
       getMailRegistryPageUi: getMailRegistryPageUi,
       getMailDemoDetailsUi: getMailDemoDetailsUi,
-      getMailContentUi: getMailContentUi,
       getMailBodyUi: getMailBodyUi,
       getDemandEvidenceUi: getDemandEvidenceUi,
       getVikaPlanUi: getVikaPlanUi,
