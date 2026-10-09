@@ -533,22 +533,85 @@ function getVikaEditorialUi(sheetId) {
   requireDashboardOwner_();
   const plan=getVikaPlanUi(sheetId);
   const docId='1Z5xX0To-Q-9f9R0RzIuDQsSTkrv3mfLJlceiWzT0rF4';
+  const url='https://docs.googleapis.com/v1/documents/'+encodeURIComponent(docId)+'?includeTabsContent=true';
+  const response=UrlFetchApp.fetch(url,{
+    headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},
+    muteHttpExceptions:true
+  });
+  const code=response.getResponseCode();
+  const raw=response.getContentText();
+  if(code!==200){
+    throw new Error('Не удалось прочитать редакционный документ через Google Docs API (HTTP '+code+').');
+  }
+
+  let doc;
+  try{doc=JSON.parse(raw);}catch(error){
+    throw new Error('Google Docs API вернул некорректный ответ.');
+  }
+
   const tabs=[];
-  const definitions=[['t.0','рассылки период'],['t.f0e9uysqbhge','рассылки сс'],['t.z5vc00fi70ow','рассылки вшг']];
-  definitions.forEach(([tabId,title])=>{
-    const response=UrlFetchApp.fetch('https://docs.google.com/document/d/'+docId+'/export?format=txt&tab='+tabId,{headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},muteHttpExceptions:true});
-    const text=response.getContentText();
-    if(response.getResponseCode()!==200||/^\s*</.test(text))throw new Error('Не удалось прочитать редакционный документ: '+title+' (HTTP '+response.getResponseCode()+').');
-    tabs.push({tabProperties:{tabId,title},documentTab:{body:{content:[{paragraph:{elements:[{textRun:{content:text}}]}}]}}});
+  (function collect(items){
+    (items||[]).forEach(function(tab){
+      if(tab&&tab.tabProperties)tabs.push(tab);
+      if(tab&&tab.childTabs)collect(tab.childTabs);
+    });
+  })(doc.tabs||[]);
+
+  function bodyText(items){
+    return (items||[]).map(function(e){
+      if(e.paragraph){
+        return (e.paragraph.elements||[]).map(function(x){
+          const run=x.textRun;
+          if(!run)return '';
+          const link=run.textStyle&&run.textStyle.link&&run.textStyle.link.url;
+          return String(run.content||'')+(link&&!String(run.content||'').includes(link)?' ('+link+')':'');
+        }).join('');
+      }
+      if(e.table){
+        return (e.table.tableRows||[]).map(function(r){
+          return (r.tableCells||[]).map(function(cell){
+            return bodyText(cell.content);
+          }).join('\n');
+        }).join('\n');
+      }
+      return '';
+    }).join('');
+  }
+
+  const mapping={
+    'ГЗ Периодика':'t.0',
+    'ГЗ Система':'t.f0e9uysqbhge',
+    'ГЗ Школа':'t.z5vc00fi70ow'
+  };
+  const byTab={};
+  tabs.forEach(function(tab){
+    const props=tab.tabProperties||{};
+    const id=String(props.tabId||'');
+    const body=tab.documentTab&&tab.documentTab.body&&tab.documentTab.body.content;
+    if(id)byTab[id]=dashboardEditorialSections_(bodyText(body));
   });
-  const doc={title:'рассылки демо периодика, сс, вшг'};
-  function bodyText(items){return (items||[]).map(e=>e.paragraph?(e.paragraph.elements||[]).map(x=>{const run=x.textRun;if(!run)return '';const link=run.textStyle&&run.textStyle.link&&run.textStyle.link.url;return run.content+(link&&!run.content.includes(link)?' ('+link+')':'');}).join(''):e.table?(e.table.tableRows||[]).map(r=>(r.tableCells||[]).map(c=>bodyText(c.content)).join('\n')).join('\n'):'').join('');}
-  const mapping={'ГЗ Периодика':'t.0','ГЗ Система':'t.f0e9uysqbhge','ГЗ Школа':'t.z5vc00fi70ow'},byTab={};
-  tabs.forEach(t=>byTab[t.tabProperties.tabId]=dashboardEditorialSections_(bodyText(t.documentTab&&t.documentTab.body&&t.documentTab.body.content)));
-  const rows={};plan.rows.forEach((r,i)=>{
+
+  const rows={};
+  plan.rows.forEach(function(r,i){
     if(!/MAIN/.test(r[2]||'')||/АПФАС|ГЗВИО/.test(r[1]||''))return;
-    const product=Object.keys(mapping).find(p=>String(r[1]).startsWith(p));if(!product)return;
-    const tabId=mapping[product],match=dashboardEditorialMatch_(r,byTab[tabId]||[]);if(match)rows[i]={...match,sourceUrl:'https://docs.google.com/document/d/'+docId+'/edit?tab='+tabId,tabTitle:(tabs.find(t=>t.tabProperties.tabId===tabId)||{tabProperties:{title:product}}).tabProperties.title};
+    const product=Object.keys(mapping).find(function(p){return String(r[1]).startsWith(p);});
+    if(!product)return;
+    const tabId=mapping[product];
+    const match=dashboardEditorialMatch_(r,byTab[tabId]||[]);
+    if(!match)return;
+    const tab=tabs.find(function(item){
+      return item&&item.tabProperties&&String(item.tabProperties.tabId||'')===tabId;
+    });
+    rows[i]=Object.assign({},match,{
+      sourceUrl:'https://docs.google.com/document/d/'+docId+'/edit?tab='+tabId,
+      tabTitle:tab&&tab.tabProperties&&tab.tabProperties.title?tab.tabProperties.title:product
+    });
   });
-  return {rows,readAt:new Date().toISOString(),documentTitle:doc.title};
+
+  return {
+    rows:rows,
+    readAt:new Date().toISOString(),
+    documentTitle:String(doc.title||'рассылки демо периодика, сс, вшг'),
+    source:'google-docs-api'
+  };
 }
