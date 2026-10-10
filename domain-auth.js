@@ -5,7 +5,7 @@
   const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'getPulseDataStoredUi', 'syncDriveReportsReliable',
     'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
     'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi', 'getMailBodyUi', 'getDemandEvidenceUi',
-    'getVikaPlanUi', 'getVikaEditorialUi', 'getVioTrendsUi']);
+    'getVikaPlanUi', 'getVikaEditorialUi', 'saveVikaActiveDemoUi', 'getVioTrendsUi']);
   const gate = document.getElementById('authGate');
   const button = document.getElementById('signIn');
   const status = document.getElementById('authStatus');
@@ -130,6 +130,7 @@
           showGate('Google не предоставил необходимые разрешения для аналитики.'); return;
         }
         token = result.access_token;
+        window.analyticsOwnerMode = true;
         expiresAt = Date.now() + Math.max(0, Number(result.expires_in) - 60) * 1000;
         try {
           await window.analyticsRpc('v2HealthCheck');
