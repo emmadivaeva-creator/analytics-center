@@ -41,6 +41,7 @@ function openPage(name,persist=true){
 }
 buttons.forEach(b=>b.addEventListener('click',()=>openPage(b.dataset.page)));
 window.addEventListener('analytics-authenticated',()=>{
+  vikaOwnerMode=true;
   checkServer();
   loadData();
   const page=rememberedPage();
@@ -1213,11 +1214,32 @@ document.getElementById('demandReload').onclick=async()=>{demandData=null;await 
 document.getElementById('demandSearch').oninput=renderDemand;
 document.getElementById('demandGroup').onchange=()=>{demandShowAll=false;renderDemand();};
 
-let vikaData=null,vikaLoading=false;
-async function loadVika(id){if(vikaLoading)return;vikaLoading=true;const status=document.getElementById('vikaStatus');status.textContent='Читаю рабочий план…';try{vikaData=await rpc('getVikaPlanUi',id||null);document.getElementById('vikaPeriod').innerHTML=vikaData.plans.slice().sort((a,b)=>b.week-a.week).map(p=>`<option value="${p.id}" ${p.id===vikaData.selected.id?'selected':''}>${esc(p.name)}</option>`).join('');document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть исходную таблицу');renderVika();loadVikaEditorial(vikaData);}catch(e){status.textContent='Не удалось загрузить план: '+e.message;}finally{vikaLoading=false;}}
-async function loadVikaEditorial(plan){try{const result=await rpc('getVikaEditorialUi',plan.selected.id);if(vikaData!==plan)return;plan.editorial=result;}catch(e){if(vikaData!==plan)return;plan.editorialError='Редакционный оригинал не загружен: '+e.message;}renderVika();}
+let vikaData=null,vikaLoading=false,vikaOwnerMode=Boolean(window.analyticsOwnerMode);
+
+async function loadVika(id){
+ if(vikaLoading)return;
+ vikaLoading=true;
+ const status=document.getElementById('vikaStatus');
+ status.textContent='Собираю план напрямую из Темплана по демкам…';
+ try{
+   vikaData=await rpc('getVikaPlanUi',id||null);
+   const plans=Array.isArray(vikaData.plans)?vikaData.plans:[];
+   document.getElementById('vikaPeriod').innerHTML=plans
+     .slice()
+     .sort((a,b)=>b.week-a.week)
+     .map(p=>'<option value="'+esc(p.id)+'" '+(String(p.id)===String(vikaData.selected?.id)?'selected':'')+'>'+esc(p.name)+'</option>')
+     .join('');
+   document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть Темплан по демкам');
+   renderVika();
+ }catch(e){
+   status.textContent='Не удалось собрать план: '+(e&&e.message?e.message:String(e));
+ }finally{
+   vikaLoading=false;
+ }
+}
+
 function vikaEditorialParts(i){
- const e=vikaData.editorial?.rows?.[i];
+ const e=vikaData?.editorial?.rows?.[i];
  if(!e?.text)return {body:'',notes:[]};
  const body=String(e.text||'').split(/\n\s*рассылка\s+(?:по|для)\s+открыто[йм]/i)[0];
  const notes=[];
@@ -1230,76 +1252,154 @@ function vikaEditorialParts(i){
  });
  return {body:lines.join('\n').trim(),notes};
 }
+
 function vikaEditorialNotes(i){
  const notes=vikaEditorialParts(i).notes;
- return notes.length?`<div class="vika-field"><h4>Примечания редакции</h4><p>${esc(notes.join('\n'))}</p></div>`:'';
+ return notes.length?'<div class="vika-field"><h4>Примечания редакции</h4><p>'+esc(notes.join('\n'))+'</p></div>':'';
 }
+
 function vikaEditorialHtml(i){
- const e=vikaData.editorial?.rows?.[i];
+ const e=vikaData?.editorial?.rows?.[i];
  if(!e)return '';
  const parts=vikaEditorialParts(i);
  const label=String(e.sourceLabel||'Темплан по демкам');
  const sourceLink=safeLink(e.sourceUrl,label+(e.tabTitle?' · '+e.tabTitle:''));
- const tempLink=e.tempPlanUrl&&e.tempPlanUrl!==e.sourceUrl?safeLink(e.tempPlanUrl,'Открыть строку в Темплане по демкам'):'';
- const subject=e.subject?`<p><b>Тема редакции:</b> ${esc(e.subject)}</p>`:'';
- const title=e.title&&e.title!==e.subject?`<p><b>Заголовок:</b> ${esc(e.title)}</p>`:'';
+ const subject=e.subject?'<p><b>Тема редакции:</b> '+esc(e.subject)+'</p>':'';
+ const title=e.title&&e.title!==e.subject?'<p><b>Заголовок:</b> '+esc(e.title)+'</p>':'';
  const material=e.materialUrl?safeLink(e.materialUrl,'Открыть материал редакции'):'';
  if(e.error){
-   return `<div class="vika-editorial"><p>${sourceLink||tempLink||esc(label)}</p><p>${esc(e.error)}</p></div>`;
+   return '<div class="vika-editorial"><p>'+(sourceLink||esc(label))+'</p><p class="vika-source-missing">'+esc(e.error)+'</p></div>';
  }
- return `<div class="vika-editorial">
-   <p>${sourceLink||esc(label)}${tempLink?' · '+tempLink:''}</p>
-   ${subject}${title}
-   <details open><summary>Текст редакции из Темплана</summary><p class="editorial-original">${esc(parts.body)}</p></details>
-   ${material?`<p>${material}</p>`:''}
- </div>`;
+ return '<div class="vika-editorial">'+
+   '<p>'+(sourceLink||esc(label))+'</p>'+
+   subject+title+
+   '<details open><summary>Текст редакции из Темплана</summary><p class="editorial-original">'+esc(parts.body)+'</p></details>'+
+   (material?'<p>'+material+'</p>':'')+
+ '</div>';
 }
+
+function vikaActiveEditorHtml_(r,i){
+ const meta=vikaData?.rowMeta?.[i];
+ if(!meta||meta.source!=='active-demo')return '';
+ if(!vikaOwnerMode){
+   const empty=![r[3],r[5],r[7]].some(Boolean);
+   return empty
+     ?'<button type="button" class="vika-owner-edit" data-vika-owner-login="1">Войти владельцу и заполнить АКТИВДЕМО</button>'
+     :'';
+ }
+ return '<details class="vika-active-editor" data-vika-index="'+i+'">'+
+   '<summary>Редактировать АКТИВДЕМО</summary>'+
+   '<div class="vika-editor-grid">'+
+     '<label><span>Тема письма</span><input data-field="subject" value="'+esc(r[3]||'')+'"></label>'+
+     '<label><span>Заголовок</span><input data-field="title" value="'+esc(r[4]||'')+'"></label>'+
+     '<label class="wide"><span>Полный текст письма</span><textarea data-field="body">'+esc(r[5]||'')+'</textarea></label>'+
+     '<label><span>Кнопка</span><input data-field="button" value="'+esc(r[6]||'')+'"></label>'+
+     '<label><span>Ссылка на материал</span><input data-field="materialUrl" value="'+esc(r[7]||'')+'"></label>'+
+   '</div>'+
+   '<div class="vika-editor-actions"><button type="button" data-vika-save="1">Сохранить в Analytics Center</button><span class="vika-save-status"></span></div>'+
+ '</details>';
+}
+
+async function saveVikaActiveDemo_(button){
+ const editor=button.closest('.vika-active-editor');
+ if(!editor)return;
+ const i=Number(editor.dataset.vikaIndex);
+ const meta=vikaData?.rowMeta?.[i];
+ if(!meta||meta.source!=='active-demo')return;
+ const field=name=>{
+   const el=editor.querySelector('[data-field="'+name+'"]');
+   return el?el.value:'';
+ };
+ const status=editor.querySelector('.vika-save-status');
+ button.disabled=true;
+ if(status)status.textContent='Сохраняю…';
+ try{
+   await rpc('saveVikaActiveDemoUi',{
+     date:meta.date,
+     product:meta.product,
+     slot:meta.slot,
+     subject:field('subject'),
+     title:field('title'),
+     body:field('body'),
+     button:field('button'),
+     materialUrl:field('materialUrl')
+   });
+   if(status)status.textContent='Сохранено';
+   const selected=String(vikaData?.selected?.id||'');
+   vikaData=null;
+   await loadVika(selected);
+ }catch(e){
+   if(status)status.textContent='Ошибка: '+(e&&e.message?e.message:String(e));
+ }finally{
+   button.disabled=false;
+ }
+}
+
 function renderVika(){
-  if(!vikaData)return;
-  const dateSelect=document.getElementById('vikaDate'),previousDate=dateSelect.value;
-  const dates=[...new Set(vikaData.rows.map(r=>String(r[0]||'').trim()).filter(Boolean))];
-  dateSelect.innerHTML='<option value="">Все даты</option>'+dates.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
-  dateSelect.value=dates.includes(previousDate)?previousDate:'';
-  const selectedDate=dateSelect.value;
-  const q=document.getElementById('vikaSearch').value.toLowerCase().trim();
-  const rows=vikaData.rows.map((r,i)=>({r,i})).filter(({r,i})=>{
-    const e=vikaData.editorial?.rows?.[i]||{};
-    const hay=[...r,e.text,e.subject,e.title].join(' ').toLowerCase();
-    return (!selectedDate||String(r[0]||'').trim()===selectedDate)&&(!q||hay.includes(q));
-  });
+ if(!vikaData)return;
+ const dateSelect=document.getElementById('vikaDate'),previousDate=dateSelect.value;
+ const dates=[...new Set((vikaData.rows||[]).map(r=>String(r[0]||'').trim()).filter(Boolean))];
+ dateSelect.innerHTML='<option value="">Все даты</option>'+dates.map(d=>'<option value="'+esc(d)+'">'+esc(d)+'</option>').join('');
+ dateSelect.value=dates.includes(previousDate)?previousDate:'';
 
-  document.getElementById('vikaStatus').textContent=
-    vikaData.title+' · строк: '+rows.length+' · прочитано '+dateRu(vikaData.readAt)+
-    (vikaData.editorial?' · Редакционные источники обновлены':vikaData.editorialError?' · '+vikaData.editorialError:' · Читаю Темплан по демкам…');
+ const selectedDate=dateSelect.value;
+ const q=document.getElementById('vikaSearch').value.toLowerCase().trim();
+ const rows=(vikaData.rows||[]).map((r,i)=>({r,i})).filter(({r,i})=>{
+   const e=vikaData.editorial?.rows?.[i]||{};
+   const hay=[...r,e.text,e.subject,e.title].join(' ').toLowerCase();
+   return (!selectedDate||String(r[0]||'').trim()===selectedDate)&&(!q||hay.includes(q));
+ });
 
-  const fields=(r,indices)=>indices.map(i=>r[i]?`<div class="vika-field"><h4>${esc(vikaData.headers[i]||'Дополнительно')}</h4><p>${i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i])}</p></div>`:'').join('');
+ const activeRows=(vikaData.rowMeta||[]).filter(x=>x&&x.source==='active-demo').length;
+ const activeFilled=(vikaData.rows||[]).filter((r,i)=>{
+   const meta=vikaData.rowMeta?.[i];
+   return meta&&meta.source==='active-demo'&&Boolean(r[3]&&r[5]&&r[7]);
+ }).length;
+ document.getElementById('vikaStatus').textContent=
+   vikaData.title+' · строк: '+rows.length+
+   ' · редакция: Темплан по демкам'+
+   ' · АКТИВДЕМО: '+activeFilled+'/'+activeRows+' заполнено'+
+   ' · прочитано '+dateRu(vikaData.readAt);
 
-  const planText=(r,i)=>{
-    const editorial=vikaData.editorial?.rows?.[i];
-    const active=/АКТИВДЕМО/i.test(String(r[2]||''));
-    const content=fields(r,[4,5,6,7]);
-    if(active){
-      return `<details class="vika-plan-text" open><summary>Наш текст АКТИВДЕМО</summary>${content||'<p class="vika-missing-active">Наш текст АКТИВДЕМО на этот слот пока не заполнен.</p>'}</details>`;
-    }
-    if(content){
-      return `<details class="vika-plan-text"><summary>Текст из собранного плана</summary>${content}</details>`;
-    }
-    if(!editorial){
-      return '<div class="vika-source-missing">Редакционный текст не найден ни в Темплане, ни в собранном плане.</div>';
-    }
-    return '';
-  };
+ const fields=(r,indices)=>indices.map(i=>r[i]
+   ?'<div class="vika-field"><h4>'+esc(vikaData.headers[i]||'Дополнительно')+'</h4><p>'+(i===7?safeLink(r[i],'Открыть материал')||esc(r[i]):esc(r[i]))+'</p></div>'
+   :'').join('');
 
-  document.getElementById('vikaRows').innerHTML=rows.length?`<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>${rows.map(({r,i})=>{
-    const e=vikaData.editorial?.rows?.[i];
-    const subject=String(r[3]||e?.subject||'Тема не заполнена');
-    return `<tr>
-      <td>${esc(r[0])}<p>${esc(r[1])}</p><small>${esc(r[2])}</small></td>
-      <td class="vika-letter"><b>${esc(subject)}</b>${vikaEditorialHtml(i)}${planText(r,i)}</td>
-      <td class="vika-comments">${vikaEditorialNotes(i)}${fields(r,[9,10,11,12,13])||'—'}</td>
-      <td>${esc(r[8])}</td>
-    </tr>`;
-  }).join('')}</tbody></table>`:'<div class="calls-box">Строки не найдены.</div>';
+ const planText=(r,i)=>{
+   const meta=vikaData.rowMeta?.[i];
+   if(meta?.source==='active-demo'){
+     const content=fields(r,[4,5,6,7]);
+     return '<details class="vika-plan-text" open><summary>Наш текст АКТИВДЕМО</summary>'+
+       (content||'<p class="vika-missing-active">Наш текст АКТИВДЕМО на этот слот пока не заполнен.</p>')+
+       '</details>'+vikaActiveEditorHtml_(r,i);
+   }
+   const content=fields(r,[4,5,6,7]);
+   return content?'<details class="vika-plan-text"><summary>Текст в итоговом плане</summary>'+content+'</details>':'';
+ };
+
+ document.getElementById('vikaRows').innerHTML=rows.length
+   ?'<table class="vika-table"><thead><tr><th>Дата / продукт</th><th>Тема и полный текст</th><th>Комментарии и основания</th><th>Готовность</th></tr></thead><tbody>'+
+    rows.map(({r,i})=>{
+      const e=vikaData.editorial?.rows?.[i];
+      const meta=vikaData.rowMeta?.[i];
+      const fallback=meta?.source==='active-demo'?'АКТИВДЕМО пока не заполнено':'Тема редакции не заполнена';
+      const subject=String(r[3]||e?.subject||fallback);
+      return '<tr>'+
+        '<td>'+esc(r[0])+'<p>'+esc(r[1])+'</p><small>'+esc(r[2])+'</small></td>'+
+        '<td class="vika-letter"><b>'+esc(subject)+'</b>'+vikaEditorialHtml(i)+planText(r,i)+'</td>'+
+        '<td class="vika-comments">'+vikaEditorialNotes(i)+(fields(r,[9,10,11,12,13])||'—')+'</td>'+
+        '<td>'+esc(r[8])+'</td>'+
+      '</tr>';
+    }).join('')+
+    '</tbody></table>'
+   :'<div class="calls-box">Строки не найдены.</div>';
+
+ document.querySelectorAll('[data-vika-save="1"]').forEach(button=>{
+   button.onclick=()=>saveVikaActiveDemo_(button);
+ });
+ document.querySelectorAll('[data-vika-owner-login="1"]').forEach(button=>{
+   button.onclick=()=>{if(window.analyticsRequestOwnerLogin)window.analyticsRequestOwnerLogin();};
+ });
 }
 
 async function loadSources(){
