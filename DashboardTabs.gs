@@ -1,23 +1,495 @@
 /** Read-only dashboard sources and JSON-safe call results. */
-function getVikaPlanUi(sheetId) {
-  requireDashboardOwner_();
-  const book = SpreadsheetApp.openById('14mGKHyMFU45br5x5F5QqKhSIb590WtbBZcMARKZ3IVo');
-  const sheets = book.getSheets().filter(s => /^1\.2 План для Вики/.test(s.getName()) && !s.isSheetHidden());
-  const plans = sheets.map(s => { const title=s.getRange(1,1).getDisplayValue(); const m=title.match(/(\d{1,2})[−–-]?[яй]?\s*недел/i); return {id:s.getSheetId(),name:s.getName(),week:m?Number(m[1]):0}; });
-  const week=isoWeek_(todayIso_());
-  const selected=sheetId?plans.find(p=>String(p.id)===String(sheetId)):(plans.find(p=>p.week===week)||plans.slice().sort((a,b)=>b.week-a.week)[0]);
-  if(!selected)throw new Error('План для Вики не найден.');
-  const sheet=sheets.find(s=>s.getSheetId()===selected.id);
-  const rows=sheet.getRange(1,1,Math.max(4,sheet.getLastRow()),14).getDisplayValues();
-  const header=rows.findIndex(r=>r[0]==='Дата'&&r[1]==='Продукт / поток');
-  if(header<0)throw new Error('В плане не найдена строка заголовков.');
-  const planRows=rows.slice(header+1).filter(function(r){
-    if(!r.some(Boolean))return false;
-    const flow=String(r[1]||'');
-    return !/АПФАС|ГЗВИО|ГЗ Периодика\s*[·-]\s*(?:ВИО|ФАС)/i.test(flow);
-  });
-  return {plans:plans,selected:selected,title:rows[0][0],headers:rows[header],rows:planRows,sourceUrl:book.getUrl()+'#gid='+selected.id,readAt:new Date().toISOString()};
+
+const VIKA_DIRECT_ = Object.freeze({
+  tempPlanId: '12FtI2gu4lv3x8azRYu8F8aGEFzwi8ESUpUzFlPuipFo',
+  activeSheet: '_Vika active v2',
+  products: [
+    {product:'ГЗ Периодика', sheet:'Тема ГЗ Периодика', docTab:'t.0'},
+    {product:'ГЗ Система', sheet:'Темы ГЗ СС', docTab:'t.f0e9uysqbhge'},
+    {product:'ГЗ Школа', sheet:'Темы ГЗ Школа ', docTab:'t.z5vc00fi70ow'},
+    {product:'УБУ', sheet:'ТемыГФ_Периодика', subgroup:'УБУ'},
+    {product:'ЗБУ', sheet:'ТемыГФ_Периодика', subgroup:'ЗБУ'},
+    {product:'ГФ Система', sheet:'ТемыГФ_СС'},
+    {product:'ГФ Школа', sheet:'Темы ГФ Школа'}
+  ],
+  activeHeaders: [
+    'ID','Дата','Продукт','Слот','Тема','Заголовок','Полный текст',
+    'Кнопка','Ссылка','Готовность','Проверить','Основание','Обновлено'
+  ],
+  pointerText: 'рассылки демо периодика, сс, вшг',
+  editorialDocId: '1Z5xX0To-Q-9f9R0RzIuDQsSTkrv3mfLJlceiWzT0rF4'
+});
+
+function vikaDirectNorm_(value){
+  return String(value||'').toLowerCase().replace(/ё/g,'е').replace(/\s+/g,' ').trim();
 }
+
+function vikaDirectWeekStart_(year,week){
+  const jan4=new Date(Date.UTC(year,0,4,12));
+  const day=jan4.getUTCDay()||7;
+  const monday=new Date(jan4);
+  monday.setUTCDate(jan4.getUTCDate()-(day-1)+(Number(week)-1)*7);
+  return monday;
+}
+
+function vikaDirectDateIso_(date){
+  return Utilities.formatDate(date,'UTC','yyyy-MM-dd');
+}
+
+function vikaDirectDateDisplay_(date){
+  return Utilities.formatDate(date,'UTC','dd.MM.yyyy');
+}
+
+function vikaDirectWeekDates_(year,week){
+  const monday=vikaDirectWeekStart_(year,week);
+  return ['пн','вт','ср','чт','пт'].map(function(day,i){
+    const d=new Date(monday);
+    d.setUTCDate(monday.getUTCDate()+i);
+    return {day:day,date:vikaDirectDateDisplay_(d),iso:vikaDirectDateIso_(d)};
+  });
+}
+
+function vikaDirectWeekLabel_(year,week){
+  const dates=vikaDirectWeekDates_(year,week);
+  const first=dates[0].date.split('.');
+  const last=dates[4].date.split('.');
+  const months=['','января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  const fDay=Number(first[0]),fMonth=Number(first[1]),lDay=Number(last[0]),lMonth=Number(last[1]);
+  return fMonth===lMonth
+    ? fDay+'–'+lDay+' '+months[lMonth]+' '+year
+    : fDay+' '+months[fMonth]+' – '+lDay+' '+months[lMonth]+' '+year;
+}
+
+function vikaDirectWeekFromPeriod_(text,year){
+  const norm=vikaDirectNorm_(text);
+  const months={январ:1,феврал:2,март:3,апрел:4,ма:5,июн:6,июл:7,август:8,сентябр:9,октябр:10,ноябр:11,декабр:12};
+  const m=norm.match(/с\s*(\d{1,2})\s*по\s*(\d{1,2})\s*([а-я]+)/i);
+  if(!m)return 0;
+  let month=0;
+  Object.keys(months).some(function(key){
+    if(m[3].indexOf(key)===0){month=months[key];return true;}
+    return false;
+  });
+  if(!month)return 0;
+  return isoWeek_(Utilities.formatDate(new Date(Date.UTC(year,month-1,Number(m[1]),12)),'UTC','yyyy-MM-dd'));
+}
+
+function vikaDirectAvailableWeeks_(book,year){
+  const found={};
+  VIKA_DIRECT_.products.forEach(function(spec){
+    const sheet=book.getSheetByName(spec.sheet);
+    if(!sheet)return;
+    const last=Math.min(sheet.getLastRow(),4000);
+    if(last<1)return;
+    const values=sheet.getRange(1,1,last,3).getDisplayValues();
+    values.forEach(function(row){
+      const text=vikaDirectNorm_(row.join(' '));
+      const m=text.match(/(?:^|\s)(\d{1,2})\s*недел/);
+      if(m)found[Number(m[1])]=true;
+      const p=vikaDirectWeekFromPeriod_(text,year);
+      if(p)found[p]=true;
+    });
+  });
+  const current=isoWeek_(todayIso_());
+  let weeks=Object.keys(found).map(Number).filter(function(w){
+    return w>=Math.max(1,current-14)&&w<=Math.min(53,current+4);
+  }).sort(function(a,b){return a-b;});
+  if(!weeks.length){
+    for(let w=Math.max(1,current-8);w<=Math.min(53,current+2);w++)weeks.push(w);
+  }
+  return weeks;
+}
+
+function vikaDirectBlockScore_(values,index,week,year){
+  const row=values[index]||[];
+  const text=vikaDirectNorm_(row.slice(0,3).join(' '));
+  let score=0;
+  if(new RegExp('(?:^|\\\\s)'+week+'\\\\s*недел').test(text))score+=40;
+  const periodWeek=vikaDirectWeekFromPeriod_(text,year);
+  if(periodWeek===week)score+=100;
+
+  const end=Math.min(values.length,index+90);
+  let yearHits=0,urls=0;
+  for(let i=index;i<end;i++){
+    const t=String((values[i]||[]).join(' '));
+    if(t.indexOf(String(year))>=0)yearHits++;
+    if(/https?:\/\//i.test(t))urls++;
+  }
+  score+=Math.min(20,yearHits*4)+Math.min(12,urls);
+  return score;
+}
+
+function vikaDirectWeekBlock_(values,week,year,subgroup){
+  const candidates=[];
+  (values||[]).forEach(function(row,i){
+    const text=vikaDirectNorm_((row||[]).slice(0,3).join(' '));
+    const weekMatch=new RegExp('(?:^|\\\\s)'+week+'\\\\s*недел').test(text);
+    const periodMatch=vikaDirectWeekFromPeriod_(text,year)===week;
+    if(weekMatch||periodMatch)candidates.push({i:i,score:vikaDirectBlockScore_(values,i,week,year)});
+  });
+  if(!candidates.length)return [];
+  candidates.sort(function(a,b){return b.score-a.score||a.i-b.i;});
+  const start=candidates[0].i;
+  let end=values.length;
+  for(let i=start+1;i<values.length;i++){
+    const text=vikaDirectNorm_((values[i]||[]).slice(0,3).join(' '));
+    const m=text.match(/(?:^|\s)(\d{1,2})\s*недел/);
+    const p=vikaDirectWeekFromPeriod_(text,year);
+    if((m&&Number(m[1])!==week)||(p&&p!==week)){end=i;break;}
+  }
+
+  let block=values.slice(start,end);
+  if(subgroup){
+    const wanted=vikaDirectNorm_(subgroup);
+    let subStart=-1,subEnd=block.length;
+    for(let i=0;i<block.length;i++){
+      const marker=vikaDirectNorm_((block[i]||[])[2]);
+      if(marker===wanted){
+        if(subStart<0)subStart=i;
+        else if(i>subStart){subEnd=i;break;}
+      }else if(subStart>=0&&['убу','збу'].indexOf(marker)>=0&&marker!==wanted){
+        subEnd=i;break;
+      }
+    }
+    if(subStart>=0)block=block.slice(subStart,subEnd);
+  }
+  return block;
+}
+
+function vikaDirectWeekday_(value){
+  const text=vikaDirectNorm_(value);
+  if(/^пн\b|понедель/.test(text))return 'пн';
+  if(/^вт\b|вторник/.test(text))return 'вт';
+  if(/^ср\b|сред/.test(text))return 'ср';
+  if(/^чт\b|четвер/.test(text))return 'чт';
+  if(/^пт\b|пятниц/.test(text))return 'пт';
+  return '';
+}
+
+function vikaDirectButton_(text){
+  const value=String(text||'');
+  const direct=value.match(/(?:кн(?:опка)?\.?\s*:?\s*|\[)([^\]\n]{3,120})(?:\]|$)/i);
+  return direct&&direct[1]?direct[1].trim():'';
+}
+
+function vikaDirectEditorialRows_(block){
+  const out={};
+  let day='';
+  (block||[]).forEach(function(row){
+    const rowDay=vikaDirectWeekday_(row[0]);
+    if(rowDay)day=rowDay;
+    if(!day)return;
+    const segment=vikaDirectNorm_(row[1]);
+    if(/активдемо|открыт|клик/.test(segment))return;
+
+    let kind='';
+    if(/дожим|на\s*13|13\s*ч|доп/.test(segment))kind='DOZHIM';
+    else if(rowDay)kind='MAIN';
+    else return;
+
+    const theme=String(row[2]||'').trim();
+    const title=String(row[3]||'').trim();
+    const body=String(row[4]||'').trim();
+    const material=String(row[5]||'').trim();
+    const sendsay=String(row[7]||'').trim();
+    if(!theme&&!title&&!body&&!material&&!sendsay)return;
+
+    const record={
+      day:day,kind:kind,theme:theme,title:title,body:body,
+      button:vikaDirectButton_(body),materialUrl:material,sendsay:sendsay,
+      pointer:vikaDirectNorm_(theme)===VIKA_DIRECT_.pointerText
+    };
+    if(!out[day])out[day]={};
+    if(!out[day][kind]||String(record.body||'').length>String(out[day][kind].body||'').length){
+      out[day][kind]=record;
+    }
+  });
+  return out;
+}
+
+function vikaDirectDocData_(){
+  const url='https://docs.googleapis.com/v1/documents/'+encodeURIComponent(VIKA_DIRECT_.editorialDocId)+'?includeTabsContent=true';
+  const response=UrlFetchApp.fetch(url,{
+    headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},
+    muteHttpExceptions:true
+  });
+  if(response.getResponseCode()!==200){
+    throw new Error('Не удалось прочитать редакционный документ из ссылки Темплана (HTTP '+response.getResponseCode()+').');
+  }
+  const doc=JSON.parse(response.getContentText());
+  const tabs=[];
+  (function collect(items){
+    (items||[]).forEach(function(tab){
+      if(tab&&tab.tabProperties)tabs.push(tab);
+      if(tab&&tab.childTabs)collect(tab.childTabs);
+    });
+  })(doc.tabs||[]);
+
+  function bodyText(items){
+    return (items||[]).map(function(e){
+      if(e.paragraph){
+        return (e.paragraph.elements||[]).map(function(x){
+          const run=x.textRun;if(!run)return '';
+          const link=run.textStyle&&run.textStyle.link&&run.textStyle.link.url;
+          return String(run.content||'')+(link&&!String(run.content||'').includes(link)?' ('+link+')':'');
+        }).join('');
+      }
+      if(e.table){
+        return (e.table.tableRows||[]).map(function(r){
+          return (r.tableCells||[]).map(function(cell){return bodyText(cell.content);}).join('\n');
+        }).join('\n');
+      }
+      return '';
+    }).join('');
+  }
+
+  const byTab={};
+  tabs.forEach(function(tab){
+    const id=String(tab.tabProperties&&tab.tabProperties.tabId||'');
+    const body=tab.documentTab&&tab.documentTab.body&&tab.documentTab.body.content;
+    if(id)byTab[id]=dashboardEditorialSections_(bodyText(body));
+  });
+  return {doc:doc,tabs:tabs,byTab:byTab};
+}
+
+function vikaDirectDocLetter_(date,product,kind,docData,tabId){
+  const row=[date,product,kind==='DOZHIM'?'ДОЖИМ':'MAIN','',''];
+  const match=dashboardEditorialMatch_(row,(docData.byTab||{})[tabId]||[],kind);
+  if(!match||match.error)return match||null;
+  const text=String(match.text||'').trim();
+  const lines=text.split(/\n/).map(function(x){return x.trim();}).filter(Boolean);
+  const subject=(lines.find(function(x){return !/^https?:\/\//i.test(x);})||'').trim();
+  const urlMatch=text.match(/https?:\/\/[^\s<>"')]+/i);
+  return {
+    text:text,theme:subject,title:subject,body:text,
+    materialUrl:urlMatch?urlMatch[0]:'',
+    button:vikaDirectButton_(text),
+    sourceType:'tempplan-doc',
+    editorialKind:kind
+  };
+}
+
+function vikaDirectActiveSheet_(create){
+  const storage=openStorage_();
+  let sheet=storage.getSheetByName(VIKA_DIRECT_.activeSheet);
+  if(!sheet&&create){
+    sheet=storage.insertSheet(VIKA_DIRECT_.activeSheet);
+    sheet.getRange(1,1,1,VIKA_DIRECT_.activeHeaders.length).setValues([VIKA_DIRECT_.activeHeaders]);
+    sheet.setFrozenRows(1);
+    try{sheet.hideSheet();}catch(e){}
+  }
+  return sheet;
+}
+
+function vikaDirectActiveRows_(){
+  const sheet=vikaDirectActiveSheet_(false);
+  if(!sheet||sheet.getLastRow()<2)return {};
+  const values=sheet.getDataRange().getDisplayValues();
+  const out={};
+  values.slice(1).forEach(function(r){
+    const date=String(r[1]||'').trim(),product=String(r[2]||'').trim(),slot=String(r[3]||'').trim();
+    if(!date||!product||!slot)return;
+    out[date+'|'+product+'|'+slot]={
+      id:String(r[0]||''),date:date,product:product,slot:slot,
+      subject:String(r[4]||''),title:String(r[5]||''),body:String(r[6]||''),
+      button:String(r[7]||''),materialUrl:String(r[8]||''),
+      status:String(r[9]||''),check:String(r[10]||''),
+      basis:String(r[11]||''),updatedAt:String(r[12]||'')
+    };
+  });
+  return out;
+}
+
+function saveVikaActiveDemoUi(payload){
+  requireDashboardOwner_();
+  const data=payload&&typeof payload==='object'?payload:{};
+  const date=String(data.date||'').trim();
+  const product=String(data.product||'').trim();
+  const slot=String(data.slot||'').trim().toUpperCase();
+  if(!/^\d{2}\.\d{2}\.20\d{2}$/.test(date))throw new Error('Некорректная дата АКТИВДЕМО.');
+  if(!VIKA_DIRECT_.products.some(function(x){return x.product===product;}))throw new Error('Неизвестный продукт АКТИВДЕМО.');
+  if(['MORNING','DAY'].indexOf(slot)<0)throw new Error('Неизвестный слот АКТИВДЕМО.');
+
+  const sheet=vikaDirectActiveSheet_(true);
+  const values=sheet.getDataRange().getDisplayValues();
+  const key=date+'|'+product+'|'+slot;
+  let rowNumber=0;
+  for(let i=1;i<values.length;i++){
+    if(String(values[i][1]||'').trim()+'|'+String(values[i][2]||'').trim()+'|'+String(values[i][3]||'').trim()===key){
+      rowNumber=i+1;break;
+    }
+  }
+  if(!rowNumber)rowNumber=sheet.getLastRow()+1;
+
+  const subject=String(data.subject||'').trim();
+  const title=String(data.title||'').trim();
+  const body=String(data.body||'').trim();
+  const button=String(data.button||'').trim();
+  const materialUrl=String(data.materialUrl||'').trim();
+  const complete=Boolean(subject&&body&&materialUrl);
+  const status=String(data.status||'').trim()||(complete?'АКТИВДЕМО · ГОТОВО':'АКТИВДЕМО · ЧЕРНОВИК');
+  const check=String(data.check||'').trim()||'Проверить ссылку, UTM, исключения, повтор темы и материала за 7 дней.';
+  const basis=String(data.basis||'').trim()||'Наше письмо АКТИВДЕМО · сохранено напрямую в Analytics Center';
+  const updatedAt=new Date().toISOString();
+  const id='active:'+date+':'+product+':'+slot;
+
+  sheet.getRange(rowNumber,1,1,VIKA_DIRECT_.activeHeaders.length).setValues([[
+    id,date,product,slot,subject,title,body,button,materialUrl,status,check,basis,updatedAt
+  ]]);
+  SpreadsheetApp.flush();
+  return {ok:true,id:id,date:date,product:product,slot:slot,status:status,updatedAt:updatedAt};
+}
+
+function vikaDirectHeaders_(){
+  return ['Дата','Продукт / поток','Сегмент','Тема письма','Заголовок','Полный текст письма','Кнопка','Ссылка на материал','Готовность','Проверить перед постановкой','Что дала редакция','Решение по теме','Основание: факт / источник','Что учтено в новой версии'];
+}
+
+function vikaDirectMakeActiveRow_(date,product,slot,active){
+  const morning=slot==='MORNING';
+  const x=active||{};
+  const has=Boolean(x.subject||x.body||x.materialUrl);
+  return [
+    date,product,
+    morning?'2 · АКТИВДЕМО · УТРО · действующий доступ':'4 · АКТИВДЕМО · ДЕНЬ · действующий доступ',
+    x.subject||'',x.title||'',x.body||'',x.button||'',x.materialUrl||'',
+    x.status||(has?'АКТИВДЕМО · ЧЕРНОВИК':'АКТИВДЕМО · НЕ ЗАПОЛНЕНО'),
+    x.check||'Проверить ссылку, UTM, исключения, повтор темы и материала за 7 дней.',
+    'Наш текст АКТИВДЕМО',
+    morning?'АКТИВДЕМО · утренний самостоятельный слот':'АКТИВДЕМО · дневной самостоятельный слот',
+    x.basis||'Analytics Center · внутреннее хранилище сервиса',
+    x.updatedAt?('Обновлено '+x.updatedAt):'Редакционный Темплан для этого слота не используется.'
+  ];
+}
+
+function vikaDirectMakeEditorialRow_(date,product,kind,record,sourceLabel){
+  const x=record||{};
+  const dozhim=kind==='DOZHIM';
+  const missing=!x.theme&&!x.title&&!x.body&&!x.materialUrl;
+  return [
+    date,product,
+    dozhim?'3 · ЖИВЫЕ · ДОЖИМ · 13:00':'1 · ЖИВЫЕ · MAIN',
+    x.theme||'',x.title||'',x.body||'',x.button||'',x.materialUrl||'',
+    missing?'РЕДАКЦИЯ · ТЕКСТ НЕ ЗАПОЛНЕН В ТЕМПЛАНЕ':'РЕДАКЦИЯ · ИЗ ТЕМПЛАНА',
+    'Проверить ссылку, UTM, исключения базы и итоговую верстку перед постановкой.',
+    missing?'Редакция не заполнила этот слот.':(x.theme||x.title||'Редакционное письмо'),
+    dozhim?'ДОЖИМ · письмо редакции':'MAIN · письмо редакции',
+    sourceLabel||'Темплан по демкам',
+    'Прочитано напрямую из редакционного источника при открытии сервиса.'
+  ];
+}
+
+
+function getVikaPlanUi(weekId) {
+  requireDashboardOwner_();
+  const year=Number(String(todayIso_()).slice(0,4))||new Date().getFullYear();
+  const book=SpreadsheetApp.openById(VIKA_DIRECT_.tempPlanId);
+  const weeks=vikaDirectAvailableWeeks_(book,year);
+  const requested=Number(weekId);
+  const current=isoWeek_(todayIso_());
+  const selectedWeek=(requested&&weeks.indexOf(requested)>=0)
+    ?requested
+    :(weeks.filter(function(w){return w<=current+2;}).slice(-1)[0]||weeks.slice(-1)[0]||current);
+
+  const plans=weeks.slice().sort(function(a,b){return b-a;}).map(function(w){
+    return {id:String(w),week:w,name:w+' неделя · '+vikaDirectWeekLabel_(year,w)};
+  });
+  const selected=plans.find(function(p){return p.week===selectedWeek;})||{id:String(selectedWeek),week:selectedWeek,name:selectedWeek+' неделя · '+vikaDirectWeekLabel_(year,selectedWeek)};
+  const dates=vikaDirectWeekDates_(year,selectedWeek);
+  const active=vikaDirectActiveRows_();
+  const sourceCache={};
+  const parsed={};
+  let docData=null;
+
+  VIKA_DIRECT_.products.forEach(function(spec){
+    if(!sourceCache[spec.sheet]){
+      const sheet=book.getSheetByName(spec.sheet);
+      if(!sheet){sourceCache[spec.sheet]={sheet:null,values:[]};}
+      else{
+        const last=sheet.getLastRow();
+        const values=last?sheet.getRange(1,1,last,9).getDisplayValues():[];
+        sourceCache[spec.sheet]={sheet:sheet,values:values};
+      }
+    }
+    const src=sourceCache[spec.sheet];
+    const block=vikaDirectWeekBlock_(src.values,selectedWeek,year,spec.subgroup);
+    parsed[spec.product]={
+      spec:spec,
+      sheet:src.sheet,
+      rows:vikaDirectEditorialRows_(block)
+    };
+  });
+
+  const rows=[],rowMeta=[],editorialRows={};
+  const productOrder=VIKA_DIRECT_.products.map(function(x){return x.product;});
+
+  dates.forEach(function(dayInfo){
+    productOrder.forEach(function(product){
+      const bucket=parsed[product]||{rows:{},spec:{}};
+      const dayRows=bucket.rows[dayInfo.day]||{};
+      ['MAIN','MORNING','DOZHIM','DAY'].forEach(function(slotKind){
+        if(slotKind==='MORNING'||slotKind==='DAY'){
+          const activeSlot=slotKind==='MORNING'?'MORNING':'DAY';
+          const key=dayInfo.date+'|'+product+'|'+activeSlot;
+          const record=active[key]||null;
+          rows.push(vikaDirectMakeActiveRow_(dayInfo.date,product,activeSlot,record));
+          rowMeta.push({source:'active-demo',editable:true,date:dayInfo.date,product:product,slot:activeSlot});
+          return;
+        }
+
+        const kind=slotKind;
+        let record=dayRows[kind]||null;
+        let sourceLabel='Темплан по демкам · '+(bucket.spec.sheet||product);
+
+        if(record&&record.pointer&&bucket.spec.docTab){
+          if(!docData)docData=vikaDirectDocData_();
+          const fromDoc=vikaDirectDocLetter_(dayInfo.date,product,kind,docData,bucket.spec.docTab);
+          if(fromDoc&&!fromDoc.error){
+            record=Object.assign({},record,fromDoc);
+            sourceLabel='Темплан по демкам → редакционный документ';
+          }else{
+            record=Object.assign({},record||{},{
+              theme:'',title:'',body:'',button:'',materialUrl:'',
+              error:fromDoc&&fromDoc.error?fromDoc.error:'Редакционный текст по указателю Темплана не найден.'
+            });
+          }
+        }
+
+        const rowIndex=rows.length;
+        rows.push(vikaDirectMakeEditorialRow_(dayInfo.date,product,kind,record,sourceLabel));
+        rowMeta.push({source:'editorial',editable:false,date:dayInfo.date,product:product,kind:kind});
+        editorialRows[rowIndex]={
+          text:record&&record.body||'',
+          subject:record&&record.theme||'',
+          title:record&&record.title||'',
+          materialUrl:record&&record.materialUrl||'',
+          sendsay:record&&record.sendsay||'',
+          date:dayInfo.date,
+          editorialKind:kind,
+          sourceType:record&&record.pointer?'tempplan-doc':'tempplan',
+          sourceLabel:sourceLabel,
+          sourceUrl:bucket.sheet?book.getUrl()+'#gid='+bucket.sheet.getSheetId():book.getUrl(),
+          tabTitle:bucket.spec.sheet||product,
+          error:record&&record.error||''
+        };
+      });
+    });
+  });
+
+  return {
+    plans:plans,
+    selected:selected,
+    title:'План для Вики · '+selectedWeek+'-я неделя · '+vikaDirectWeekLabel_(year,selectedWeek),
+    headers:vikaDirectHeaders_(),
+    rows:rows,
+    rowMeta:rowMeta,
+    editorial:{rows:editorialRows,readAt:new Date().toISOString(),source:'Темплан по демкам'},
+    sourceUrl:book.getUrl(),
+    sourceName:'Темплан по демкам',
+    readAt:new Date().toISOString(),
+    architecture:'tempplan-direct + active-demo-service-storage'
+  };
+}
+
 function getCallsDataUi(filters) {
   requireDashboardOwner_();
   return JSON.parse(JSON.stringify(getCallsData(filters||{})));
@@ -680,121 +1152,9 @@ function vikaDateDay_(value){
   return ['вс','пн','вт','ср','чт','пт','сб'][d.getUTCDay()]||'';
 }
 
-function getVikaEditorialUi(sheetId) {
-  requireDashboardOwner_();
-  const plan=getVikaPlanUi(sheetId);
-  const temp=vikaTempPlanRecords_(plan);
 
-  const docId='1Z5xX0To-Q-9f9R0RzIuDQsSTkrv3mfLJlceiWzT0rF4';
-  let doc=null,tabs=[],byTab={};
-  const needsDoc=(plan.rows||[]).some(function(r){
-    const segment=String(r[2]||'');
-    if(/АКТИВДЕМО/i.test(segment))return false;
-    const product=String(r[1]||'').trim();
-    const day=vikaDateDay_(r[0]);
-    const kind=/ДОЖИМ/i.test(segment)?'DOZHIM':'MAIN';
-    const bucket=temp[product];
-    const record=bucket&&(bucket.records||[]).find(function(x){return x.day===day&&x.kind===kind;});
-    return Boolean(record&&record.docPointer&&bucket.spec&&bucket.spec.docTab);
-  });
-
-  if(needsDoc){
-    const url='https://docs.googleapis.com/v1/documents/'+encodeURIComponent(docId)+'?includeTabsContent=true';
-    const response=UrlFetchApp.fetch(url,{
-      headers:{Authorization:'Bearer '+ScriptApp.getOAuthToken()},
-      muteHttpExceptions:true
-    });
-    const code=response.getResponseCode();
-    if(code!==200)throw new Error('Не удалось прочитать редакционный документ через Google Docs API (HTTP '+code+').');
-    try{doc=JSON.parse(response.getContentText());}catch(error){throw new Error('Google Docs API вернул некорректный ответ.');}
-
-    (function collect(items){
-      (items||[]).forEach(function(tab){
-        if(tab&&tab.tabProperties)tabs.push(tab);
-        if(tab&&tab.childTabs)collect(tab.childTabs);
-      });
-    })(doc.tabs||[]);
-
-    function bodyText(items){
-      return (items||[]).map(function(e){
-        if(e.paragraph){
-          return (e.paragraph.elements||[]).map(function(x){
-            const run=x.textRun;
-            if(!run)return '';
-            const link=run.textStyle&&run.textStyle.link&&run.textStyle.link.url;
-            return String(run.content||'')+(link&&!String(run.content||'').includes(link)?' ('+link+')':'');
-          }).join('');
-        }
-        if(e.table){
-          return (e.table.tableRows||[]).map(function(r){
-            return (r.tableCells||[]).map(function(cell){return bodyText(cell.content);}).join('\n');
-          }).join('\n');
-        }
-        return '';
-      }).join('');
-    }
-
-    tabs.forEach(function(tab){
-      const props=tab.tabProperties||{},id=String(props.tabId||'');
-      const body=tab.documentTab&&tab.documentTab.body&&tab.documentTab.body.content;
-      if(id)byTab[id]=dashboardEditorialSections_(bodyText(body));
-    });
-  }
-
-  const rows={};
-  (plan.rows||[]).forEach(function(r,i){
-    const segment=String(r[2]||'');
-    if(/АКТИВДЕМО/i.test(segment))return; // Наши тексты: редакционные источники к ним не применяем.
-    if(/АПФАС|ГЗВИО/.test(String(r[1]||'')))return;
-
-    const product=String(r[1]||'').trim();
-    const bucket=temp[product];
-    if(!bucket)return;
-    const kind=/ДОЖИМ/i.test(segment)?'DOZHIM':'MAIN';
-    const day=vikaDateDay_(r[0]);
-    const record=(bucket.records||[]).find(function(x){return x.day===day&&x.kind===kind;});
-    if(!record)return;
-
-    if(record.docPointer&&bucket.spec&&bucket.spec.docTab){
-      const match=dashboardEditorialMatch_(r,byTab[bucket.spec.docTab]||[],kind);
-      if(!match)return;
-      const tab=tabs.find(function(item){
-        return item&&item.tabProperties&&String(item.tabProperties.tabId||'')===bucket.spec.docTab;
-      });
-      rows[i]=Object.assign({},match,{
-        subject:record.theme,
-        title:record.title,
-        materialUrl:record.materialUrl,
-        sourceType:'tempplan-doc',
-        sourceLabel:'Темплан по демкам → редакционный документ',
-        sourceUrl:'https://docs.google.com/document/d/'+docId+'/edit?tab='+bucket.spec.docTab,
-        tempPlanUrl:record.sourceUrl,
-        tabTitle:tab&&tab.tabProperties&&tab.tabProperties.title?tab.tabProperties.title:product
-      });
-      return;
-    }
-
-    rows[i]={
-      text:record.text,
-      subject:record.theme,
-      title:record.title,
-      materialUrl:record.materialUrl,
-      sendsay:record.sendsay,
-      date:r[0],
-      editorialKind:kind,
-      subjectMatches:r[3]?vikaTempPlanNorm_(record.theme).indexOf(vikaTempPlanNorm_(r[3]))>=0:null,
-      sourceType:'tempplan',
-      sourceLabel:'Темплан по демкам',
-      sourceUrl:record.sourceUrl,
-      tabTitle:bucket.spec.sheet
-    };
-  });
-
-  return {
-    rows:rows,
-    readAt:new Date().toISOString(),
-    documentTitle:doc?String(doc.title||'рассылки демо периодика, сс, вшг'):'',
-    source:'tempplan-first',
-    rule:'АКТИВДЕМО — только наш план; MAIN/ДОЖИМ — редакционный Темплан'
-  };
+function getVikaEditorialUi(weekId) {
+  const plan=getVikaPlanUi(weekId);
+  return plan.editorial||{rows:{},readAt:new Date().toISOString(),source:'Темплан по демкам'};
 }
+
