@@ -1,71 +1,41 @@
-name: Diagnose Analytics Center startup
+name: Analytics Center startup checks
 on:
   push:
-    branches: [v2-rebuild]
-    paths: ['.github/workflows/diagnose-startup.yml']
+    branches: [v2-rebuild, fix/startup-without-google]
+    paths:
+      - '.github/workflows/diagnose-startup.yml'
+      - 'tests/startup-browser.cjs'
+      - 'domain-auth.js'
+      - 'domain-config.js'
+      - 'app.js'
+      - 'index.html'
 permissions:
   contents: read
 jobs:
-  diagnose:
+  startup:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Check JavaScript syntax
-        continue-on-error: true
+          fetch-depth: 0
+      - name: Validate frontend syntax
         run: |
-          for file in app.js domain-auth.js domain-config.js; do
-            echo "CHECK $file"
-            node --check "$file" || true
-          done
-      - name: Run existing regression tests
-        continue-on-error: true
-        run: |
-          for file in tests/*.cjs; do
-            echo "TEST $file"
-            node "$file" || true
-          done
-      - name: Prepare browser diagnostics
+          node --check app.js
+          node --check domain-auth.js
+          node --check domain-config.js
+          node --check tests/startup-browser.cjs
+      - name: Prepare browser
         run: npm install --prefix "$RUNNER_TEMP/analytics-browser" --no-audit --no-fund playwright@1.56.1
-      - name: Check published page without signing in or changing data
+      - name: Reproduce baseline failure and verify fixed startup
         env:
           NODE_PATH: ${{ runner.temp }}/analytics-browser/node_modules
-        run: |
-          node <<'JS'
-          const {chromium} = require('playwright');
-          const fs = require('fs');
-          (async () => {
-            const browser = await chromium.launch({executablePath: '/usr/bin/google-chrome', headless: true, args: ['--no-sandbox']});
-            const page = await browser.newPage();
-            const errors = [], failures = [], responses = [];
-            page.on('pageerror', e => errors.push(e.stack || e.message));
-            page.on('requestfailed', r => failures.push({url: r.url().split('?')[0], error: r.failure()?.errorText}));
-            page.on('response', r => {if(r.status()>=400)responses.push({url:r.url().split('?')[0],status:r.status()});});
-            let navigation = '';
-            try { const response = await page.goto('https://emmadivaeva-creator.github.io/analytics-center/', {waitUntil:'domcontentloaded',timeout:45000}); navigation=String(response.status()); }
-            catch (e) { navigation=e.message; }
-            await page.waitForTimeout(12000);
-            const state = await page.evaluate(() => ({title:document.title,readyState:document.readyState,hasApp:!!document.querySelector('.app'),hasStart:typeof startAnalyticsApp,hasRpc:typeof analyticsRpc,body:document.body.innerText.slice(0,1300)}));
-            console.log('ANALYTICS_DIAGNOSTIC', JSON.stringify({navigation,errors,failures,responses,state}));
-            await page.screenshot({path:'startup-diagnostic.png',fullPage:true});
-            fs.writeFileSync('startup-diagnostic.json',JSON.stringify({navigation,errors,failures,responses,state},null,2));
-            await browser.close();
-          })().catch(e=>{console.error(e);process.exitCode=1;});
-          JS
+          LIVE_AUDIT: '1'
+        run: node tests/startup-browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: analytics-startup-diagnostic
+          name: analytics-startup-checks
           retention-days: 1
-          path: |
-            startup-diagnostic.json
-            startup-diagnostic.png
-            app.js
-            app.css
-            domain-auth.js
-            domain-config.js
-            index.html
-            standalone.html
-            tests/*.cjs
+          path: startup-tabs.json
