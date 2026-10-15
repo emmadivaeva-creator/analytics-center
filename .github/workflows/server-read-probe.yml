@@ -1,0 +1,92 @@
+name: Diagnose anonymous analytics server
+on:
+  push:
+    branches: [fix/startup-without-google]
+    paths: ['.github/workflows/server-read-probe.yml']
+permissions:
+  contents: read
+jobs:
+  read-only-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Check configured health and first mail page without credentials
+        run: |
+          python3 <<'PY'
+          import concurrent.futures, html, json, re, time
+          from urllib.request import Request, urlopen
+          from urllib.error import HTTPError
+          from urllib.parse import urlencode, urlsplit
+          base = 'https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec'
+          def probe(spec):
+              method, args = spec
+              started = time.monotonic()
+              callback = 'analyticsJsonp_probe' + str(time.time_ns())
+              url = base + '?' + urlencode({'method':method,'args':json.dumps(args),'callback':callback,'_':str(time.time_ns())})
+              record = {'method':method}
+              try:
+                  request = Request(url,headers={'User-Agent':'Mozilla/5.0','Referer':'https://emmadivaeva-creator.github.io/analytics-center/'})
+                  try:
+                      response = urlopen(request,timeout=35)
+                  except HTTPError as error:
+                      response = error
+                  body = response.read(2500000).decode('utf-8',errors='replace')
+                  final = urlsplit(response.geturl())
+                  record.update(status=response.status,contentType=response.headers.get('Content-Type'),finalHost=final.netloc,finalPath=final.path)
+                  if body.startswith(callback+'('):
+                      value = json.loads(body[len(callback)+1:].rstrip().removesuffix(';').removesuffix(')'))
+                      record.update(jsonp=True,ok=value.get('ok'),error=value.get('error'))
+                      result = value.get('result')
+                      if isinstance(result,dict):
+                          record['resultKeys'] = list(result.keys())
+                          if method == 'v2HealthCheck': record['backendBuild'] = result.get('backendBuild')
+                          else: record.update(returnedRows=len(result.get('emails',[])),totalRows=result.get('totalRows'),done=result.get('done'))
+                  else:
+                      clean = re.sub(r'<(script|style)\b[^>]*>[\s\S]*?</\1>',' ',body,flags=re.I)
+                      clean = html.unescape(re.sub(r'<[^>]+>',' ',clean))
+                      clean = re.sub(r'\s+',' ',clean).strip()
+                      clean = re.sub(r'[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}','[email]',clean)
+                      record.update(jsonp=False,responseText=clean[:3500])
+              except Exception as error:
+                  record['transportError'] = type(error).__name__ + ': ' + str(error)
+              record['seconds'] = round(time.monotonic()-started,2)
+              return record
+          with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+              results = list(pool.map(probe,[('v2HealthCheck',[]),('getMailRegistryPageUi',[0])]))
+          print('SERVER_READ_PROBE',json.dumps(results,ensure_ascii=False))
+          open('server-read-probe.json','w').write(json.dumps(results,ensure_ascii=False,indent=2))
+          PY
+      - name: Prepare browser diagnostics
+        run: npm install --prefix "$RUNNER_TEMP/browser-probe" --no-audit --no-fund playwright@1.56.1
+      - name: Read published page and capture connection errors without signing in
+        env:
+          NODE_PATH: ${{ runner.temp }}/browser-probe/node_modules
+        run: |
+          node <<'JS'
+          const {chromium}=require('playwright');
+          const fs=require('node:fs');
+          const cleanUrl=value=>{try{const u=new URL(value);return u.origin+u.pathname;}catch{return '';}};
+          (async()=>{
+            const browser=await chromium.launch({executablePath:'/usr/bin/google-chrome',headless:true,args:['--no-sandbox']});
+            try {
+              const page=await browser.newPage();
+              const errors=[],failures=[],responses=[],consoleErrors=[];
+              page.on('pageerror',e=>errors.push(e.message));
+              page.on('requestfailed',r=>failures.push({url:cleanUrl(r.url()),error:r.failure()?.errorText}));
+              page.on('response',r=>{if(r.status()>=400)responses.push({url:cleanUrl(r.url()),status:r.status()});});
+              page.on('console',m=>{if(m.type()==='error')consoleErrors.push(m.text().replace(/https?:\/\/[^\s"']+/g,cleanUrl).slice(0,800));});
+              await page.goto('https://emmadivaeva-creator.github.io/analytics-center/?diagnostic=server-read#mail',{waitUntil:'domcontentloaded',timeout:45000});
+              await page.waitForTimeout(18000);
+              const state=await page.evaluate(()=>({title:document.title,hasApp:!!document.querySelector('.app'),serverStatus:document.querySelector('#serverStatus')?.textContent,mailStatus:document.querySelector('#mailStatus')?.textContent,mailRows:document.querySelectorAll('#mailRows tbody tr').length,authVisible:document.querySelector('#authGate')?.hidden===false}));
+              const result={errors,failures,responses,consoleErrors,state};
+              console.log('BROWSER_READ_PROBE',JSON.stringify(result));
+              fs.writeFileSync('browser-read-probe.json',JSON.stringify(result,null,2));
+            } finally {await browser.close();}
+          })().catch(e=>{console.error(e.message);process.exitCode=1;});
+          JS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: analytics-server-read-probe
+          retention-days: 1
+          path: '*-read-probe.json'
