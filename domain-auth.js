@@ -72,7 +72,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261010-vika-direct-06';
+    const script=document.createElement('script');script.src='app.js?v=20261015-startup-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
@@ -109,15 +109,9 @@
     return data.response?.result;
   };
   // Tokens remain in memory; neither browser storage nor URL contains credentials.
-  function init() {
-    if(config?.publicReadUrl)startApp();
-    if (!config?.clientId || !config.scriptId) {
-      showGate('Новая версия готовится к подключению. Текущая аналитика работает по прежней ссылке.');
-      return;
-    }
-    if (!window.google?.accounts?.oauth2) {
-      return;
-    }
+  function initOwnerClient() {
+    if (client) return true;
+    if (!config?.clientId || !config.scriptId || !window.google?.accounts?.oauth2) return false;
     client = google.accounts.oauth2.initTokenClient({
       client_id: config.clientId,
       scope: config.scopes.join(' '),
@@ -143,17 +137,38 @@
     });
     button.disabled = false;
     status.textContent = 'Для обновления исходных данных войдите в аккаунт владельца. Просмотр доступен без входа.';
-    const requestOwnerLogin = () => {
-      showGate('Вход нужен только владельцу для обновления исходных данных.');
-      if (!client) {
-        status.textContent = 'Google-вход ещё загружается. Повторите через несколько секунд.';
-        return;
-      }
-      button.disabled = true;
-      client.requestAccessToken({prompt: ''});
-    };
+    return true;
+  }
+  function requestOwnerLogin() {
+    if (!config?.clientId || !config.scriptId) {
+      showGate('Вход владельца не настроен. Просмотр аналитики остаётся доступен без входа.');
+      return;
+    }
+    // A slow or blocked Google script must never prevent anonymous viewing.
+    if (!initOwnerClient()) {
+      showGate('Не удалось загрузить Google-вход. Закройте это окно, чтобы продолжить просмотр, или повторите вход позже.');
+      button.disabled = false;
+      return;
+    }
+    showGate('Вход нужен только владельцу для обновления исходных данных.');
+    button.disabled = true;
+    client.requestAccessToken({prompt: ''});
+  }
+  function init() {
     button.onclick = requestOwnerLogin;
     window.analyticsRequestOwnerLogin = requestOwnerLogin;
+    if (config?.publicReadUrl) {
+      startApp();
+    } else {
+      showGate('Не настроен сервер аналитики. Проверьте подключение приложения.');
+    }
+    initOwnerClient();
   }
-  window.addEventListener('load', init, {once: true});
+  // Start when the local HTML is ready, not when every external resource finishes.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, {once: true});
+  } else {
+    init();
+  }
+  window.addEventListener('load', initOwnerClient, {once: true});
 })();
