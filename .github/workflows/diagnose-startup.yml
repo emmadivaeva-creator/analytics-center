@@ -6,6 +6,7 @@ on:
       - '.github/workflows/diagnose-startup.yml'
       - 'tests/startup-browser.cjs'
       - 'tests/mail-render.cjs'
+      - 'tests/mail-demo-attribution.cjs'
       - 'domain-auth.js'
       - 'domain-config.js'
       - 'app.js'
@@ -27,6 +28,8 @@ jobs:
           node --check domain-auth.js
           node --check domain-config.js
           node --check tests/startup-browser.cjs
+      - name: Verify exact DEMO attribution with synthetic data
+        run: node tests/mail-demo-attribution.cjs
       - name: Prepare browser
         run: npm install --prefix "$RUNNER_TEMP/analytics-browser" --no-audit --no-fund playwright@1.56.1
       - name: Render nonempty mail tables
@@ -43,4 +46,6 @@ jobs:
         with:
           name: analytics-startup-checks
           retention-days: 1
-          path: startup-tabs.json
+          path: |
+            startup-tabs.json
+            mail-demo-unit-results.json

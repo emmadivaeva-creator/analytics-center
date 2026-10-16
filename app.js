@@ -324,6 +324,119 @@ const REGISTRY_CACHE_KEY='mail-registry-v7';
 const REGISTRY_CACHE_VERSION=7;
 let registryCacheTimer=null;
 
+// Verified direct DEMO facts are refreshed separately from the Sendsay archive.
+const MAIL_DEMO_BUILD_='20261016-demo-match-01';
+let mailDemoPromise=null,mailDemoTimer=null,mailDemoState='idle',mailDemoMessage='';
+function mailSendingId_(value){return String(value||'').replace(/^import-/,'');}
+function mailEvidenceCellKey_(e,w){
+ return JSON.stringify([e.sourceUrl||e.source||'',e.product||'',e.campaign||'',Number(w.week)]);
+}
+function mailDemoTotals_(rows){
+ const cells=new Map(),evidence=new Map();let checked=0,unmatched=0;
+ (rows||[]).forEach(m=>{
+  if(m.demoVerifiedBuild!==MAIL_DEMO_BUILD_)return;
+  checked++;if(!m.hasDemoData)unmatched++;
+  (m.demoEvidence||[]).forEach(e=>{
+   const ek=JSON.stringify([e.sourceUrl||e.source||'',e.product||'',e.campaign||'']);
+   let entry=evidence.get(ek);
+   if(!entry){entry={...e,weeks:[],red:0,yellow:0,green:0};evidence.set(ek,entry);}
+   (e.weeks||[]).forEach(w=>{
+    const key=mailEvidenceCellKey_(e,w);if(cells.has(key))return;
+    const cell={week:Number(w.week),red:n(w.red),yellow:n(w.yellow),green:n(w.green)};
+    cells.set(key,cell);entry.weeks.push(cell);
+    for(const k of ['red','yellow','green'])entry[k]+=cell[k];
+   });
+  });
+ });
+ const result={red:0,yellow:0,green:0,checked,unmatched,evidence:[...evidence.values()]};
+ cells.forEach(w=>{for(const k of ['red','yellow','green'])result[k]+=w[k];});
+ return result;
+}
+function applyMailDemoEvidence_(emails,data){
+ if(!data||data.ok!==true||!Array.isArray(data.evidence))throw new Error('Сервер не вернул проверенный DEMO-факт. Старые значения сохранены.');
+ const bySending=new Map(),readAt=String(data.readAt||new Date().toISOString());
+ const count=value=>{const x=Number(value);if(!Number.isFinite(x)||x<0)throw new Error('В DEMO-факте некорректное число. Значения не изменены.');return x;};
+ data.evidence.forEach(f=>{
+  if(!f||!Array.isArray(f.sendings)||!Array.isArray(f.weeks)||!f.product||!f.factCampaign)throw new Error('Неполная запись DEMO. Значения не изменены.');
+  const weeks=f.weeks.map(w=>{
+   if(!w||!Number.isInteger(Number(w.week))||Number(w.week)<1||Number(w.week)>53)throw new Error('Некорректная неделя DEMO.');
+   return {week:Number(w.week),red:count(w.red),yellow:count(w.yellow),green:count(w.green)};
+  });
+  const seen=new Set();
+  f.sendings.forEach(s=>{
+   const id=mailSendingId_(s&&s.id);if(!id||seen.has(id))return;seen.add(id);
+   if(!bySending.has(id))bySending.set(id,[]);
+   bySending.get(id).push({fact:f,weeks});
+  });
+ });
+ // Prepare the entire result before mutating the displayed archive.
+ const changes=[];
+ (emails||[]).filter(m=>!isNewsMail(m)).forEach(m=>{
+  const week=mailWeek_(m);if(!week)throw new Error('У письма не определена неделя отправки.');
+  const evidence=[];
+  (bySending.get(mailSendingId_(m.id))||[]).forEach(({fact:f,weeks})=>{
+   if(String(f.product)!==String(m.product))return;
+   const eligible=weeks.filter(w=>w.week>=week);
+   if(!eligible.length)return;
+   evidence.push({product:f.product,campaign:f.factCampaign,source:f.demoSource,sourceUrl:f.demoSourceUrl,weeks:eligible});
+  });
+  const sums=mailDemoTotals_([{demoVerifiedBuild:MAIL_DEMO_BUILD_,hasDemoData:evidence.length>0,demoEvidence:evidence}]);
+  changes.push({m,fields:{red:sums.red,yellow:sums.yellow,green:sums.green,potential:sums.yellow+sums.green,
+   demoEvidence:sums.evidence,hasDemoData:sums.evidence.length>0,demoVerifiedBuild:MAIL_DEMO_BUILD_,demoCheckedAt:readAt,
+   demoMatchStatus:sums.evidence.length?'Связано по фактическому ID отправки и Campaign':'Нет точного сопоставления Campaign',
+   note:sums.evidence.length?'DEMO из исходной статистики: с недели отправки, включая последующие недели. Один факт Campaign учитывается в сводке один раз.':'В доступном DEMO-факте точная связь с этой отправкой не найдена. Это не подтверждение нулевой эффективности письма.'}});
+ });
+ changes.forEach(({m,fields})=>Object.assign(m,fields));
+ return {readAt,checked:changes.length,matched:changes.filter(x=>x.fields.hasDemoData).length};
+}
+function mailDirectDemoHtml_(m){
+ if(m.demoVerifiedBuild!==MAIL_DEMO_BUILD_)return '<small>DEMO ожидают проверки</small>';
+ if(!m.hasDemoData)return '<small>Нет точного сопоставления Campaign</small>';
+ return 'R '+fmt(m.red)+' / Y '+fmt(m.yellow)+' / G '+fmt(m.green)+'<small>Прямые DEMO по Campaign</small>';
+}
+function ensureMailDemoUi_(){
+ if(!document.getElementById('mailDemoReload')){
+  const anchor=document.getElementById('mailReloadAll');if(!anchor)return;
+  const button=document.createElement('button');button.type='button';button.id='mailDemoReload';button.textContent='Обновить DEMO';
+  button.onclick=()=>refreshMailDemo_();anchor.after(button);
+  const status=document.createElement('p');status.id='mailDemoStatus';status.setAttribute('role','status');
+  document.getElementById('mailStatus').after(status);
+ }
+ const button=document.getElementById('mailDemoReload'),status=document.getElementById('mailDemoStatus');
+ if(button)button.disabled=mailDemoState==='loading'||!registryData;
+ if(status)status.textContent=mailDemoMessage||'Прямые DEMO проверяются отдельно от загрузки писем. Content / Term показывает результат материалов, а не письма.';
+}
+function scheduleMailDemoCheck_(){
+ ensureMailDemoUi_();clearTimeout(mailDemoTimer);
+ mailDemoTimer=setTimeout(()=>refreshMailDemo_(),150);
+}
+async function refreshMailDemo_(){
+ if(mailDemoPromise)return mailDemoPromise;
+ if(!registryData)return;
+ const current=registryData;
+ mailDemoState='loading';mailDemoMessage='Читаю свежую «Статистику по ДЕМО» и проверяю точные связи с письмами…';ensureMailDemoUi_();
+ mailDemoPromise=(async()=>{
+  try{
+   const data=await rpc('getDemandEvidenceUi');
+   if(current!==registryData)return;
+   const result=applyMailDemoEvidence_(current,data);
+   mailDemoState='ready';mailDemoMessage='DEMO проверены '+dateRu(result.readAt)+' · сопоставлено '+fmt(result.matched)+' из '+fmt(result.checked)+' отправок. Без точной связи: '+fmt(result.checked-result.matched)+'.';
+   renderRegistries();scheduleRegistryCacheSave_();
+  }catch(e){
+   mailDemoState='error';mailDemoMessage='Не удалось обновить DEMO: '+String(e&&e.message||e)+'. Предыдущие значения сохранены; свежесть DEMO не подтверждена.';
+  }finally{
+   mailDemoPromise=null;ensureMailDemoUi_();
+   if(current!==registryData&&registryData)scheduleMailDemoCheck_();
+  }
+ })();
+ return mailDemoPromise;
+}
+function mailMaterialIds_(value){
+ const raw=String(value||'');
+ return [...new Set((raw.startsWith('logical:')?raw.slice(8).split(','):[raw]).filter(Boolean))];
+}
+
+
 function isNewsMail(x){return /^Gosfinansi_letter_news_GF_digest(?:_|$)/i.test(x.campaign||'')||/^letter_news_goszakaz_regular_news_digest(?:_|$)/i.test(x.campaign||'');}
 function keepMailInReport_(x){
  if(isNewsMail(x))return true;
@@ -428,10 +541,11 @@ function mailWeekSummaryHtml_(rows,selectedWeek){
    row.green+=n(x.green);
    row.segments[segment]=(row.segments[segment]||0)+delivered;
  });
+ map.forEach(r=>{const t=mailDemoTotals_(logical.filter(m=>String(m.product||'Не указано')===r.product));r.red=t.red;r.yellow=t.yellow;r.green=t.green;r.demoChecked=t.checked;r.demoUnmatched=t.unmatched;});
  const products=[...map.values()].sort((a,b)=>a.product.localeCompare(b.product,'ru'));
  const header='<tr><th>Продукт</th>'+segments.map(s=>'<th>'+esc(s)+'</th>').join('')+'<th>Доставлено всего</th><th>DEMO R / Y / G</th></tr>';
- const body=products.map(r=>'<tr><td><b>'+esc(r.product)+'</b></td>'+segments.map(s=>'<td>'+fmt(r.segments[s]||0)+'</td>').join('')+'<td><b>'+fmt(r.total)+'</b></td><td><b class="demo-r">'+fmt(r.red)+'</b> / <b class="demo-y">'+fmt(r.yellow)+'</b> / <b class="demo-g">'+fmt(r.green)+'</b></td></tr>').join('');
- return '<div class="mail-week-head"><div><b>Доставлено за неделю '+esc(String(selectedWeek))+'</b><span>Сумма доставленных писем по сегментам и продуктам. Справа — DEMO: красные / жёлтые / зелёные за ту же неделю.</span></div></div><div class="registry mail-week-table"><table><thead>'+header+'</thead><tbody>'+body+'</tbody></table></div>';
+ const body=products.map(r=>'<tr><td><b>'+esc(r.product)+'</b></td>'+segments.map(s=>'<td>'+fmt(r.segments[s]||0)+'</td>').join('')+'<td><b>'+fmt(r.total)+'</b></td><td>'+(!r.demoChecked?'DEMO не проверены':'<b class="demo-r">'+fmt(r.red)+'</b> / <b class="demo-y">'+fmt(r.yellow)+'</b> / <b class="demo-g">'+fmt(r.green)+'</b><small>Без точной связи: '+fmt(r.demoUnmatched)+'</small>')+'</td></tr>').join('');
+ return '<div class="mail-week-head"><div><b>Доставлено за неделю '+esc(String(selectedWeek))+'</b><span>Сумма доставленных писем по сегментам и продуктам. Справа — подтверждённые DEMO по Campaign с недели отправки, включая дозревание. Повторы факта не суммируются.</span></div></div><div class="registry mail-week-table"><table><thead>'+header+'</thead><tbody>'+body+'</tbody></table></div>';
 }
 function safeLink(url,label){return /^https?:\/\//i.test(String(url||''))?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'';}
 
@@ -633,6 +747,7 @@ function applyRegistryData_(emails,savedAt){
  }
  populateMailWeeks_();
  renderRegistries();
+ scheduleMailDemoCheck_();
 }
 function registryCacheNote_(){
  return registryCacheSavedAt?' · кэш браузера '+dateRu(registryCacheSavedAt):'';
@@ -747,9 +862,12 @@ function logicalMailRows_(rows){
    group.openRate=delivered?opened/delivered*100:null;
    group.clickRate=delivered?clicks/delivered*100:null;
    group.ctor=opened?clicks/opened*100:null;
-   group.red=red;group.yellow=yellow;group.green=green;
-   group.potential=yellow+green;
-   group.hasDemoData=members.some(item=>item.hasDemoData===true);
+   const demo=mailDemoTotals_(members);
+   group.red=demo.red;group.yellow=demo.yellow;group.green=demo.green;
+   group.demoEvidence=demo.evidence;
+   group.demoVerifiedBuild=members.every(m=>m.demoVerifiedBuild===MAIL_DEMO_BUILD_)?MAIL_DEMO_BUILD_:'';
+   group.potential=demo.yellow+demo.green;
+   group.hasDemoData=demo.evidence.length>0;
    group.campaign=campaigns.join(' · ');
    group.segment=segments.length===1?segments[0]:'Несколько сегментов';
    group.campaignLinks=links;
@@ -765,7 +883,7 @@ function renderRegistries(){for(const key of ['mail','news']){
  const rows=key==='mail'?logicalMailRows_(sourceRows):sourceRows;
  const summary=document.getElementById('mailWeekSummary');if(summary)summary.innerHTML=mailWeekSummaryHtml_(sourceRows,selectedWeek);
  document.getElementById(key+'Status').textContent='Писем в кэше: '+fmt(rows.length)+' · показано '+fmt(Math.min(rows.length,registryLimits[key]))+' · от новых к старым'+registryCacheNote_()+(key==='news'?' · Новости сопоставлены: '+(registryData||[]).filter(m=>isNewsMail(m)&&m.materialData).length+'/'+(registryData||[]).filter(isNewsMail).length:'');
- document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}${x.campaignCount>1?' · '+fmt(x.campaignCount)+' сегмента Sendsay':''}</small></td><td>${key==='mail'?mailLetterHtml_(x):`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):x.hasDemoData===true?`R ${fmt(x.red)} / Y ${fmt(x.yellow)} / G ${fmt(x.green)}`:`R 0 / Y 0 / G 0<small>В статистике DEMO событий нет</small>`}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
+ document.getElementById(key+'Rows').innerHTML=rows.length?`<table><thead><tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>DEMO: R / Y / G</th></tr></thead><tbody>${rows.slice(0,registryLimits[key]).map(x=>`<tr><td>${esc(x.date)}<br>${esc(x.time||'')}</td><td>${esc(x.product)}<small>${isNewsMail(x)?'Новости':/activdemo/i.test(x.campaign||'')?'Дожим демо':esc(x.segment||'Демо')}${x.campaignCount>1?' · '+fmt(x.campaignCount)+' сегмента Sendsay':''}</small></td><td>${key==='mail'?mailLetterHtml_(x):`<b>${esc(x.subject)}</b><details><summary>Подробности</summary><p>${esc(x.campaign)}</p>${safeLink(x.sendsay,'Открыть Sendsay')}<p>${esc(isNewsMail(x)?(x.materialData?.note||'Автоматически сопоставляем ссылки материалов с Content / Term.'):x.note||x.maturity||'')}</p>${(isNewsMail(x)?[]:x.demoEvidence||[]).map(d=>`<p>${safeLink(d.sourceUrl,d.source)} · ${esc(d.product)}<br>${esc(d.campaign)}<br>R ${fmt(d.red)} / Y ${fmt(d.yellow)} / G ${fmt(d.green)}</p>`).join('')}${isNewsMail(x)?materialDetails(x):`<button class="material-demo" data-mail-id="${esc(x.id)}">Сопоставить материалы по Content / Term</button><div class="material-result"></div>`}</details>`}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?"—":pct(x.openRate)}</td><td>${x.clickRate==null?"—":pct(x.clickRate)}</td><td>${isNewsMail(x)?materialSummary(x):mailDirectDemoHtml_(x)}</td></tr>`).join('')}</tbody></table>`:'<div class="placeholder">Нет писем по выбранным условиям.</div>';
  document.getElementById(key+'More').classList.toggle('hidden',rows.length<=registryLimits[key]);
  document.getElementById(key+'Rows').querySelectorAll('.material-demo').forEach(button=>button.onclick=()=>loadMaterialDemo(button));
  if(key==='mail')bindMailBodyPreviews_();
@@ -827,8 +945,28 @@ async function startMaterialMatching(){
  }
 }
 async function loadMaterialDemo(button){
- const box=button.nextElementSibling;button.disabled=true;box.textContent='Читаю ссылки письма и термы в статистике…';
- try{const data=await rpc('getMailDemoDetailsUi',button.dataset.mailId);box.innerHTML=`<p>${esc(data.note)}</p><p>Найдено материалов в письме: ${data.materials.length}. Совпадений Content / Term: ${data.rows.length}. За все доступные недели.</p>`+data.rows.map(r=>`<p>${safeLink(r.url,r.content+' / '+r.term)} · ${esc(r.product)}<br>${safeLink(r.sourceUrl,r.source)}<br>${r.values?`R ${fmt(r.values.red)} / Y ${fmt(r.values.yellow)} / G ${fmt(r.values.green)}`:'Неделя отсутствует в источнике'}</p>`).join('')+(data.rows.length?'':'<p>В этих листах не найдены пары Content / Term для ссылок данного письма.</p>');}catch(e){box.textContent='Не удалось сопоставить: '+e.message;}finally{button.disabled=false;}
+ const box=button.nextElementSibling;if(!box)return;
+ button.disabled=true;box.textContent='Читаю ссылки отправок и Content / Term в статистике…';
+ try{
+  const ids=mailMaterialIds_(button.dataset.mailId),materials=new Map(),rows=new Map(),errors=[];
+  for(const id of ids){
+   try{
+    const data=await rpc('getMailDemoDetailsUi',id);
+    if(!data||!Array.isArray(data.materials)||!Array.isArray(data.rows))throw new Error('Сервер вернул неполный результат.');
+    data.materials.forEach(m=>materials.set(JSON.stringify([m.rootDomain||m.domain||'',m.kind||'',m.id||m.url]),m));
+    data.rows.forEach(r=>rows.set(JSON.stringify([r.sourceUrl||r.source||'',r.product,r.content,r.term]),r));
+    const original=(registryData||[]).find(m=>m.id===id);if(original){original.materialData=data;delete original.materialError;}
+   }catch(e){errors.push(String(e&&e.message||e));}
+  }
+  const matches=[...rows.values()];
+  box.innerHTML='<p><b>DEMO материалов, не прямой результат письма.</b> Все доступные недели и источники переходов. Повторы между сегментами учтены один раз.</p>'+
+   '<p>Проверено отправок: '+fmt(ids.length-errors.length)+' из '+fmt(ids.length)+'. Материалов: '+fmt(materials.size)+'. Совпадений Content / Term: '+fmt(matches.length)+'.</p>'+
+   (errors.length?'<p>Результат неполный: '+esc([...new Set(errors)].join('; '))+'</p>':'')+
+   matches.map(r=>'<p>'+safeLink(r.url,String(r.content||'')+' / '+String(r.term||''))+' · '+esc(r.product)+'<br>'+safeLink(r.sourceUrl,r.source)+'<br>'+(r.values?'R '+fmt(r.values.red)+' / Y '+fmt(r.values.yellow)+' / G '+fmt(r.values.green):'Данные недели не получены')+'</p>').join('')+
+   (!matches.length&&!errors.length?'<p>Пары Content / Term для найденных ссылок в доступной статистике не найдены.</p>':'');
+  if(ids.length>errors.length)scheduleRegistryCacheSave_();
+ }catch(e){box.textContent='Не удалось сопоставить: '+String(e&&e.message||e);}
+ finally{button.disabled=false;}
 }
 for(const key of ['mail','news']){
  for(const suffix of ['Search','Product'])document.getElementById(key+suffix).addEventListener(suffix==='Search'?'input':'change',()=>{registryLimits[key]=100;renderRegistries();});
