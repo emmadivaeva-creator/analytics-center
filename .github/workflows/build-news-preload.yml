@@ -1,0 +1,62 @@
+name: Verify news text preload
+on:
+  push:
+    branches: [feat/preload-news-text-20261016]
+    paths:
+      - '.github/workflows/build-news-preload.yml'
+      - '.maintenance/apply-news-preload.py'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Apply targeted frontend patch
+        run: python3 .maintenance/apply-news-preload.py
+      - name: Validate JavaScript
+        run: |
+          node --check app.js
+          node --check tests/news-preview.cjs
+          node tests/mail-demo-attribution.cjs
+      - name: Prepare browser
+        run: npm install --prefix "$RUNNER_TEMP/news-preload-browser" --no-audit --no-fund playwright@1.56.1
+      - name: Verify preload, lazy fallback and cache
+        env:
+          NODE_PATH: ${{ runner.temp }}/news-preload-browser/node_modules
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/news-preload-browser/node_modules/playwright
+        run: node tests/news-preview.cjs
+      - name: Store tested blobs without updating branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 <<'PY'
+          import os,json,hashlib
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          files=['app.js','tests/news-preview.cjs']
+          base='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/git/blobs'
+          out=[]
+          for name in files:
+              raw=Path(name).read_bytes()
+              req=Request(base,data=json.dumps({'content':raw.decode(),'encoding':'utf-8'}).encode(),method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','User-Agent':'analytics-preload-build'})
+              with urlopen(req,timeout=30) as response: result=json.load(response)
+              expected=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+              assert result['sha']==expected
+              out.append({'path':name,'sha':result['sha'],'mode':'100644','type':'blob'})
+          Path('preload-manifest.json').write_text(json.dumps(out,indent=2))
+          print(json.dumps(out))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verified-news-preload
+          retention-days: 2
+          path: |
+            app.js
+            tests/news-preview.cjs
+            news-preview-results.json
+            preload-manifest.json
