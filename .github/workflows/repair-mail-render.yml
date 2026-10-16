@@ -1,0 +1,86 @@
+name: Verify missing mail renderer repair
+on:
+  push:
+    branches: [fix/mail-letter-render-20261016]
+    paths:
+      - '.github/workflows/repair-mail-render.yml'
+      - 'tests/mail-render.cjs'
+      - 'fixes/mail-letter-template.txt'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Apply only the missing renderer and cache version changes
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('app.js')
+          raw=p.read_bytes()
+          digest=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+          assert digest=='31ccc3b12cf83b24a07d5b3e6da53e899640dca6', 'app.js changed: reconcile before repairing'
+          source=raw.decode('utf-8')
+          assert 'function mailLetterHtml_' not in source
+          marker='function storeMailBodyPreview_(ref,data){'
+          assert source.count(marker)==1
+          source=source.replace(marker,Path('fixes/mail-letter-template.txt').read_text()+'\n'+marker)
+          p.write_text(source)
+          for name in ['domain-auth.js','index.html']:
+              p=Path(name);text=p.read_text()
+              assert '20261015-startup-01' in text
+              p.write_text(text.replace('20261015-startup-01','20261016-mail-render-01'))
+          p=Path('.github/workflows/diagnose-startup.yml');text=p.read_text()
+          text=text.replace("      - 'tests/startup-browser.cjs'", "      - 'tests/startup-browser.cjs'\n      - 'tests/mail-render.cjs'")
+          marker='      - name: Reproduce baseline failure and verify fixed startup'
+          assert marker in text
+          step="      - name: Render nonempty mail tables\n        env:\n          NODE_PATH: ${{ runner.temp }}/analytics-browser/node_modules\n        run: node tests/mail-render.cjs\n"
+          p.write_text(text.replace(marker,step+marker))
+          PY
+          node --check app.js
+          node --check domain-auth.js
+          node --check tests/mail-render.cjs
+          git diff --stat
+      - name: Prepare Chromium and WebKit browser tests
+        run: |
+          npm install --prefix "$RUNNER_TEMP/analytics-browser" --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/analytics-browser/node_modules/.bin/playwright" install --with-deps webkit
+      - name: Reproduce the error and verify nonempty mail rendering
+        env:
+          NODE_PATH: ${{ runner.temp }}/analytics-browser/node_modules
+          WEBKIT: '1'
+          REAL_FIRST_PAGE: '1'
+        run: node tests/mail-render.cjs
+      - name: Store verified code blobs without updating a branch or deploying
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs=require('fs');
+            const entries=[];
+            for(const path of ['app.js','domain-auth.js','index.html','tests/mail-render.cjs','.github/workflows/diagnose-startup.yml']){
+              const content=fs.readFileSync(path,'utf8');
+              const {data}=await github.rest.git.createBlob({...context.repo,content,encoding:'utf-8'});
+              entries.push({path,mode:'100644',type:'blob',sha:data.sha});
+            }
+            console.log('REPAIR_BLOBS '+JSON.stringify(entries));
+            fs.writeFileSync('verified-repair-blobs.json',JSON.stringify(entries,null,2));
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verified-mail-render-repair
+          retention-days: 3
+          include-hidden-files: true
+          path: |
+            app.js
+            domain-auth.js
+            index.html
+            tests/mail-render.cjs
+            .github/workflows/diagnose-startup.yml
+            mail-render-results.json
+            verified-repair-blobs.json
