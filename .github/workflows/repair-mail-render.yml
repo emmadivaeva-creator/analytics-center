@@ -36,6 +36,10 @@ jobs:
               p=Path(name);text=p.read_text()
               assert '20261015-startup-01' in text
               p.write_text(text.replace('20261015-startup-01','20261016-mail-render-01'))
+          p=Path('tests/mail-render.cjs');text=p.read_text()
+          text=text.replace('assert(errors.some(x=>/mailLetterHtml_/.test(x)));', "const baselineError=await page.locator('#mailStatus').innerText();\n   assert.match(baselineError,/mailLetterHtml_/);")
+          text=text.replace('error:errors.find(x=>/mailLetterHtml_/.test(x))','error:baselineError')
+          p.write_text(text)
           p=Path('.github/workflows/diagnose-startup.yml');text=p.read_text()
           text=text.replace("      - 'tests/startup-browser.cjs'", "      - 'tests/startup-browser.cjs'\n      - 'tests/mail-render.cjs'")
           marker='      - name: Reproduce baseline failure and verify fixed startup'
