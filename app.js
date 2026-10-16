@@ -323,6 +323,23 @@ const REGISTRY_CACHE_STORE='kv';
 const REGISTRY_CACHE_KEY='mail-registry-v7';
 const REGISTRY_CACHE_VERSION=7;
 let registryCacheTimer=null;
+let newsBodyPreloadTimer=null,newsBodyPreloadPromise=null;
+function scheduleNewsBodyPreload_(){
+ clearTimeout(newsBodyPreloadTimer);
+ newsBodyPreloadTimer=setTimeout(()=>preloadLatestNewsBodies_(),100);
+}
+async function preloadLatestNewsBodies_(){
+ if(newsBodyPreloadPromise||!registryData)return newsBodyPreloadPromise;
+ const news=(registryData||[]).filter(isNewsMail);
+ const latestWeek=Math.max(0,...news.map(mailWeek_).filter(Boolean));
+ const rows=latestWeek?news.filter(item=>mailWeek_(item)===latestWeek):news.slice(0,80);
+ if(!rows.length)return null;
+ const status=document.getElementById('newsStatus');
+ newsBodyPreloadPromise=preloadMailBodyPreviews_(rows,progress=>{
+   if(status)status.textContent='Загружаю тексты новостей… '+progress.done+'/'+progress.total;
+ },80,true).finally(()=>{newsBodyPreloadPromise=null;});
+ return newsBodyPreloadPromise;
+}
 
 // Verified direct DEMO facts are refreshed separately from the Sendsay archive.
 const MAIL_DEMO_BUILD_='20261016-demo-match-01';
@@ -660,8 +677,8 @@ function bindMailBodyPreviews_(rootSelector='#mailRows'){
    details.addEventListener('toggle',()=>{if(details.open)loadMailBodyPreview_(details);});
  });
 }
-async function preloadMailBodyPreviews_(rows,onProgress,maxCount){
- const source=(rows||[]).filter(item=>item&&!isNewsMail(item));
+async function preloadMailBodyPreviews_(rows,onProgress,maxCount,includeNews=false){
+ const source=(rows||[]).filter(item=>item&&(includeNews||!isNewsMail(item)));
  const cachedRefs=new Set((registryData||[])
    .filter(item=>item&&item.bodyPreview&&(item.bodyPreview.text||item.bodyPreview.note||item.bodyPreview.subject))
    .map(mailBodyRef_).filter(Boolean));
@@ -756,6 +773,7 @@ function applyRegistryData_(emails,savedAt){
  populateMailWeeks_();
  renderRegistries();
  scheduleMailDemoCheck_();
+ scheduleNewsBodyPreload_();
 }
 function registryCacheNote_(){
  return registryCacheSavedAt?' · кэш браузера '+dateRu(registryCacheSavedAt):'';

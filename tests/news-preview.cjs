@@ -42,7 +42,7 @@ async function test(browser,engine,before){
    else if(method==='getDemandEvidenceUi')result={ok:true,evidence:[],readAt:'2026-10-16T13:00:00Z'};
    else if(method==='getMailDemoDetailsUi')result={materials:[],rows:[]};
    else if(method==='getMailBodyUi'){
-    if(args[0]==='52:90000'&&holdBody)await bodyGate;
+    if(args[0]==='52:90080'&&holdBody)await bodyGate;
     if(args[0]==='52:91002'&&rejectBody)envelope={ok:false,error:'Тест: временный отказ сервера'};
     result={subject:'Предпросмотр '+args[0],text:'Полный текст новостей\n<b>Это текст, а не HTML</b>\n<img src=x onerror=alert(1)>'};
    }else envelope={ok:false,error:'Unexpected fixture method: '+method};
@@ -69,23 +69,30 @@ async function test(browser,engine,before){
   }
   assert.equal(await page.locator('#newsRows tbody tr').count(),100);
   assert.equal(await page.locator('#newsRows .mail-body-preview').count(),100);
-  assert.equal(bodyReads(),0,'News bodies must not load before opening');
+  await page.waitForFunction(()=>document.querySelector('#newsRows .mail-body-preview[data-body-ref="52:90000"]')?.dataset.loaded==='1');
+  assert.equal(bodyReads('52:90000'),1,'Latest news text is preloaded during the registry pass');
   await page.locator('#newsSearch').fill('Дайджест 90000');
   let preview=page.locator('#newsRows .mail-body-preview');
-  assert.equal(await page.locator('#newsRows a[href="https://example.test/sendsay/90000"]').count(),1);
+  await preview.locator('summary').click();
+  await page.locator('#newsRows .mail-body-preview[data-loaded="1"]').waitFor();
+  assert.equal(bodyReads('52:90000'),1,'Opening a preloaded news item does not wait for another request');
+  await preview.locator('summary').click();
+  await page.locator('#newsSearch').fill('Дайджест 90080');
+  preview=page.locator('#newsRows .mail-body-preview');
+  assert.equal(await page.locator('#newsRows a[href="https://example.test/sendsay/90080"]').count(),1);
   await preview.locator('summary').click();
   await page.waitForFunction(()=>document.querySelector('#newsRows .mail-body-preview')?.dataset.loading==='1');
   // Redraw while the response is pending: the preview stays open and shares one request.
-  await page.locator('#newsSearch').fill('Дайджест 90000 ');
+  await page.locator('#newsSearch').fill('Дайджест 90080 ');
   assert.equal(await preview.getAttribute('open'),'');
-  await page.waitForTimeout(150);assert.equal(bodyReads('52:90000'),1);
+  await page.waitForTimeout(150);assert.equal(bodyReads('52:90080'),1);
   holdBody=false;releaseBody();
   await page.locator('#newsRows .mail-body-preview[data-loaded="1"]').waitFor();
   assert.match(await preview.locator('.mail-body-content').innerText(),/Полный текст новостей/);
   assert.equal(await preview.locator('img').count(),0);
   assert.equal(await preview.locator('.mail-body-text b').count(),0);
   await preview.locator('summary').click();await preview.locator('summary').click();
-  assert.equal(bodyReads('52:90000'),1,'Reopening uses cached text');
+  assert.equal(bodyReads('52:90080'),1,'Reopening uses cached text');
   await page.locator('#newsSearch').fill('');
   await page.locator('#newsMore').click();
   assert.equal(await page.locator('#newsRows tbody tr').count(),106);
@@ -136,7 +143,7 @@ async function test(browser,engine,before){
   assert.deepEqual(errors,[]);
   assert(!calls.some(c=>/^sync|^save|^refresh/.test(c.method)),'No source-data writes');
   if(process.env.NEWS_PREVIEW_SCREENSHOT)await page.screenshot({path:process.env.NEWS_PREVIEW_SCREENSHOT,fullPage:true});
-  reports.push({engine,ok:true,newsRows:106,tests:['lazy body read','preview in every eligible news row','pending read deduplication on redraw','open state retained on redraw','repeat opening','cached body','missing API ID','error and retry','escaped source content','search and filters','show more','existing mail preview','browser cache after reload','no source-data writes'],errors});
+  reports.push({engine,ok:true,newsRows:106,tests:['latest-news body preload','preloaded open without wait','lazy fallback body read','preview in every eligible news row','pending read deduplication on redraw','open state retained on redraw','repeat opening','cached body','missing API ID','error and retry','escaped source content','search and filters','show more','existing mail preview','browser cache after reload','no source-data writes'],errors});
  }finally{releaseBody();await context.close();}
 }
 (async()=>{

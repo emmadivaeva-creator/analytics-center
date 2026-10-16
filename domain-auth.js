@@ -72,14 +72,11 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261016-news-preview-01';
+    const script=document.createElement('script');script.src='app.js?v=20261016-news-preload-01';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
   window.analyticsRpc = async function(method, ...parameters) {
-    // Anonymous viewers use the public Web App. Once the owner is signed in,
-    // always prefer Apps Script API so reads use the latest saved project code
-    // instead of an accidentally stale /exec deployment.
     const hasLiveToken = Boolean(token && Date.now() < expiresAt);
     if(config.publicReadUrl && readMethods.has(method) && !hasLiveToken){
       return publicRead(method,parameters);
@@ -108,7 +105,6 @@
     if (!data.done) throw new Error('Сервер не подтвердил завершение операции. Обновите данные перед повтором.');
     return data.response?.result;
   };
-  // Tokens remain in memory; neither browser storage nor URL contains credentials.
   function initOwnerClient() {
     if (client) return true;
     if (!config?.clientId || !config.scriptId || !window.google?.accounts?.oauth2) return false;
@@ -144,7 +140,6 @@
       showGate('Вход владельца не настроен. Просмотр аналитики остаётся доступен без входа.');
       return;
     }
-    // A slow or blocked Google script must never prevent anonymous viewing.
     if (!initOwnerClient()) {
       showGate('Не удалось загрузить Google-вход. Закройте это окно, чтобы продолжить просмотр, или повторите вход позже.');
       button.disabled = false;
@@ -164,7 +159,6 @@
     }
     initOwnerClient();
   }
-  // Start when the local HTML is ready, not when every external resource finishes.
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, {once: true});
   } else {
