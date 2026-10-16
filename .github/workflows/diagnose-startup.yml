@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/diagnose-startup.yml'
       - 'tests/startup-browser.cjs'
+      - 'tests/mail-render.cjs'
       - 'domain-auth.js'
       - 'domain-config.js'
       - 'app.js'
@@ -28,6 +29,10 @@ jobs:
           node --check tests/startup-browser.cjs
       - name: Prepare browser
         run: npm install --prefix "$RUNNER_TEMP/analytics-browser" --no-audit --no-fund playwright@1.56.1
+      - name: Render nonempty mail tables
+        env:
+          NODE_PATH: /home/runner/work/_temp/analytics-browser/node_modules
+        run: node tests/mail-render.cjs
       - name: Reproduce baseline failure and verify fixed startup
         env:
           NODE_PATH: ${{ runner.temp }}/analytics-browser/node_modules
