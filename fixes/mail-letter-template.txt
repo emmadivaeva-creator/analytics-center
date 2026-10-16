@@ -1,0 +1,25 @@
+/** Render one demo letter with the existing preview and attribution controls. */
+function mailLetterHtml_(mail){
+ const x=mail||{};
+ const campaigns=Array.isArray(x.campaignLinks)&&x.campaignLinks.length
+   ?x.campaignLinks
+   :[{url:x.sendsay,campaign:x.campaign}];
+ const links=campaigns.map((item,i)=>{
+   if(!item)return '';
+   const label=campaigns.length>1?'Открыть Sendsay · сегмент '+(i+1):'Открыть Sendsay';
+   const link=safeLink(item.url,label);
+   return link?'<p>'+link+'</p>':'';
+ }).join('');
+ const evidence=(Array.isArray(x.demoEvidence)?x.demoEvidence:[])
+   .filter(Boolean)
+   .map(d=>'<p>'+safeLink(d.sourceUrl,d.source||'Источник DEMO')+' · '+esc(d.product)+
+     '<br>'+esc(d.campaign)+'<br>R '+fmt(d.red)+' / Y '+fmt(d.yellow)+' / G '+fmt(d.green)+'</p>')
+   .join('');
+ return '<b>'+esc(x.subject||'Без темы')+'</b>'+mailBodyPreviewHtml_(x)+
+   '<details><summary>Подробности</summary>'+
+     '<p>'+esc(x.campaign)+'</p>'+links+
+     '<p>'+esc(x.note||x.maturity||'')+'</p>'+evidence+
+     '<button type="button" class="material-demo" data-mail-id="'+esc(x.id)+'">Сопоставить материалы по Content / Term</button>'+
+     '<div class="material-result"></div>'+
+   '</details>';
+}
