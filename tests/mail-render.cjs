@@ -83,7 +83,7 @@ async function fixture(browser,label,emails,before=false,exercise=false){
    assert.match(await grouped.locator('.mail-body-content').innerText(),/Проверенный текст <b>/);
    assert.equal(await grouped.locator('.mail-body-content b').count(),1);
    await page.locator('#mailSearch').fill('Сохранённый текст');
-   assert.equal(await page.locator('.mail-body-preview[data-loaded="1"]').count(),1);
+   assert.equal(await page.locator('#mailRows .mail-body-preview[data-loaded="1"]').count(),1);
    await page.locator('#mailSearch').fill('Без предпросмотра');
    assert.match(await page.locator('#mailRows').innerText(),/API недоступен/);
    await page.locator('#mailSearch').fill('Проверка');
