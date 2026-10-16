@@ -1,0 +1,62 @@
+name: Build DEMO interface repair
+on:
+  push:
+    branches: [fix/demo-attribution-20261016]
+    paths:
+      - '.github/workflows/build-demo-interface.yml'
+      - '.maintenance/apply-demo-fix.py'
+      - '.maintenance/mail-demo-functions.js'
+      - '.maintenance/material-function.js'
+      - 'tests/mail-demo-attribution.cjs'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Assemble pinned frontend source
+        run: python3 .maintenance/apply-demo-fix.py
+      - name: Validate source and synthetic attribution cases
+        run: |
+          node --check app.js
+          node --check domain-auth.js
+          node tests/mail-demo-attribution.cjs
+          git diff --exit-code -- '*.gs' domain-config.js
+      - name: Store tested code blobs only, without updating any branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 <<'PY'
+          import os,json,hashlib
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          paths=['app.js','domain-auth.js','index.html','tests/mail-demo-attribution.cjs']
+          base='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/git/blobs'
+          manifest=[]
+          for name in paths:
+              raw=Path(name).read_bytes()
+              payload=json.dumps({'content':raw.decode('utf-8'),'encoding':'utf-8'}).encode('utf-8')
+              req=Request(base,data=payload,method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','User-Agent':'analytics-code-build'})
+              with urlopen(req,timeout=30) as response: result=json.load(response)
+              expected=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+              assert result['sha']==expected
+              manifest.append({'path':name,'sha':result['sha'],'mode':'100644','type':'blob','bytes':len(raw)})
+          Path('build-manifest.json').write_text(json.dumps(manifest,indent=2))
+          print('TESTED_CODE_BLOBS',json.dumps(manifest))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: tested-demo-interface-code
+          retention-days: 3
+          path: |
+            app.js
+            domain-auth.js
+            index.html
+            tests/mail-demo-attribution.cjs
+            build-manifest.json
+            mail-demo-unit-results.json
