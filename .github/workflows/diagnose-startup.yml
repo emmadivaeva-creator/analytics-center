@@ -7,6 +7,7 @@ on:
       - 'tests/startup-browser.cjs'
       - 'tests/mail-render.cjs'
       - 'tests/mail-demo-attribution.cjs'
+      - 'tests/news-preview.cjs'
       - 'domain-auth.js'
       - 'domain-config.js'
       - 'app.js'
@@ -36,6 +37,10 @@ jobs:
         env:
           NODE_PATH: /home/runner/work/_temp/analytics-browser/node_modules
         run: node tests/mail-render.cjs
+      - name: Verify news text previews and cache
+        env:
+          NODE_PATH: ${{ runner.temp }}/analytics-browser/node_modules
+        run: node tests/news-preview.cjs
       - name: Reproduce baseline failure and verify fixed startup
         env:
           NODE_PATH: ${{ runner.temp }}/analytics-browser/node_modules
@@ -49,3 +54,4 @@ jobs:
           path: |
             startup-tabs.json
             mail-demo-unit-results.json
+            news-preview-results.json

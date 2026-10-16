@@ -618,6 +618,8 @@ function storeMailBodyPreview_(ref,data){
  scheduleRegistryCacheSave_();
  return normalized;
 }
+// Share pending body reads when a table is redrawn during a request.
+const MAIL_BODY_PREVIEW_PENDING_=new Map();
 async function loadMailBodyPreview_(details){
  if(!details||details.dataset.loaded==='1'||details.dataset.loading==='1')return;
  const box=details.querySelector('.mail-body-content');
@@ -626,8 +628,14 @@ async function loadMailBodyPreview_(details){
  details.dataset.loading='1';
  box.textContent='Загружаю текст письма из Sendsay…';
  try{
-   const data=await rpc('getMailBodyUi',ref);
-   const normalized=storeMailBodyPreview_(ref,data);
+   let pending=MAIL_BODY_PREVIEW_PENDING_.get(ref);
+   if(!pending){
+     pending=rpc('getMailBodyUi',ref).then(data=>storeMailBodyPreview_(ref,data));
+     MAIL_BODY_PREVIEW_PENDING_.set(ref,pending);
+   }
+   let normalized;
+   try{normalized=await pending;}
+   finally{if(MAIL_BODY_PREVIEW_PENDING_.get(ref)===pending)MAIL_BODY_PREVIEW_PENDING_.delete(ref);}
    details.dataset.loaded='1';
    delete details.dataset.needsOwner;
    box.innerHTML=mailBodyPayloadHtml_(normalized);
@@ -645,8 +653,8 @@ async function loadMailBodyPreview_(details){
    delete details.dataset.loading;
  }
 }
-function bindMailBodyPreviews_(){
- document.querySelectorAll('#mailRows .mail-body-preview').forEach(details=>{
+function bindMailBodyPreviews_(rootSelector='#mailRows'){
+ document.querySelectorAll(rootSelector+' .mail-body-preview').forEach(details=>{
    if(details.dataset.bound==='1')return;
    details.dataset.bound='1';
    details.addEventListener('toggle',()=>{if(details.open)loadMailBodyPreview_(details);});
@@ -889,11 +897,14 @@ function renderRegistries(){for(const key of ['mail','news']){
  if(key==='mail')bindMailBodyPreviews_();
 }}
 function renderNewsLetters(){
+ const openPreviews=new Set([...document.querySelectorAll('#newsRows .mail-body-preview[open]')].map(d=>d.dataset.bodyRef));
  const query=document.getElementById('newsSearch').value.trim().toLowerCase(),product=document.getElementById('newsProduct').value;
  const rows=(registryData||[]).filter(isNewsMail).filter(x=>(!product||x.product===product)&&(!query||[x.subject,x.campaign].join(' ').toLowerCase().includes(query)));
  document.getElementById('newsStatus').textContent='Писем: '+fmt(rows.length)+' · свежие сверху'+registryCacheNote_()+'. Демо материалов — в разделе «Какие новости дают демо».';
- document.getElementById('newsRows').innerHTML=rows.length?`<table><thead><tr><th>Дата</th><th>Продукт</th><th>Письмо в Sendsay</th><th>Отправлено</th><th>Доставлено</th><th>Открытия, %</th><th>Клики</th><th>Клики, %</th><th>CTOR, %</th></tr></thead><tbody>${rows.slice(0,registryLimits.news).map(x=>`<tr><td>${esc(x.date)}<small>${esc(x.time||'')}</small></td><td>${esc(x.product)}</td><td><b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b></td><td>${x.sent==null?'—':fmt(x.sent)}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?'—':pct(x.openRate)}</td><td>${x.clicks==null?'—':fmt(x.clicks)}</td><td>${x.clickRate==null?'—':pct(x.clickRate)}</td><td>${x.ctor==null?'—':pct(x.ctor)}</td></tr>`).join('')}</tbody></table><p>«—» — показатель не передан источником.</p>`:'<p>Нет писем по выбранным условиям.</p>';
+ document.getElementById('newsRows').innerHTML=rows.length?`<table><thead><tr><th>Дата</th><th>Продукт</th><th>Письмо в Sendsay</th><th>Отправлено</th><th>Доставлено</th><th>Открытия, %</th><th>Клики</th><th>Клики, %</th><th>CTOR, %</th></tr></thead><tbody>${rows.slice(0,registryLimits.news).map(x=>`<tr><td>${esc(x.date)}<small>${esc(x.time||'')}</small></td><td>${esc(x.product)}</td><td><b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>${mailBodyPreviewHtml_(x)}</td><td>${x.sent==null?'—':fmt(x.sent)}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?'—':pct(x.openRate)}</td><td>${x.clicks==null?'—':fmt(x.clicks)}</td><td>${x.clickRate==null?'—':pct(x.clickRate)}</td><td>${x.ctor==null?'—':pct(x.ctor)}</td></tr>`).join('')}</tbody></table><p>«—» — показатель не передан источником.</p>`:'<p>Нет писем по выбранным условиям.</p>';
  document.getElementById('newsMore').classList.toggle('hidden',rows.length<=registryLimits.news);
+ bindMailBodyPreviews_('#newsRows');
+ document.querySelectorAll('#newsRows .mail-body-preview').forEach(d=>{if(openPreviews.has(d.dataset.bodyRef))d.open=true;});
 }
 function newsMaterialTopics(emails,week){
  const topics=new Map();
