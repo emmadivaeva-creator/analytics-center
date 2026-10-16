@@ -79,7 +79,7 @@ async function fixture(browser,label,emails,before=false,exercise=false){
    await grouped.locator('summary').filter({hasText:'Подробности'}).click();
    assert.equal(await grouped.locator('a[href^="https://app.sendsay.ru/"]').count(),2);
    await grouped.locator('.mail-body-preview summary').click();
-   await page.locator('.mail-body-preview[data-loaded="1"]').waitFor();
+   await grouped.locator('.mail-body-preview[data-loaded="1"]').waitFor();
    assert.match(await grouped.locator('.mail-body-content').innerText(),/Проверенный текст <b>/);
    assert.equal(await grouped.locator('.mail-body-content b').count(),1);
    await page.locator('#mailSearch').fill('Сохранённый текст');
