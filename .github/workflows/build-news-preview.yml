@@ -1,0 +1,79 @@
+name: Verify news text preview
+on:
+  push:
+    branches: [feat/news-text-preview-20261016]
+    paths:
+      - '.github/workflows/build-news-preview.yml'
+      - '.maintenance/add-news-preview.py'
+      - 'tests/news-preview.cjs'
+permissions:
+  contents: write
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Assemble news preview without changing server or data
+        run: python3 .maintenance/add-news-preview.py
+      - name: Validate JavaScript and existing DEMO logic
+        run: |
+          node --check app.js
+          node --check domain-auth.js
+          node --check tests/news-preview.cjs
+          node tests/mail-demo-attribution.cjs
+          git diff --exit-code -- '*.gs' domain-config.js app.css
+      - name: Prepare browser tests
+        run: |
+          npm install --prefix "$RUNNER_TEMP/news-preview-browser" --no-audit --no-fund playwright@1.56.1
+          "$RUNNER_TEMP/news-preview-browser/node_modules/.bin/playwright" install --with-deps webkit
+      - name: Test lazy news previews and persisted cache
+        env:
+          NODE_PATH: ${{ runner.temp }}/news-preview-browser/node_modules
+          WEBKIT: '1'
+          NEWS_PREVIEW_SCREENSHOT: news-preview-fixture.png
+        run: node tests/news-preview.cjs
+      - name: Run existing mail-preview regression suite
+        env:
+          NODE_PATH: ${{ runner.temp }}/news-preview-browser/node_modules
+        run: node tests/mail-render.cjs
+      - name: Store verified code blobs without updating any branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 <<'PY'
+          import os,json,hashlib
+          from pathlib import Path
+          from urllib.request import Request,urlopen
+          paths=['app.js','domain-auth.js','index.html','tests/news-preview.cjs']
+          base='https://api.github.com/repos/'+os.environ['GITHUB_REPOSITORY']+'/git/blobs'
+          manifest=[]
+          for name in paths:
+              raw=Path(name).read_bytes()
+              payload=json.dumps({'content':raw.decode('utf-8'),'encoding':'utf-8'}).encode('utf-8')
+              req=Request(base,data=payload,method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','User-Agent':'analytics-code-build'})
+              with urlopen(req,timeout=30) as response: result=json.load(response)
+              expected=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+              assert result['sha']==expected
+              manifest.append({'path':name,'sha':result['sha'],'mode':'100644','type':'blob','bytes':len(raw)})
+          Path('news-preview-manifest.json').write_text(json.dumps(manifest,indent=2))
+          print('VERIFIED_NEWS_PREVIEW_BLOBS',json.dumps(manifest))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: news-preview-verified-code
+          retention-days: 3
+          path: |
+            app.js
+            domain-auth.js
+            index.html
+            tests/news-preview.cjs
+            news-preview-manifest.json
+            news-preview-results.json
+            news-preview-fixture.png
+            mail-render-results.json
+            mail-demo-unit-results.json
