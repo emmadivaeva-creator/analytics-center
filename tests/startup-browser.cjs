@@ -73,6 +73,23 @@ async function liveAudit(browser) {
     await page.waitForTimeout(name === 'mail' || name === 'vika' || name === 'demand' ? 12000 : 2500);
     states.push(await page.evaluate(name=>({name,active:document.querySelector('.page.active')?.id,status:document.querySelector('#'+name+'Status')?.textContent||'',error:document.querySelector('#'+name+'Error')?.textContent||'',rows:document.querySelectorAll('#'+name+'Rows > *').length}),name));
   }
+  const demandRpc = await page.evaluate(async()=>{
+    const started=Date.now();
+    try{
+      const data=await window.analyticsRpc('getDemandEvidenceUi');
+      return {ok:true,ms:Date.now()-started,meta:data?.meta||null,evidenceCount:Array.isArray(data?.evidence)?data.evidence.length:null,sample:(data?.evidence||[]).slice(0,3)};
+    }catch(e){return {ok:false,ms:Date.now()-started,error:e.message};}
+  });
+  await page.locator('.navbtn[data-page="news"]').click();
+  await page.waitForTimeout(2500);
+  await page.locator('#newsMaterialsTab').click();
+  await page.waitForTimeout(2500);
+  const newsMaterials = await page.evaluate(()=>({
+    status:document.querySelector('#newsMaterialStatus')?.textContent||'',
+    summary:[...document.querySelectorAll('#newsMaterialSummary > div')].map(x=>x.textContent.replace(/\\s+/g,' ').trim()),
+    rows:document.querySelectorAll('#newsMaterialRows tbody tr').length,
+    registryLoaded:Array.isArray(window.registryData)?window.registryData.length:null
+  }));
   await page.locator('.navbtn[data-page="sources"]').click();
   await page.waitForTimeout(2500);
   const sources = await page.evaluate(()=>({
@@ -100,7 +117,7 @@ async function liveAudit(browser) {
       fresh:{meta:fresh?.meta,products:fresh?.products}
     };
   });
-  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src'),sources,pulse};
+  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src'),demandRpc,newsMaterials,sources,pulse};
   console.log('LIVE_TAB_AUDIT',JSON.stringify(result));
   fs.writeFileSync('startup-tabs.json',JSON.stringify(result,null,2));
   assert.deepEqual(errors,[],'Published page must not throw unhandled JavaScript errors');
