@@ -73,6 +73,13 @@ async function liveAudit(browser) {
     await page.waitForTimeout(name === 'mail' || name === 'vika' || name === 'demand' ? 12000 : 2500);
     states.push(await page.evaluate(name=>({name,active:document.querySelector('.page.active')?.id,status:document.querySelector('#'+name+'Status')?.textContent||'',error:document.querySelector('#'+name+'Error')?.textContent||'',rows:document.querySelectorAll('#'+name+'Rows > *').length}),name));
   }
+  await page.locator('.navbtn[data-page="demand"]').click();
+  await page.waitForTimeout(3500);
+  const demandView = await page.evaluate(()=>({
+    status:document.querySelector('#demandStatus')?.textContent||'',
+    summary:[...document.querySelectorAll('#demandSummary > div')].map(x=>x.textContent.replace(/\s+/g,' ').trim()),
+    rows:document.querySelectorAll('#demandDemo tbody tr').length
+  }));
   const demandRpc = await page.evaluate(async()=>{
     const started=Date.now();
     try{
@@ -117,11 +124,16 @@ async function liveAudit(browser) {
       fresh:{meta:fresh?.meta,products:fresh?.products}
     };
   });
-  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src'),demandRpc,newsMaterials,sources,pulse};
+  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src'),demandView,demandRpc,newsMaterials,sources,pulse};
   console.log('LIVE_TAB_AUDIT',JSON.stringify(result));
   fs.writeFileSync('startup-tabs.json',JSON.stringify(result,null,2));
   assert.deepEqual(errors,[],'Published page must not throw unhandled JavaScript errors');
   for (const state of states) assert.equal(state.active,'page-'+state.name);
+  assert.match(demandView.status,/Фактических DEMO-связок:/,'Demand snapshot must render');
+  assert.ok(demandView.rows>0,'Demand table must not be empty');
+  assert.ok(newsMaterials.rows>0,'News DEMO materials must not be empty');
+  const factGreens=pulse.cards.map(card=>Number((card.text.match(/Факт(\d+)зелёных демо/)||[])[1]||0));
+  assert.equal(factGreens.reduce((a,b)=>a+b,0),367,'Week 44 Green fact must match live source');
   await page.close();
 }
 (async()=>{
