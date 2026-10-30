@@ -73,7 +73,26 @@ async function liveAudit(browser) {
     await page.waitForTimeout(name === 'mail' || name === 'vika' || name === 'demand' ? 12000 : 2500);
     states.push(await page.evaluate(name=>({name,active:document.querySelector('.page.active')?.id,status:document.querySelector('#'+name+'Status')?.textContent||'',error:document.querySelector('#'+name+'Error')?.textContent||'',rows:document.querySelectorAll('#'+name+'Rows > *').length}),name));
   }
-  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src')};
+  await page.locator('.navbtn[data-page="pulse"]').click();
+  await page.waitForTimeout(2500);
+  const pulse = await page.evaluate(async()=>{
+    const cards=[...document.querySelectorAll('#products .product')].map(card=>({
+      product:card.querySelector('h3')?.textContent||'',
+      text:card.textContent.replace(/\\s+/g,' ').trim()
+    }));
+    let snapshot=null,stored=null,fresh=null;
+    try{snapshot=await fetch('pulse-current.json?audit='+Date.now(),{cache:'no-store'}).then(r=>r.json());}catch(e){snapshot={error:e.message};}
+    try{stored=await window.analyticsRpc('getPulseDataStoredUi');}catch(e){stored={error:e.message};}
+    try{fresh=await window.analyticsRpc('getPulseDataFresh');}catch(e){fresh={error:e.message};}
+    return {
+      weekSelect:document.querySelector('#weekSelect')?.value||'',
+      cards,
+      snapshot,
+      stored:{meta:stored?.meta,products:stored?.products},
+      fresh:{meta:fresh?.meta,products:fresh?.products}
+    };
+  });
+  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src'),pulse};
   console.log('LIVE_TAB_AUDIT',JSON.stringify(result));
   fs.writeFileSync('startup-tabs.json',JSON.stringify(result,null,2));
   assert.deepEqual(errors,[],'Published page must not throw unhandled JavaScript errors');
