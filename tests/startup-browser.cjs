@@ -73,6 +73,14 @@ async function liveAudit(browser) {
     await page.waitForTimeout(name === 'mail' || name === 'vika' || name === 'demand' ? 12000 : 2500);
     states.push(await page.evaluate(name=>({name,active:document.querySelector('.page.active')?.id,status:document.querySelector('#'+name+'Status')?.textContent||'',error:document.querySelector('#'+name+'Error')?.textContent||'',rows:document.querySelectorAll('#'+name+'Rows > *').length}),name));
   }
+  await page.locator('.navbtn[data-page="sources"]').click();
+  await page.waitForTimeout(2500);
+  const sources = await page.evaluate(()=>({
+    status:document.querySelector('#sourcesStatus')?.textContent||'',
+    period:document.querySelector('#sourcesPeriod')?.textContent||'',
+    summary:[...document.querySelectorAll('#sourcesSummary > div')].map(x=>x.textContent.replace(/\\s+/g,' ').trim()),
+    cards:[...document.querySelectorAll('#sourceCards .source-card')].map(x=>x.textContent.replace(/\\s+/g,' ').trim())
+  }));
   await page.locator('.navbtn[data-page="pulse"]').click();
   await page.waitForTimeout(2500);
   const pulse = await page.evaluate(async()=>{
@@ -92,7 +100,7 @@ async function liveAudit(browser) {
       fresh:{meta:fresh?.meta,products:fresh?.products}
     };
   });
-  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src'),pulse};
+  const result = {errors,states,bootstrap:await page.locator('script[src*="domain-auth.js"]').getAttribute('src'),sources,pulse};
   console.log('LIVE_TAB_AUDIT',JSON.stringify(result));
   fs.writeFileSync('startup-tabs.json',JSON.stringify(result,null,2));
   assert.deepEqual(errors,[],'Published page must not throw unhandled JavaScript errors');
