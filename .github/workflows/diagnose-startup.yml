@@ -10,6 +10,7 @@ on:
       - 'tests/news-preview.cjs'
       - 'domain-auth.js'
       - 'domain-config.js'
+      - 'demo-sources.json'
       - 'app.js'
       - 'index.html'
 permissions:
