@@ -35,6 +35,21 @@ async function mapLimit(items,limit,fn){
 
 const generatedAt=new Date().toISOString();
 
+const pulse=await call('getPulseDataFresh',[],180000);
+const pulseWeek=Number(pulse?.meta?.currentWeek)||0;
+const pulseProducts=(pulse?.products||[]).map(p=>({
+  product:p.product,red:n(p.red),yellow:n(p.yellow),green:n(p.green),plan:n(p.plan)
+}));
+await fs.writeFile('pulse-current.json',JSON.stringify({
+  generatedAt,
+  sourceName:'Статистика по ДЕМО',
+  sourceUrl:pulse?.meta?.sourceUrl||'',
+  year:Number(pulse?.meta?.year)||new Date().getUTCFullYear(),
+  week:pulseWeek,
+  note:'Автоматический резервный снимок живого DEMO-факта. Основной источник сайта — getPulseDataFresh.',
+  products:pulseProducts
+},null,2)+'\n','utf8');
+
 const demand=await call('getDemandEvidenceUi',[],180000);
 await fs.writeFile('demand-current.json',JSON.stringify({...demand,generatedAt},null,2)+'\n','utf8');
 
@@ -119,6 +134,8 @@ const newsSnapshot={
 await fs.writeFile('news-demo-current.json',JSON.stringify(newsSnapshot,null,2)+'\n','utf8');
 
 console.log(JSON.stringify({
+  pulseWeek,
+  pulseGreen:pulseProducts.reduce((s,p)=>s+p.green,0),
   demandEvidence:(demand.evidence||[]).length,
   demandMeta:demand.meta||{},
   newsMails:news.length,
