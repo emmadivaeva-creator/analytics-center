@@ -190,13 +190,26 @@ function ensureCalendarPulseWeek_(data){
  data.summary=detail.summary;
  return data;
 }
+function pulseHasCurrentWeekFact_(data){
+ const week=currentIsoWeekClient_();
+ const detail=(data&&Array.isArray(data.weekDetails)?data.weekDetails:[]).find(x=>Number(x.week)===week);
+ if(!detail)return false;
+ return (detail.products||[]).some(p=>n(p.red)>0||n(p.yellow)>0||n(p.green)>0);
+}
 async function loadPulseData_(){
+ let stored=null,storedError=null;
  try{
-   const fresh=await rpc('getPulseDataStoredUi');
-   return ensureCalendarPulseWeek_(fresh);
+   stored=await rpc('getPulseDataStoredUi');
+   if(pulseHasCurrentWeekFact_(stored))return ensureCalendarPulseWeek_(stored);
  }catch(primaryError){
-   const legacy=await rpc('getPulseDataFresh');
-   return ensureCalendarPulseWeek_(repairLegacyPulse_(legacy));
+   storedError=primaryError;
+ }
+ try{
+   const fresh=await rpc('getPulseDataFresh');
+   return ensureCalendarPulseWeek_(repairLegacyPulse_(fresh));
+ }catch(freshError){
+   if(stored)return ensureCalendarPulseWeek_(stored);
+   throw storedError||freshError;
  }
 }
 async function loadData(){
@@ -1409,20 +1422,45 @@ document.getElementById('demandGroup').onchange=()=>{demandShowAll=false;renderD
 
 let vikaData=null,vikaLoading=false,vikaOwnerMode=Boolean(window.analyticsOwnerMode);
 
+async function loadVikaWorkingPlan_(id){
+ const requested=Number(id)||0;
+ try{
+   const response=await fetch('vika-plan-current.json?ts='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return null;
+   const data=await response.json();
+   if(!data||!Array.isArray(data.rows)||!data.selected)return null;
+   if(requested&&Number(data.selected.week)!==requested)return null;
+   return data;
+ }catch(_){
+   return null;
+ }
+}
+
 async function loadVika(id){
  if(vikaLoading)return;
  vikaLoading=true;
  const status=document.getElementById('vikaStatus');
  status.textContent='Собираю план напрямую из Темплана по демкам…';
  try{
-   vikaData=await rpc('getVikaPlanUi',id||null);
+   const working=await loadVikaWorkingPlan_(id);
+   if(working){
+     vikaData=working;
+     try{
+       const catalog=await rpc('getVikaPlanUi',null);
+       const merged=[...(working.plans||[]),...(catalog&&Array.isArray(catalog.plans)?catalog.plans:[])];
+       const seen=new Set();
+       vikaData.plans=merged.filter(p=>{const key=String(p.id);if(seen.has(key))return false;seen.add(key);return true;});
+     }catch(_){}
+   }else{
+     vikaData=await rpc('getVikaPlanUi',id||null);
+   }
    const plans=Array.isArray(vikaData.plans)?vikaData.plans:[];
    document.getElementById('vikaPeriod').innerHTML=plans
      .slice()
      .sort((a,b)=>b.week-a.week)
      .map(p=>'<option value="'+esc(p.id)+'" '+(String(p.id)===String(vikaData.selected?.id)?'selected':'')+'>'+esc(p.name)+'</option>')
      .join('');
-   document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть Темплан по демкам');
+   document.getElementById('vikaSource').innerHTML=safeLink(vikaData.sourceUrl,'Открыть '+(vikaData.sourceName||'источник плана'));
    renderVika();
  }catch(e){
    status.textContent='Не удалось собрать план: '+(e&&e.message?e.message:String(e));
@@ -1543,14 +1581,13 @@ function renderVika(){
    return (!selectedDate||String(r[0]||'').trim()===selectedDate)&&(!q||hay.includes(q));
  });
 
- const activeRows=(vikaData.rowMeta||[]).filter(x=>x&&x.source==='active-demo').length;
- const activeFilled=(vikaData.rows||[]).filter((r,i)=>{
-   const meta=vikaData.rowMeta?.[i];
-   return meta&&meta.source==='active-demo'&&Boolean(r[3]&&r[5]&&r[7]);
- }).length;
+ const activeRows=(vikaData.rows||[]).filter(r=>/АКТИВДЕМО/i.test(String(r[2]||''))).length;
+ const activeFilled=(vikaData.rows||[]).filter(r=>
+   /АКТИВДЕМО/i.test(String(r[2]||''))&&Boolean(r[3]&&r[5]&&r[7])
+ ).length;
  document.getElementById('vikaStatus').textContent=
    vikaData.title+' · строк: '+rows.length+
-   ' · редакция: Темплан по демкам'+
+   ' · источник: '+(vikaData.sourceName||'Темплан по демкам')+
    ' · АКТИВДЕМО: '+activeFilled+'/'+activeRows+' заполнено'+
    ' · прочитано '+dateRu(vikaData.readAt);
 
@@ -1560,7 +1597,7 @@ function renderVika(){
 
  const planText=(r,i)=>{
    const meta=vikaData.rowMeta?.[i];
-   if(meta?.source==='active-demo'){
+   if(meta?.source==='active-demo'||/АКТИВДЕМО/i.test(String(r[2]||''))){
      const content=fields(r,[4,5,6,7]);
      return '<details class="vika-plan-text" open><summary>Наш текст АКТИВДЕМО</summary>'+
        (content||'<p class="vika-missing-active">Наш текст АКТИВДЕМО на этот слот пока не заполнен.</p>')+
@@ -1580,7 +1617,7 @@ function renderVika(){
       return '<tr>'+
         '<td>'+esc(r[0])+'<p>'+esc(r[1])+'</p><small>'+esc(r[2])+'</small></td>'+
         '<td class="vika-letter"><b>'+esc(subject)+'</b>'+vikaEditorialHtml(i)+planText(r,i)+'</td>'+
-        '<td class="vika-comments">'+vikaEditorialNotes(i)+(fields(r,[9,10,11,12,13])||'—')+'</td>'+
+        '<td class="vika-comments">'+vikaEditorialNotes(i)+(fields(r,[9,10,11,12,13,14])||'—')+'</td>'+
         '<td>'+esc(r[8])+'</td>'+
       '</tr>';
     }).join('')+
