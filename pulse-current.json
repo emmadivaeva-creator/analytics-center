@@ -1,0 +1,52 @@
+{
+  "generatedAt": "2026-10-30T09:19:01.602Z",
+  "sourceName": "Статистика по ДЕМО",
+  "sourceUrl": "https://docs.google.com/spreadsheets/d/1d8l_kvvBWB2oVhU3cYtZF_Lx9iBI6kKn2fNVd_QZ0m0/edit",
+  "year": 2026,
+  "week": 44,
+  "note": "Проверенный снимок текущей недели из исходной таблицы. Используется только если публичный Apps Script не вернул ненулевой факт текущей недели.",
+  "products": [
+    {
+      "product": "ГЗ Периодика",
+      "red": 23,
+      "yellow": 22,
+      "green": 19,
+      "plan": 28
+    },
+    {
+      "product": "ГЗ Система",
+      "red": 104,
+      "yellow": 54,
+      "green": 56,
+      "plan": 92
+    },
+    {
+      "product": "ГЗ Школа",
+      "red": 102,
+      "yellow": 64,
+      "green": 44,
+      "plan": 27
+    },
+    {
+      "product": "ГФ Периодика",
+      "red": 61,
+      "yellow": 73,
+      "green": 40,
+      "plan": 57
+    },
+    {
+      "product": "ГФ Система",
+      "red": 209,
+      "yellow": 119,
+      "green": 131,
+      "plan": 220
+    },
+    {
+      "product": "ГФ Школа",
+      "red": 66,
+      "yellow": 25,
+      "green": 21,
+      "plan": 53
+    }
+  ]
+}
