@@ -315,10 +315,39 @@ function getPulseDataStoredUi() {
   const today = todayIso_();
   const calendarWeek = isoWeek_(today);
 
-  // The DEMO pivot can lag at the start of a new ISO week. Pulse must still
-  // switch to the real calendar week immediately. Until fact columns appear,
-  // R/Y/G are zero and the plan is read from "Планы на год".
+  // The service snapshot can lag behind the source pivot. Never present a
+  // synthetic zero as current fact when the source already contains this week.
   if (!byWeek[calendarWeek]) byWeek[calendarWeek] = {};
+  const storedCurrentHasFact = Object.keys(byWeek[calendarWeek]).some(function(product) {
+    const item = byWeek[calendarWeek][product] || {};
+    return number_(item.red) > 0 || number_(item.yellow) > 0 || number_(item.green) > 0;
+  });
+  if (!storedCurrentHasFact) {
+    try {
+      const fresh = buildPulseSourceTruth_();
+      APP.productOrder.forEach(function(product) {
+        const raw = fresh.totals && fresh.totals[product + '|' + calendarWeek];
+        if (!raw) return;
+        const red = number_(raw.red);
+        const yellow = number_(raw.yellow);
+        const green = number_(raw.green);
+        const plan = number_(raw.plan);
+        byWeek[calendarWeek][product] = {
+          product: product,
+          red: red,
+          yellow: yellow,
+          green: green,
+          plan: plan,
+          progress: plan ? round_(green / plan * 100, 1) : 0,
+          decision: protocolDecision_(product, red, yellow, green, plan)
+        };
+      });
+      updatedAt = fresh.updatedAt || updatedAt;
+      sourceUrl = fresh.sourceUrl || sourceUrl;
+    } catch (freshError) {
+      console.warn('Fresh current-week DEMO fallback failed: ' + freshError);
+    }
+  }
 
   const planWeeks = {};
   Object.keys(byWeek).forEach(function(week){ planWeeks[Number(week)] = true; });
