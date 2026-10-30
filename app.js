@@ -239,17 +239,41 @@ function applyPulseStaticCurrent_(data,snapshot){
  data.summary=detail.summary;
  return data;
 }
+function pulseCurrentScore_(data){
+ const week=currentIsoWeekClient_();
+ const detail=(data&&Array.isArray(data.weekDetails)?data.weekDetails:[]).find(x=>Number(x.week)===week);
+ const products=detail?.products||[];
+ return products.reduce((s,p)=>({
+   green:s.green+n(p.green),
+   total:s.total+n(p.red)+n(p.yellow)+n(p.green)
+ }),{green:0,total:0});
+}
+function pulseSnapshotScore_(snapshot){
+ return (snapshot?.products||[]).reduce((s,p)=>({
+   green:s.green+n(p.green),
+   total:s.total+n(p.red)+n(p.yellow)+n(p.green)
+ }),{green:0,total:0});
+}
 async function pulseWithStaticFallback_(data){
  let normalized=ensureCalendarPulseWeek_(data&&Array.isArray(data.weekDetails)?data:{meta:{},weekDetails:[]});
- if(pulseHasCurrentWeekFact_(normalized))return normalized;
  const snapshot=await loadPulseStaticCurrent_();
- return snapshot?applyPulseStaticCurrent_(normalized,snapshot):normalized;
+ if(!snapshot)return normalized;
+ const live=pulseCurrentScore_(normalized),staticScore=pulseSnapshotScore_(snapshot);
+ // Green is the dashboard's primary "Факт". A stale backend may already have
+ // red/yellow rows for the week while all Green values are still zero.
+ // Prefer the verified source snapshot whenever it is strictly more complete;
+ // once the live source catches up and exceeds the snapshot, live wins again.
+ const staticIsMoreComplete=
+   staticScore.green>live.green ||
+   (staticScore.green===live.green && staticScore.total>live.total);
+ return staticIsMoreComplete?applyPulseStaticCurrent_(normalized,snapshot):normalized;
 }
 async function loadPulseData_(){
  let stored=null,storedError=null;
  try{
    stored=await rpc('getPulseDataStoredUi');
-   if(pulseHasCurrentWeekFact_(stored))return ensureCalendarPulseWeek_(stored);
+   const checked=await pulseWithStaticFallback_(stored);
+   if(pulseHasCurrentWeekFact_(checked))return checked;
  }catch(primaryError){
    storedError=primaryError;
  }
