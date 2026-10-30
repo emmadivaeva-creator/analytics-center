@@ -1,0 +1,45 @@
+name: Refresh live analytics snapshots
+
+on:
+  push:
+    branches: [v2-rebuild]
+    paths:
+      - '.github/workflows/refresh-live-snapshots.yml'
+      - '.github/scripts/refresh-live-snapshots.mjs'
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: analytics-live-snapshots
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v2-rebuild
+          fetch-depth: 0
+      - name: Build fresh DEMO snapshots
+        run: node .github/scripts/refresh-live-snapshots.mjs
+      - name: Verify snapshot payloads
+        run: |
+          node -e "const d=require('./demand-current.json'); if(!Array.isArray(d.evidence)||!d.evidence.length)process.exit(1); console.log('demand',d.evidence.length)"
+          node -e "const n=require('./news-demo-current.json'); if(!Array.isArray(n.topics))process.exit(1); console.log('news',n.topics.length)"
+      - name: Commit refreshed snapshots
+        run: |
+          if git diff --quiet -- demand-current.json news-demo-current.json; then
+            echo "Snapshots unchanged"
+            exit 0
+          fi
+          git config user.name "analytics-snapshot-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add demand-current.json news-demo-current.json
+          git commit -m "Refresh live analytics snapshots [skip ci]"
+          git push origin HEAD:v2-rebuild
