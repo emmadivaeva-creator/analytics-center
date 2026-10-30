@@ -269,22 +269,22 @@ async function pulseWithStaticFallback_(data){
  return staticIsMoreComplete?applyPulseStaticCurrent_(normalized,snapshot):normalized;
 }
 async function loadPulseData_(){
- let stored=null,storedError=null;
+ let freshError=null;
  try{
-   stored=await rpc('getPulseDataStoredUi');
-   const checked=await pulseWithStaticFallback_(stored);
-   if(pulseHasCurrentWeekFact_(checked))return checked;
- }catch(primaryError){
-   storedError=primaryError;
- }
- try{
+   // Fresh source is authoritative. The stored sheet is only an emergency fallback:
+   // it can lag behind DEMO maturation even within the same working day.
    const fresh=repairLegacyPulse_(await rpc('getPulseDataFresh'));
    return await pulseWithStaticFallback_(fresh);
- }catch(freshError){
-   if(stored)return await pulseWithStaticFallback_(stored);
+ }catch(error){
+   freshError=error;
+ }
+ try{
+   const stored=await rpc('getPulseDataStoredUi');
+   return await pulseWithStaticFallback_(stored);
+ }catch(storedError){
    const fallback=await pulseWithStaticFallback_({meta:{},weekDetails:[]});
    if(pulseHasCurrentWeekFact_(fallback))return fallback;
-   throw storedError||freshError;
+   throw freshError||storedError;
  }
 }
 async function loadData(){
@@ -1032,7 +1032,38 @@ function newsMaterialTopics(emails,week){
  }
  return [...topics.values()].map(t=>({...t,total:t.red+t.yellow+t.green}));
 }
+let newsMaterialSnapshot=null,newsMaterialSnapshotLoading=false;
+async function loadNewsMaterialSnapshot_(force=false){
+ if(newsMaterialSnapshotLoading)return;
+ if(newsMaterialSnapshot&&!force){renderNewsMaterials();return;}
+ newsMaterialSnapshotLoading=true;
+ try{
+   const response=await fetch('news-demo-current.json?ts='+Date.now(),{cache:'no-store'});
+   if(response.ok){
+     const data=await response.json();
+     if(data&&Array.isArray(data.topics))newsMaterialSnapshot=data;
+   }
+ }catch(_){}
+ finally{newsMaterialSnapshotLoading=false;renderNewsMaterials();}
+}
+function renderNewsMaterialSnapshot_(){
+ const data=newsMaterialSnapshot||{},select=document.getElementById('newsMaterialWeek'),previous=select.value;
+ const weeks=(data.weeks||[]).slice().sort((a,b)=>b-a);
+ select.innerHTML='<option value="">Все доступные недели</option>'+weeks.map(w=>`<option value="${w}">Неделя ${w}</option>`).join('');
+ select.value=weeks.some(w=>String(w)===previous)?previous:'';
+ const query=document.getElementById('newsMaterialSearch').value.trim().toLowerCase(),group=document.getElementById('newsMaterialGroup').value,filter=document.getElementById('newsMaterialFilter').value,sort=document.getElementById('newsMaterialSort').value;
+ const week=select.value;
+ const all=(data.topics||[]).map(t=>{
+   const values=week?(t.byWeek&&t.byWeek[week]||{red:0,yellow:0,green:0}):{red:n(t.red),yellow:n(t.yellow),green:n(t.green)};
+   return {...t,...values,total:n(values.red)+n(values.yellow)+n(values.green)};
+ }).filter(t=>(!group||t.group===group)&&(!query||[t.title,t.url,t.term].join(' ').toLowerCase().includes(query)));
+ const rows=all.filter(t=>filter==='zero'?t.total===0:filter==='green'?t.green>0:true).sort((a,b)=>sort==='total'?b.total-a.total||b.green-a.green:b.green-a.green||b.total-a.total);
+ document.getElementById('newsMaterialStatus').textContent='Готовый срез: '+fmt(data.mailsChecked||0)+' новостных писем'+(data.errors?.length?' · ошибок '+data.errors.length:'')+' · обновлено '+dateRu(data.generatedAt||'')+' · период '+(week?'неделя '+week:(data.periodLabel||'последние дни'))+'.';
+ document.getElementById('newsMaterialSummary').innerHTML=`<div><b>${fmt(all.length)}</b><span>материалов</span></div><div><b>${fmt(all.filter(t=>t.total>0).length)}</b><span>приносят демо</span></div><div><b>${fmt(all.filter(t=>!t.total).length)}</b><span>без демо</span></div><div><b>${fmt(all.reduce((s,t)=>s+t.green,0))}</b><span>зелёных демо</span></div>`;
+ document.getElementById('newsMaterialRows').innerHTML=rows.length?`<table><thead><tr><th>Новость / статья</th><th>Всего демо</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Письма</th></tr></thead><tbody>${rows.map(t=>`<tr><td><b>${safeLink(t.url,t.title)||esc(t.title||t.term||'Материал')}</b><small>${esc(t.group||'')} · ${t.kind==='news'?'Новость':'Статья'}</small></td><td>${fmt(t.total)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>${fmt((t.letters||[]).length)}</summary>${(t.letters||[]).map(m=>`<p>${safeLink(m.url,m.subject)||esc(m.subject||'Письмо')}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>`:'<p>Материалов по выбранным условиям пока нет.</p>';
+}
 function renderNewsMaterials(){
+ if(newsMaterialSnapshot){renderNewsMaterialSnapshot_();return;}
  const mails=(registryData||[]).filter(isNewsMail),done=mails.filter(m=>m.materialData).length,errors=mails.filter(m=>m.materialError).length;
  const select=document.getElementById('newsMaterialWeek'),previous=select.value;
  const weeks=[...new Set(mails.flatMap(m=>(m.materialData?.rows||[]).flatMap(r=>(r.weeks||[]).map(w=>w.week))))].sort((a,b)=>b-a);
@@ -1044,7 +1075,7 @@ function renderNewsMaterials(){
  document.getElementById('newsMaterialSummary').innerHTML=`<div><b>${fmt(all.length)}</b><span>материалов</span></div><div><b>${fmt(all.filter(t=>t.total>0).length)}</b><span>приносят демо</span></div><div><b>${fmt(all.filter(t=>!t.total).length)}</b><span>без демо</span></div><div><b>${fmt(all.reduce((s,t)=>s+t.green,0))}</b><span>зелёных демо</span></div>`;
  document.getElementById('newsMaterialRows').innerHTML=rows.length?`<table><thead><tr><th>Новость / статья</th><th>Всего демо</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Письма</th></tr></thead><tbody>${rows.map(t=>`<tr><td><b>${safeLink(t.url,t.title)||esc(t.title)}</b><small>${esc(t.group)} · ${t.kind==='news'?'Новость':'Статья'}</small></td><td>${fmt(t.total)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>${t.letters.size}</summary>${[...t.letters.values()].map(m=>`<p>${safeLink(m.url,m.subject)||esc(m.subject)}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>`:'<p>Материалов по выбранным условиям пока нет.</p>';
 }
-for(const mode of ['Letters','Materials'])document.getElementById('news'+mode+'Tab').onclick=()=>{for(const name of ['Letters','Materials']){document.getElementById('news'+name+'Panel').classList.toggle('hidden',name!==mode);document.getElementById('news'+name+'Tab').setAttribute('aria-pressed',String(name===mode));}};
+for(const mode of ['Letters','Materials'])document.getElementById('news'+mode+'Tab').onclick=()=>{for(const name of ['Letters','Materials']){document.getElementById('news'+name+'Panel').classList.toggle('hidden',name!==mode);document.getElementById('news'+name+'Tab').setAttribute('aria-pressed',String(name===mode));}if(mode==='Materials')loadNewsMaterialSnapshot_();};
 for(const name of ['Search','Group','Week','Filter','Sort'])document.getElementById('newsMaterial'+name).addEventListener(name==='Search'?'input':'change',renderNewsMaterials);
 function materialSummary(x){if(x.materialError)return 'Ошибка сопоставления: '+esc(x.materialError);if(!x.materialData)return 'Сопоставляем Content / Term…';if(!x.materialData.rows.length)return 'Нет совпадений Content / Term';const t={red:0,yellow:0,green:0};x.materialData.rows.forEach(r=>{for(const k of Object.keys(t))t[k]+=n(r.values[k]);});return `Материалы: R ${fmt(t.red)} / Y ${fmt(t.yellow)} / G ${fmt(t.green)}<small>Все доступные недели, все реферы</small>`;}
 function materialDetails(x){return x.materialData?`<p>Материалов: ${x.materialData.materials.length}; совпадений: ${x.materialData.rows.length}</p>`+x.materialData.rows.map(r=>`<p>${safeLink(r.url,r.title)} · Term ${esc(r.term)} · ${esc(r.product)}<br>${safeLink(r.sourceUrl,r.source)} · R ${fmt(r.values.red)} / Y ${fmt(r.values.yellow)} / G ${fmt(r.values.green)}</p>`).join(''):materialSummary(x);}
@@ -1437,6 +1468,14 @@ function demandProofHtml_(e){
    (activeWeeks?'<small>'+esc(activeWeeks)+'</small>':'')+
    sends+'</div>';
 }
+async function loadDemandSnapshot_(){
+ try{
+   const response=await fetch('demand-current.json?ts='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return null;
+   const data=await response.json();
+   return data&&Array.isArray(data.evidence)?data:null;
+ }catch(_){return null;}
+}
 async function loadDemand(force=false){
  if(demandBusy)return;
  demandBusy=true;
@@ -1444,6 +1483,19 @@ async function loadDemand(force=false){
  button.disabled=true;
  document.getElementById('demandStatus').textContent='Читаю фактические письма Sendsay и DEMO-метки…';
  try{
+  if(!force){
+    const snapshot=await loadDemandSnapshot_();
+    if(snapshot){
+      demandData=snapshot;
+      renderDemand();
+      document.getElementById('demandStatus').textContent+=' · быстрый снимок';
+      // Refresh silently. A slow live calculation must not leave the page empty.
+      rpc('getDemandEvidenceUi',null).then(fresh=>{
+        if(fresh&&Array.isArray(fresh.evidence)){demandData=fresh;renderDemand();}
+      }).catch(()=>{});
+      return;
+    }
+  }
   demandData=await rpc('getDemandEvidenceUi',force?1:null);
   renderDemand();
  }catch(e){
