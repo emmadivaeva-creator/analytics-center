@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-30T09:19:01.602Z",
+  "generatedAt": "2026-10-30T09:52:37.992Z",
   "sourceName": "Статистика по ДЕМО",
   "sourceUrl": "https://docs.google.com/spreadsheets/d/1d8l_kvvBWB2oVhU3cYtZF_Lx9iBI6kKn2fNVd_QZ0m0/edit",
   "year": 2026,
   "week": 44,
-  "note": "Проверенный снимок текущей недели из исходной таблицы. Используется только если публичный Apps Script не вернул ненулевой факт текущей недели.",
+  "note": "Автоматический резервный снимок живого DEMO-факта. Основной источник сайта — getPulseDataFresh.",
   "products": [
     {
       "product": "ГЗ Периодика",
@@ -15,9 +15,9 @@
     },
     {
       "product": "ГЗ Система",
-      "red": 104,
-      "yellow": 54,
-      "green": 56,
+      "red": 120,
+      "yellow": 59,
+      "green": 67,
       "plan": 92
     },
     {
@@ -36,9 +36,9 @@
     },
     {
       "product": "ГФ Система",
-      "red": 209,
-      "yellow": 119,
-      "green": 131,
+      "red": 237,
+      "yellow": 130,
+      "green": 176,
       "plan": 220
     },
     {
