@@ -196,6 +196,55 @@ function pulseHasCurrentWeekFact_(data){
  if(!detail)return false;
  return (detail.products||[]).some(p=>n(p.red)>0||n(p.yellow)>0||n(p.green)>0);
 }
+async function loadPulseStaticCurrent_(){
+ try{
+   const response=await fetch('pulse-current.json?ts='+Date.now(),{cache:'no-store'});
+   if(!response.ok)return null;
+   const snapshot=await response.json();
+   const week=currentIsoWeekClient_();
+   if(!snapshot||Number(snapshot.week)!==week||!Array.isArray(snapshot.products))return null;
+   if(!snapshot.products.some(p=>n(p.red)>0||n(p.yellow)>0||n(p.green)>0))return null;
+   return snapshot;
+ }catch(_){
+   return null;
+ }
+}
+function applyPulseStaticCurrent_(data,snapshot){
+ if(!snapshot)return data;
+ const week=Number(snapshot.week),plans=PULSE_PLAN_FALLBACK_[week]||{};
+ const rawByProduct=new Map((snapshot.products||[]).map(p=>[String(p.product||''),p]));
+ const order=['ГЗ Периодика','ГЗ Система','ГЗ Школа','ГФ Периодика','ГФ Система','ГФ Школа'];
+ const products=order.map(product=>{
+   const raw=rawByProduct.get(product)||{};
+   const plan=n(raw.plan)||n(plans[product]);
+   const p={product,red:n(raw.red),yellow:n(raw.yellow),green:n(raw.green),plan,progress:plan?Math.round(n(raw.green)/plan*1000)/10:0};
+   p.decision=pulseDecisionClient_(p);
+   return p;
+ });
+ const detail={week,products,summary:pulseAggregateClient_(products)};
+ data=data&&typeof data==='object'?data:{};
+ data.weekDetails=Array.isArray(data.weekDetails)?data.weekDetails:[];
+ const at=data.weekDetails.findIndex(x=>Number(x.week)===week);
+ if(at>=0)data.weekDetails[at]=detail;else data.weekDetails.push(detail);
+ data.weekDetails.sort((a,b)=>Number(a.week)-Number(b.week));
+ data.weeks=data.weekDetails.map(item=>({week:item.week,green:n(item.summary?.green),yellow:n(item.summary?.yellow),red:n(item.summary?.red),plan:n(item.summary?.plan),progress:n(item.summary?.progress)}));
+ data.meta=data.meta||{};
+ data.meta.calendarWeek=week;
+ data.meta.currentWeek=week;
+ data.meta.year=Number(snapshot.year)||new Date().getFullYear();
+ data.meta.sourceReadAt=snapshot.generatedAt||data.meta.sourceReadAt||'';
+ data.meta.sourceUrl=snapshot.sourceUrl||data.meta.sourceUrl||'';
+ data.meta.parserBuild='pulse-static-source-fallback-20261030';
+ data.products=detail.products;
+ data.summary=detail.summary;
+ return data;
+}
+async function pulseWithStaticFallback_(data){
+ let normalized=ensureCalendarPulseWeek_(data&&Array.isArray(data.weekDetails)?data:{meta:{},weekDetails:[]});
+ if(pulseHasCurrentWeekFact_(normalized))return normalized;
+ const snapshot=await loadPulseStaticCurrent_();
+ return snapshot?applyPulseStaticCurrent_(normalized,snapshot):normalized;
+}
 async function loadPulseData_(){
  let stored=null,storedError=null;
  try{
@@ -205,10 +254,12 @@ async function loadPulseData_(){
    storedError=primaryError;
  }
  try{
-   const fresh=await rpc('getPulseDataFresh');
-   return ensureCalendarPulseWeek_(repairLegacyPulse_(fresh));
+   const fresh=repairLegacyPulse_(await rpc('getPulseDataFresh'));
+   return await pulseWithStaticFallback_(fresh);
  }catch(freshError){
-   if(stored)return ensureCalendarPulseWeek_(stored);
+   if(stored)return await pulseWithStaticFallback_(stored);
+   const fallback=await pulseWithStaticFallback_({meta:{},weekDetails:[]});
+   if(pulseHasCurrentWeekFact_(fallback))return fallback;
    throw storedError||freshError;
  }
 }
