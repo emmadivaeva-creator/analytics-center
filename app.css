@@ -267,3 +267,10 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 .trade-hint{font-size:11px;color:var(--muted);line-height:1.55;margin:12px 0}
 @media(max-width:1150px){.trade-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:700px){.trade-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.trade-metric b{font-size:20px}.trade-actions button{flex:1 1 auto}}
+
+/* VIO source freshness and explicit period selection. */
+.vio-period-control{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 0 13px;font-size:11px}
+.vio-period-control label{font-weight:800;color:var(--muted)}
+.vio-period-control select{min-height:36px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:6px 10px;color:var(--ink)}
+.vio-period-control #vioFreshness{color:var(--muted)}
+.vio-period-control #vioFreshness.stale{color:#a34726;font-weight:750}
