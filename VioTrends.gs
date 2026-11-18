@@ -4,8 +4,10 @@ const VIO_TRENDS_SOURCE_ID_ = '1ENnwfKY_fqyr4-81pjUDY3gsfcu_vf9zVnuifiR_5XU';
 function getVioTrendsUi(force) {
   requireDashboardOwner_();
   const cache = CacheService.getScriptCache();
-  const cacheKey = 'vio-trends-v7';
-  if (!Number(force)) {
+  // A YYYY-MM argument selects a historical month; 1 forces a fresh latest read.
+  const selectedMonth = typeof force === 'string' && /^\d{4}-\d{2}$/.test(force) ? force : '';
+  const cacheKey = 'vio-trends-v8:' + (selectedMonth || 'latest');
+  if (force !== 1 && force !== '1') {
     try {
       const cached = cache.get(cacheKey);
       if (cached) return JSON.parse(cached);
@@ -42,19 +44,33 @@ function getVioTrendsUi(force) {
       if (!direction) continue;
       const modified = String(idx['Дата последнего изменения'] != null ? row[idx['Дата последнего изменения']] || '' : '');
       const item = {id:id,date:date,month:date.slice(0,7),modified:modified,direction:direction,rubric:rubric,title:title,question:question};
-      if (!byId[id] || modified >= byId[id].modified) byId[id] = item;
+      const key = direction + '|' + id;
+      if (!byId[key] || modified >= byId[key].modified) byId[key] = item;
     }
   });
 
   const items = Object.keys(byId).map(function(id) { return byId[id]; });
   const months = Array.from(new Set(items.map(function(x){return x.month;}))).sort();
-  const currentMonth = months.length ? months[months.length - 1] : '';
-  const previousMonth = months.length > 1 ? months[months.length - 2] : '';
+  if (selectedMonth && months.indexOf(selectedMonth) < 0) {
+    throw new Error('За выбранный месяц в выгрузке ВИО нет данных: ' + selectedMonth);
+  }
+  const currentMonth = selectedMonth || (months.length ? months[months.length - 1] : '');
+  const index = months.indexOf(currentMonth);
+  const previousMonth = index > 0 ? months[index - 1] : '';
+  const latestMonth = months.length ? months[months.length - 1] : '';
+  const actualMonth = Utilities.formatDate(new Date(), 'Europe/Moscow', 'yyyy-MM');
+  const currentMonthInt = Number(actualMonth.slice(0,4))*12+Number(actualMonth.slice(5,7));
+  const latestMonthInt = Number(latestMonth.slice(0,4))*12+Number(latestMonth.slice(5,7));
+  const monthsBehind = latestMonth ? Math.max(0,currentMonthInt-latestMonthInt) : null;
 
   const result = {
     meta: {
       sourceTitle: book.getName(),
       readAt: new Date().toISOString(),
+      availableMonths: months,
+      latestMonth: latestMonth,
+      latestLabel: vioMonthLabel_(latestMonth),
+      monthsBehind: monthsBehind,
       currentMonth: currentMonth,
       previousMonth: previousMonth,
       currentLabel: vioMonthLabel_(currentMonth),
