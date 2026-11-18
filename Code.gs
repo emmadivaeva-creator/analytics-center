@@ -165,6 +165,8 @@ function analyticsPublicReadCompat_(event) {
       result = getVikaPlanUi.apply(null, args);
     } else if (method === 'getVikaEditorialUi' && typeof getVikaEditorialUi === 'function') {
       result = getVikaEditorialUi.apply(null, args);
+    } else if (method === 'getTradeMailUi' && typeof getTradeMailUi === 'function') {
+      result = getTradeMailUi.apply(null, args);
     } else if (method === 'getVioTrendsUi' && typeof getVioTrendsUi === 'function') {
       result = getVioTrendsUi.apply(null, args);
     } else {
