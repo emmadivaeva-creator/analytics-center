@@ -61,10 +61,11 @@ function tradeMailSources_() {
 
 function tradeMailSince_() {
   const raw = String(PropertiesService.getScriptProperties()
-    .getProperty('SENDSAY_TRADE_SINCE') || '2026-01-01').trim();
+    .getProperty('SENDSAY_TRADE_SINCE') || '2026-06-29').trim();
   if (!/^\d{4}-\d{2}-\d{2}$/.test(raw) || isNaN(new Date(raw + 'T12:00:00Z').getTime())) {
     throw new Error('SENDSAY_TRADE_SINCE должен быть датой YYYY-MM-DD.');
   }
+  if (raw < '2026-06-29') throw new Error('Для торговых писем начало периода — 27-я неделя 2026 года (2026-06-29).');
   return raw;
 }
 
