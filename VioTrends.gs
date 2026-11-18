@@ -1,12 +1,17 @@
 /** Aggregated VIO demand trends. Raw questions are never returned to the public UI. */
 const VIO_TRENDS_SOURCE_ID_ = '1ENnwfKY_fqyr4-81pjUDY3gsfcu_vf9zVnuifiR_5XU';
+// 18.11.2026 exports. The newer CSVs take precedence by (direction, ID).
+const VIO_TRENDS_EXTRA_IDS_ = [
+  '1yGh2MyOV4UNOCQ-uUBk4_s2qQIPNXiwikwL_u6eLkoY', // ГФ, /qa/
+  '1fSoZZc0l3-W9p7fdqo_IqspE6HEAW-B5kzqKTolDNXU'  // ГЗ, /question/
+];
 
 function getVioTrendsUi(force) {
   requireDashboardOwner_();
   const cache = CacheService.getScriptCache();
   // A YYYY-MM argument selects a historical month; 1 forces a fresh latest read.
   const selectedMonth = typeof force === 'string' && /^\d{4}-\d{2}$/.test(force) ? force : '';
-  const cacheKey = 'vio-trends-v8:' + (selectedMonth || 'latest');
+  const cacheKey = 'vio-trends-v9-all:' + (selectedMonth || 'latest');
   if (force !== 1 && force !== '1') {
     try {
       const cached = cache.get(cacheKey);
@@ -14,9 +19,10 @@ function getVioTrendsUi(force) {
     } catch (e) {}
   }
 
-  const book = SpreadsheetApp.openById(VIO_TRENDS_SOURCE_ID_);
+  const books = [VIO_TRENDS_SOURCE_ID_].concat(VIO_TRENDS_EXTRA_IDS_).map(function(id){return SpreadsheetApp.openById(id);});
   const byId = {};
 
+  books.forEach(function(book, priority) {
   book.getSheets().forEach(function(sheet) {
     const lastRow = sheet.getLastRow();
     if (lastRow < 2) return;
@@ -45,8 +51,9 @@ function getVioTrendsUi(force) {
       const modified = String(idx['Дата последнего изменения'] != null ? row[idx['Дата последнего изменения']] || '' : '');
       const item = {id:id,date:date,month:date.slice(0,7),modified:modified,direction:direction,rubric:rubric,title:title,question:question};
       const key = direction + '|' + id;
-      if (!byId[key] || modified >= byId[key].modified) byId[key] = item;
+      if (!byId[key] || priority > 0 || modified >= byId[key].modified) byId[key] = item;
     }
+  });
   });
 
   const items = Object.keys(byId).map(function(id) { return byId[id]; });
@@ -65,7 +72,7 @@ function getVioTrendsUi(force) {
 
   const result = {
     meta: {
-      sourceTitle: book.getName(),
+      sourceTitle: 'Объединённый архив ВИО: август–ноябрь 2026',
       readAt: new Date().toISOString(),
       availableMonths: months,
       latestMonth: latestMonth,
@@ -80,13 +87,54 @@ function getVioTrendsUi(force) {
     groups: {
       'ГЗ': vioGroup_(items, 'ГЗ', currentMonth, previousMonth),
       'ГФ': vioGroup_(items, 'ГФ', currentMonth, previousMonth)
-    }
+    },
+    monthly: vioMonthly_(items,months)
   };
 
   try {
     const json = JSON.stringify(result);
     if (json.length < 95000) cache.put(cacheKey, json, 600);
   } catch (e) {}
+  return result;
+}
+
+
+/** Month-by-month topic distribution for both directions. No raw question text in public output. */
+function vioMonthly_(items, months) {
+  const result = {};
+  ['ГФ','ГЗ'].forEach(function(direction) {
+    const directionRows = items.filter(function(row){return row.direction === direction;});
+    const periods = months.map(function(month) {
+      const rows = directionRows.filter(function(row){return row.month === month;});
+      const counts = {};
+      rows.forEach(function(row){
+        const topic = vioTopic_(direction,row.rubric,row.title,row.question);
+        counts[topic] = (counts[topic] || 0) + 1;
+      });
+      const days = vioCoverageDays_(rows);
+      return {
+        month:month,label:vioMonthLabel_(month),
+        count:rows.length,days:days,pace:days?vioRound_(rows.length/days,1):0,
+        topics:counts
+      };
+    });
+    const topicNames = {};
+    periods.forEach(function(period) {
+      Object.keys(period.topics).forEach(function(topic){topicNames[topic]=true;});
+    });
+    const topics = Object.keys(topicNames).map(function(name) {
+      const counts = {}, shares = {};
+      let total=0;
+      periods.forEach(function(period) {
+        const n = period.topics[name] || 0;
+        counts[period.month] = n;
+        shares[period.month] = period.count ? vioRound_(n/period.count*100,1) : 0;
+        total += n;
+      });
+      return {name:name,total:total,counts:counts,shares:shares};
+    }).sort(function(a,b){return b.total-a.total;});
+    result[direction] = {periods:periods,topics:topics};
+  });
   return result;
 }
 
