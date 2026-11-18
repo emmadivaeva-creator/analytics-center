@@ -2331,10 +2331,11 @@ async function loadTrade(){
     tradeData=result;tradeWeeks_();renderTrade();
     const meta=result.meta||{};
     document.getElementById('tradeSyncRecent').disabled=!meta.historyReady;
+    document.getElementById('tradeSyncHistory').textContent=meta.syncing?'Продолжить загрузку с места остановки':'Загрузить историю с 27-й недели';
     tradeStatus_('Период: с 29.06.2026 (неделя 27) · сохранено '+fmt(result.items.length)+
       ' отправок · последнее обновление '+(meta.lastSync?dateRu(meta.lastSync):'не выполнялось')+
       (!meta.historyReady?' · сначала загрузите полную историю':'')+
-      (meta.syncing?' · есть незавершённая синхронизация':''));
+      (meta.syncing?' · импорт не завершён: нажмите «Продолжить загрузку с места остановки»':''));
   }catch(e){
     tradeStatus_('Нет актуальных торговых данных: '+String(e&&e.message||e)+
       '. Для загрузки нужен серверный модуль TradeEmails.gs в действующем Apps Script.');
@@ -2352,17 +2353,27 @@ async function syncTradeHistory_(){
   button.disabled=true;
   let processed=0,matched=0,complete=false;
   try{
+    // Backend already has a persistent cursor. Never wipe staging on a retry.
+    const remote=await rpc('getTradeMailUi');
+    if(!remote||!remote.meta)throw new Error('Не удалось прочитать состояние импорта на сервере.');
+    const resume=Boolean(remote.meta.syncing);
+    if(resume)tradeStatus_('Найден незавершённый импорт. Продолжаю его без удаления загруженных данных…');
     for(let page=0;page<1000;page++){
-      const result=await rpc('syncTradeMailBatch',page===0);
-      processed+=n(result.processed);matched+=n(result.selected);
+      const result=await rpc('syncTradeMailBatch',page===0&&!resume);
+      processed=n(result.readTotal);
+      matched=n(result.selectedTotal);
       tradeStatus_('Сверяю Sendsay: '+fmt(processed)+' выпусков · торговых '+fmt(matched)+
         ' · '+(result.direction||'')+' · с 29 июня 2026 года…');
       if(!result.remaining){complete=true;break;}
     }
-    if(!complete)throw new Error('Достигнут лимит страниц: продолжите синхронизацию серверным методом.');
+    if(!complete)throw new Error('Достигнут лимит пакетов: повторно нажмите «Продолжить загрузку»');
     tradeData=null;
     await loadTrade();
-  }catch(e){tradeStatus_('Синхронизация не завершена: '+String(e&&e.message||e)+'. Рабочие данные не заменены.');}
+  }catch(e){
+    tradeStatus_('Синхронизация прервана: '+String(e&&e.message||e)+
+      '. Уже прочитанные пакеты сохранены. Войдите владельцем и нажмите «Продолжить загрузку».');
+    button.textContent='Продолжить загрузку с места остановки';
+  }
   finally{tradeSyncing=false;button.disabled=false;}
 }
 async function syncTradeRecent_(){
