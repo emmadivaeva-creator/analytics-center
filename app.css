@@ -307,3 +307,45 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 .vio-history-footnote{font-size:10px;color:var(--muted);margin:12px 0 0}
 @media(max-width:1200px){.vio-months-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.vio-months-grid{grid-template-columns:1fr 1fr}.vio-history-panel{padding:13px}.vio-history-filters input,.vio-history-filters select{min-width:100%;width:100%}.vio-trend-table .vio-trend-name{min-width:175px}}
+
+
+/* What is inside each of the five largest VIO themes. */
+.vio-drill-panel{margin:17px 0 18px;padding:18px 20px}
+.vio-drill-grid{display:grid;gap:10px;margin-top:14px}
+.vio-drill-card{border:1px solid var(--line);border-radius:13px;background:#fff;overflow:hidden}
+.vio-drill-card[open]{border-color:#c8d4ee;box-shadow:0 4px 16px rgba(20,38,69,.05)}
+.vio-drill-card summary{display:flex;gap:11px;align-items:center;cursor:pointer;padding:15px 16px;list-style:none;user-select:none}
+.vio-drill-card summary::-webkit-details-marker{display:none}
+.vio-drill-card summary:focus-visible{outline:3px solid #9dbbff;outline-offset:-3px}
+.vio-drill-card[open] summary{border-bottom:1px solid var(--line);background:#fafbff}
+.vio-drill-rank{font-size:11px;font-weight:900;color:var(--accent);background:#ecf1ff;border-radius:9px;padding:7px 9px}
+.vio-drill-title{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+.vio-drill-title>b{font-size:13px;line-height:1.3}
+.vio-drill-title>small{color:var(--muted);font-size:10px;line-height:1.4}
+.vio-drill-total{text-align:right;display:flex;flex-direction:column;gap:2px;min-width:65px}
+.vio-drill-total>b{font-size:20px;line-height:1;font-variant-numeric:tabular-nums}
+.vio-drill-total>small{font-size:9px;color:var(--muted)}
+.vio-drill-arrow{color:var(--muted);transition:transform .2s ease}
+.vio-drill-card[open] .vio-drill-arrow{transform:rotate(180deg)}
+.vio-drill-body{padding:14px 16px 16px}
+.vio-drill-months{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:13px}
+.vio-drill-months span{display:flex;flex-direction:column;padding:9px 10px;border-radius:9px;background:#f5f7fb}
+.vio-drill-months small{color:var(--muted);font-size:10px}
+.vio-drill-months b{font-size:16px}
+.vio-drill-tablewrap{overflow-x:auto}
+.vio-drill-table{border-collapse:collapse;font-size:11px;width:100%;min-width:700px}
+.vio-drill-table th{background:#f7f9fc;color:#596779;text-align:right;font-size:10px;padding:9px 7px;white-space:nowrap}
+.vio-drill-table th:first-child{text-align:left}
+.vio-drill-table td{padding:9px 7px;vertical-align:middle;text-align:right;border-bottom:1px solid #eef1f6;font-variant-numeric:tabular-nums}
+.vio-drill-table td:first-child{text-align:left;font-variant-numeric:normal;min-width:230px}
+.vio-drill-num{white-space:nowrap}
+.vio-drill-share{min-width:110px}
+.vio-drill-bar{height:4px;margin-top:5px;background:#e8ecf3;border-radius:6px;overflow:hidden}
+.vio-drill-bar i{display:block;height:100%;border-radius:6px;background:var(--accent)}
+.vio-drill-delta{min-width:80px;white-space:nowrap}
+.vio-drill-delta.up{color:var(--ok);font-weight:750}
+.vio-drill-delta.down{color:var(--danger)}
+.vio-drill-table tr.vio-drill-check td{color:#946e25;background:#fffaf0}
+.vio-drill-foot,.vio-drill-warning,.vio-drill-empty{color:var(--muted);font-size:10px;line-height:1.5;margin:10px 0 0}
+.vio-drill-warning{color:#866525}
+@media(max-width:640px){.vio-drill-panel{padding:13px}.vio-drill-card summary{padding:11px 10px;gap:7px}.vio-drill-title>b{font-size:12px}.vio-drill-title>small{font-size:9px}.vio-drill-total>b{font-size:17px}.vio-drill-months{grid-template-columns:repeat(2,minmax(0,1fr))}.vio-drill-body{padding:10px}}
