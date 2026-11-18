@@ -5,7 +5,8 @@
   const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'getPulseDataStoredUi', 'syncDriveReportsReliable',
     'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
     'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi', 'getMailBodyUi', 'getDemandEvidenceUi',
-    'getVikaPlanUi', 'getVikaEditorialUi', 'saveVikaActiveDemoUi', 'getVioTrendsUi']);
+    'getVikaPlanUi', 'getVikaEditorialUi', 'saveVikaActiveDemoUi', 'getVioTrendsUi',
+    'getTradeMailUi', 'syncTradeMailBatch', 'syncTradeMailLast3Days']);
   const gate = document.getElementById('authGate');
   const button = document.getElementById('signIn');
   const status = document.getElementById('authStatus');
@@ -15,7 +16,7 @@
     status.textContent = message;
     button.disabled = !client;
   }
-  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getMailBodyUi','getDemandEvidenceUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi']);
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getMailBodyUi','getDemandEvidenceUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi','getTradeMailUi']);
   let jsonpSeq = 0;
   function publicReadOnce_(method, parameters, timeoutMs) {
     return new Promise((resolve, reject) => {
