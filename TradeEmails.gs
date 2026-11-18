@@ -211,8 +211,9 @@ function syncTradeMailBatch(firstPass) {
 }
 
 function getTradeMailUi() {
-  const sheet=tradeMailSheet_(TRADE_MAIL_MAIN_SHEET_);
-  const rows=tradeMailReadRows_(sheet);
+  // Public endpoint must be read-only, including on an empty installation.
+  const sheet=openStorage_().getSheetByName(TRADE_MAIL_MAIN_SHEET_);
+  const rows=sheet?tradeMailReadRows_(sheet):[];
   const output=rows.map(function(row) {
     const date=normalizeDate_(row[3]);
     return {
@@ -254,8 +255,12 @@ function getTradeMailUi() {
 /** Трёхдневное обновление без потери исторических выпусков. */
 function syncTradeMailLast3Days() {
   assertAdmin_();
-  if (PropertiesService.getScriptProperties().getProperty(TRADE_MAIL_HISTORY_READY_KEY_)!=='true') {
+  const props=PropertiesService.getScriptProperties();
+  if (props.getProperty(TRADE_MAIL_HISTORY_READY_KEY_)!=='true') {
     throw new Error('Сначала выполните полную загрузку торговых писем с 27-й недели.');
+  }
+  if(props.getProperty(TRADE_MAIL_CURSOR_KEY_)) {
+    throw new Error('Идёт полная синхронизация торговых писем. Дождитесь завершения.');
   }
   const lock=LockService.getScriptLock();
   lock.waitLock(20000);
