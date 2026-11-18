@@ -34,6 +34,7 @@ main{width:min(1420px,calc(100% - 40px));margin:0 auto;padding:26px 0 54px}.view
     <button class="navbtn active" data-view="week">План недели</button>
     <button class="navbtn" data-view="actions">Что отправить</button>
     <button class="navbtn" data-view="emails">Письма</button>
+    <button class="navbtn" data-view="trade">Торговые письма</button>
     <button class="navbtn" data-view="active">АКТИВДЕМО</button>
     <button class="navbtn" data-view="service">Служебное</button>
   </nav>
@@ -70,6 +71,22 @@ main{width:min(1420px,calc(100% - 40px));margin:0 auto;padding:26px 0 54px}.view
     <button class="softbtn" id="emailReset">Сбросить</button>
   </div>
   <div class="tablepanel"><div class="tablewrap"><table><thead><tr><th>Когда</th><th>Продукт</th><th>Тип</th><th>Тема</th><th class="num">Доставлено</th><th class="num">OR</th><th class="num">CTR</th><th class="num">CTOR</th><th class="num">Green</th></tr></thead><tbody id="emailRows"></tbody></table></div></div>
+</section>
+
+<section class="view" id="tradeView">
+  <div class="head"><div><div class="eyebrow">Факт Sendsay · продажи</div><h1>Торговые письма</h1><p>Отдельная статистика рассылок Госфинансов и Госзаказа по меткам Market, Project, Event. В DEMO-показатели эти письма не включаются.</p></div><div class="week" id="tradeCount">0 писем</div></div>
+  <div class="trade-source-line"><span id="tradeStatus">Загружаем торговые письма…</span><button class="primary" id="tradeSync" type="button">Синхронизировать с Sendsay</button></div>
+  <div class="trade-metrics" id="tradeMetrics"></div>
+  <div class="trade-labels" id="tradeLabelCounts"></div>
+  <div class="trade-tools">
+    <input class="control" id="tradeSearch" placeholder="Поиск по теме и Campaign" aria-label="Поиск торговых писем">
+    <select class="control" id="tradeDirection" aria-label="Направление"><option value="">ГФ и ГЗ</option><option value="ГФ">Госфинансы</option><option value="ГЗ">Госзаказ</option></select>
+    <select class="control" id="tradeLabel" aria-label="Метка Sendsay"><option value="">Все метки</option><option value="Market">Market</option><option value="Project">Project</option><option value="Event">Event</option></select>
+    <select class="control" id="tradeWeek" aria-label="Неделя"><option value="">Все недели</option></select>
+    <button class="softbtn" id="tradeReset" type="button">Сбросить</button>
+  </div>
+  <div class="tablepanel"><div class="tablewrap"><table><thead><tr><th>Когда</th><th>Направление</th><th>Метка Sendsay</th><th>Тема</th><th class="num">Доставлено</th><th class="num">Открыли</th><th class="num">Кликнули</th><th class="num">Кликнули из открывших</th></tr></thead><tbody id="tradeRows"></tbody></table></div></div>
+  <div class="note">Источником служит статистика email-выпусков Sendsay API. Учитываются точные значения меток Market, Project и Event, а не похожие слова в теме письма. Письма с несколькими метками учитываются в общем количестве один раз.</div>
 </section>
 
 <section class="view" id="activeView">
@@ -122,7 +139,168 @@ function setBusy(v){state.busy=v;['#syncBtn','#demoBtn','#folderBtn','#refreshTo
 function openEmail(id){const x=(state.data.emails||[]).find(e=>e.id===id);if(!x)return;$('#drawerMeta').textContent=`${dRu(x.date)} · ${x.time||'—'} · ${x.product}`;$('#drawerTitle').textContent=x.subject;$('#drawerBody').innerHTML=`<div class="drawerstats"><div class="dstat"><span>Доставлено</span><b>${x.delivered?fmt.format(x.delivered):'—'}</b></div><div class="dstat"><span>OR</span><b>${x.openRate?pct.format(x.openRate)+'%':'—'}</b></div><div class="dstat"><span>CTR</span><b>${x.clickRate?pct.format(x.clickRate)+'%':'—'}</b></div><div class="dstat"><span>CTOR</span><b>${x.ctor?pct.format(x.ctor)+'%':'—'}</b></div><div class="dstat"><span>Green</span><b class="g">${x.hasDemoData!==false?fmt.format(x.green||0):'—'}</b></div><div class="dstat"><span>Yellow</span><b>${x.hasDemoData!==false?fmt.format(x.yellow||0):'—'}</b></div></div><div class="dsection"><h3>Что это за письмо</h3><p>${mailType(x)==='active'?'АКТИВДЕМО':mailType(x)==='news'?'Новостное':'Обычное DEMO'} · ${esc(theme(x.subject))}</p></div><div class="dsection"><h3>DEMO</h3><p>${esc(x.maturity||'Точная связь не определена')}</p></div><div class="links">${isUrl(x.sendsay)?`<a href="${attr(x.sendsay)}" target="_blank">Открыть Sendsay</a>`:''}${isUrl(x.targetUrl)?`<a href="${attr(x.targetUrl)}" target="_blank">Материал</a>`:''}</div>`;$('#drawerBack').classList.add('open');$('#drawer').classList.add('open')}
 function closeDrawer(){$('#drawerBack').classList.remove('open');$('#drawer').classList.remove('open')}function switchView(v){$$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));$$('.view').forEach(e=>e.classList.toggle('active',e.id===v+'View'));history.replaceState(null,'','#'+v);window.scrollTo({top:0,behavior:'smooth'})}
 $('#nav').onclick=e=>{const b=e.target.closest('[data-view]');if(b)switchView(b.dataset.view)};$('#refreshTop').onclick=()=>load(true);$('#syncBtn').onclick=syncAll;$('#demoBtn').onclick=syncDemo;$('#folderBtn').onclick=connectFolder;$('#reportFiles').onchange=e=>uploadFiles([...e.target.files]);$('#drawerClose').onclick=closeDrawer;$('#drawerBack').onclick=closeDrawer;['#emailSearch','#emailProduct','#emailWeek','#emailType'].forEach(s=>$(s).addEventListener(s==='#emailSearch'?'input':'change',renderEmails));$('#emailReset').onclick=()=>{$('#emailSearch').value='';$('#emailProduct').value='';$('#emailWeek').value='';$('#emailType').value='';renderEmails()};$('#activeProduct').onchange=renderActive;
-const start=location.hash.replace('#','');if(['week','actions','emails','active','service'].includes(start))switchView(start);load();
+const start=location.hash.replace('#','');if(['week','actions','emails','trade','active','service'].includes(start))switchView(start);load();
 </script>
+<style>
+.trade-source-line{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:0 0 12px;font-size:11px;color:var(--muted)}
+.trade-source-line .primary{flex-shrink:0;padding:9px 12px}
+.trade-source-line .primary:disabled{opacity:.5;cursor:not-allowed}
+.trade-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-bottom:10px}
+.trade-labels{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.trade-labels span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:10px;color:var(--muted)}
+.trade-labels b{color:var(--ink)}
+.trade-tools{display:grid;grid-template-columns:minmax(200px,1fr) 175px 160px 145px auto;gap:7px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow);margin-bottom:10px}
+#tradeView .subject{min-width:300px}
+@media(max-width:900px){.trade-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.trade-tools{grid-template-columns:1fr 1fr 1fr}.trade-tools #tradeSearch{grid-column:span 3}}
+@media(max-width:550px){.trade-source-line{align-items:flex-start;flex-direction:column}.trade-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.trade-tools{grid-template-columns:1fr 1fr}.trade-tools #tradeSearch{grid-column:span 2}}
+</style>
+<script>
+(function(){
+  var q=function(s){return document.querySelector(s);};
+  var data={items:[],status:{configured:[],since:'2026-01-01',lastSync:''}};
+  var error='',busy=false;
+  var labels=['Market','Project','Event'];
+  var safeNum=function(x){return Number(x)||0;};
+  var format=function(x){return fmt.format(safeNum(x));};
+  var percentage=function(x){return pct.format(safeNum(x))+'%';};
+
+  function filtered(){
+    var search=(q('#tradeSearch').value||'').trim().toLowerCase();
+    var direction=q('#tradeDirection').value;
+    var label=q('#tradeLabel').value;
+    var week=q('#tradeWeek').value;
+    return (data.items||[]).filter(function(x){
+      return (!direction||x.direction===direction) &&
+        (!label||(x.labels||[]).indexOf(label)!==-1) &&
+        (!week||String(x.week)===week) &&
+        (!search||(String(x.subject||'')+' '+String(x.campaign||'')).toLowerCase().indexOf(search)!==-1);
+    }).sort(function(a,b){return (b.date+' '+b.time).localeCompare(a.date+' '+a.time);});
+  }
+
+  function updateWeeks(){
+    var select=q('#tradeWeek'),selected=select.value;
+    var weeks=[...new Set((data.items||[]).map(function(x){return x.date&&x.week?String(x.date.slice(0,4))+'-W'+String(x.week).padStart(2,'0'):'';}).filter(Boolean))].sort().reverse();
+    select.innerHTML='<option value="">Все недели</option>'+weeks.map(function(w){
+      return '<option value="'+esc(w)+'">'+esc(w)+'</option>';
+    }).join('');
+    if(weeks.indexOf(selected)!==-1)select.value=selected;
+  }
+
+  function metrics(rows){
+    var delivered=rows.reduce(function(s,x){return s+safeNum(x.delivered);},0);
+    var opened=rows.reduce(function(s,x){return s+safeNum(x.opened);},0);
+    var clicked=rows.reduce(function(s,x){return s+safeNum(x.clicked);},0);
+    var or=delivered?100*opened/delivered:0;
+    var ctr=delivered?100*clicked/delivered:0;
+    var ctor=opened?100*clicked/opened:0;
+    return {delivered:delivered,opened:opened,clicked:clicked,or:or,ctr:ctr,ctor:ctor};
+  }
+
+  function render(){
+    var rows=filtered(),m=metrics(rows),cfg=data.status.configured||[];
+    q('#tradeCount').textContent=format(rows.length)+' писем';
+    var labelsSummary=labels.map(function(label){
+      var count=rows.filter(function(x){return (x.labels||[]).indexOf(label)!==-1;}).length;
+      return '<span>'+esc(label)+' <b>'+format(count)+'</b></span>';
+    }).join('');
+    q('#tradeLabelCounts').innerHTML=labelsSummary;
+
+    var metricCards=[
+      ['Писем',format(rows.length),'уникальных выпусков'],
+      ['Доставлено',format(m.delivered),'в сумме'],
+      ['Открыли',percentage(m.or),'из доставленных'],
+      ['Кликнули',percentage(m.ctr),'из доставленных'],
+      ['Кликнули из открывших',percentage(m.ctor),'по уникальным действиям']
+    ];
+    q('#tradeMetrics').innerHTML=metricCards.map(function(card){
+      return '<div class="metric"><span>'+esc(card[0])+'</span><strong>'+esc(card[1])+'</strong><small>'+esc(card[2])+'</small></div>';
+    }).join('');
+
+    q('#tradeRows').innerHTML=rows.length?rows.slice(0,700).map(function(x){
+      var type=(x.labels||[]).join(', ');
+      return '<tr class="click" data-trade-mail="'+attr(x.id)+'"><td>'+dRu(x.date)+'<br><small>'+esc(x.time||'—')+'</small></td>'+
+        '<td><b>'+esc(x.direction==='ГФ'?'Госфинансы':'Госзаказ')+'</b></td>'+
+        '<td>'+esc(type)+'</td><td class="subject"><b>'+esc(x.subject)+'</b><small>'+esc(x.campaign)+'</small></td>'+
+        '<td class="num">'+format(x.delivered)+'</td><td class="num">'+percentage(x.openRate)+'</td>'+
+        '<td class="num">'+percentage(x.clickRate)+'</td><td class="num">'+percentage(x.ctor)+'</td></tr>';
+    }).join(''):'<tr><td colspan="8"><div class="empty"><b>Торговых писем пока нет</b>Проверьте подключение Sendsay, синхронизацию и фильтры.</div></td></tr>';
+
+    var ready=cfg.filter(function(x){return x.ready;}).map(function(x){return x.direction;});
+    var unready=cfg.filter(function(x){return !x.ready;}).map(function(x){return x.direction;});
+    var status;
+    if(!apps()){status='На GitHub Pages показан интерфейс. Реальные данные загружаются в версии Apps Script.';}
+    else if(error){status='Ошибка: '+error;}
+    else if(!ready.length){status='Не настроен API Sendsay. В Script Properties нужны SENDSAY_TRADE_GF_ACCOUNT / APIKEY и SENDSAY_TRADE_GZ_ACCOUNT / APIKEY.';}
+    else {
+      status='Подключено: '+ready.join(', ')+(unready.length?' · не подключено: '+unready.join(', '):'')+
+        ' · с '+String(data.status.since||'2026-01-01')+
+        ' · последняя синхронизация: '+(data.status.lastSync?dtRu(data.status.lastSync):'ещё не проводилась');
+    }
+    q('#tradeStatus').textContent=status;
+    var canImport=!!(state&&state.data&&state.data.meta&&state.data.meta.canImport);
+    q('#tradeSync').disabled=busy||!apps()||!ready.length||!canImport;
+    q('#tradeSync').textContent=busy?'Синхронизируем…':'Синхронизировать с Sendsay';
+  }
+
+  function detail(id){
+    var mail=(data.items||[]).find(function(x){return x.id===id;});
+    if(!mail)return;
+    q('#drawerMeta').textContent='Торговое письмо · '+mail.direction+' · '+dRu(mail.date)+' '+String(mail.time||'');
+    q('#drawerTitle').textContent=mail.subject;
+    var m=metrics([mail]);
+    q('#drawerBody').innerHTML='<div class="drawerstats">'+
+      '<div class="dstat"><span>Доставлено</span><b>'+format(mail.delivered)+'</b></div>'+
+      '<div class="dstat"><span>Открыли</span><b>'+format(mail.opened)+'</b></div>'+
+      '<div class="dstat"><span>Кликнули</span><b>'+format(mail.clicked)+'</b></div>'+
+      '<div class="dstat"><span>Открываемость</span><b>'+percentage(mail.openRate)+'</b></div>'+
+      '<div class="dstat"><span>Кликабельность</span><b>'+percentage(mail.clickRate)+'</b></div>'+
+      '<div class="dstat"><span>Кликнули из открывших</span><b>'+percentage(mail.ctor)+'</b></div></div>'+
+      '<div class="dsection"><h3>Метки Sendsay</h3><p>'+esc((mail.labels||[]).join(', '))+'</p></div>'+
+      '<div class="dsection"><h3>Campaign</h3><p>'+esc(mail.campaign||'—')+'</p></div>'+
+      '<div class="links">'+(isUrl(mail.sendsay)?'<a href="'+attr(mail.sendsay)+'" target="_blank" rel="noopener noreferrer">Открыть отчёт Sendsay</a>':'')+'</div>';
+    q('#drawerBack').classList.add('open');q('#drawer').classList.add('open');
+  }
+
+  async function loadTradeData(){
+    if(!apps()){render();return;}
+    try{
+      var result=await server('getTradeMailData');
+      if(!result||!Array.isArray(result.items))throw new Error('Ответ сервера не содержит письма');
+      data=result;error='';updateWeeks();
+    }catch(e){error=String(e&&e.message||e);}
+    render();
+  }
+
+  async function syncTrade(){
+    if(busy||!apps())return;
+    busy=true;error='';render();
+    var first=true,total=0,found=0;
+    try{
+      for(var page=0;page<1000;page++){
+        var result=await server('syncTradeMailBatch',first);
+        first=false;total+=safeNum(result.processed);found+=safeNum(result.matched);
+        q('#tradeStatus').textContent='Прочитано выпусков: '+format(total)+' · торговых: '+format(found)+' · аккаунт: '+String(result.direction||'');
+        if(!result.remaining)break;
+        if(page===999)throw new Error('Достигнут лимит пакетов. Повторите синхронизацию.');
+      }
+      await loadTradeData();
+      if(typeof toast==='function')toast('Торговые письма обновлены: '+format(found));
+    }catch(e){error=String(e&&e.message||e);}
+    finally{busy=false;render();}
+  }
+
+  q('#tradeSearch').addEventListener('input',render);
+  ['#tradeDirection','#tradeLabel','#tradeWeek'].forEach(function(selector){q(selector).addEventListener('change',render);});
+  q('#tradeReset').onclick=function(){
+    q('#tradeSearch').value='';q('#tradeDirection').value='';q('#tradeLabel').value='';q('#tradeWeek').value='';render();
+  };
+  q('#tradeSync').onclick=syncTrade;
+  q('#tradeRows').addEventListener('click',function(e){
+    var row=e.target.closest('[data-trade-mail]');if(row)detail(row.dataset.tradeMail);
+  });
+  loadTradeData();
+})();
+</script>
+
 </body>
 </html>
