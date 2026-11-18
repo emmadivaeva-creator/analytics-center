@@ -12,6 +12,7 @@ const TRADE_MAIL_MAIN_SHEET_ = '_Торговые письма';
 const TRADE_MAIL_STAGE_SHEET_ = '_Торговые письма staging';
 const TRADE_MAIL_CURSOR_KEY_ = 'TRADE_MAIL_IMPORT_CURSOR_V1';
 const TRADE_MAIL_LAST_SYNC_KEY_ = 'TRADE_MAIL_LAST_SYNC_V1';
+const TRADE_MAIL_HISTORY_READY_KEY_ = 'TRADE_MAIL_HISTORY_READY_V1';
 const TRADE_MAIL_HEADERS_ = Object.freeze([
   'Policy ID', 'Направление', 'Issue ID', 'Дата', 'Время',
   'Метки', 'Campaign', 'Тема', 'Отправлено', 'Доставлено',
@@ -198,6 +199,7 @@ function syncTradeMailBatch(firstPass) {
       tradeMailWriteRows_(tradeMailSheet_(TRADE_MAIL_MAIN_SHEET_),all);
       total=all.length;
       props.setProperty(TRADE_MAIL_LAST_SYNC_KEY_,new Date().toISOString());
+      props.setProperty(TRADE_MAIL_HISTORY_READY_KEY_,'true');
       props.deleteProperty(TRADE_MAIL_CURSOR_KEY_);
     }
     return {
@@ -243,6 +245,7 @@ function getTradeMailUi() {
       from:TRADE_MAIL_FROM_,to:todayIso_(),
       lastSync:props.getProperty(TRADE_MAIL_LAST_SYNC_KEY_)||'',
       syncing:Boolean(props.getProperty(TRADE_MAIL_CURSOR_KEY_)),
+      historyReady:props.getProperty(TRADE_MAIL_HISTORY_READY_KEY_)==='true',
       count:output.length
     }
   };
@@ -251,6 +254,9 @@ function getTradeMailUi() {
 /** Трёхдневное обновление без потери исторических выпусков. */
 function syncTradeMailLast3Days() {
   assertAdmin_();
+  if (PropertiesService.getScriptProperties().getProperty(TRADE_MAIL_HISTORY_READY_KEY_)!=='true') {
+    throw new Error('Сначала выполните полную загрузку торговых писем с 27-й недели.');
+  }
   const lock=LockService.getScriptLock();
   lock.waitLock(20000);
   try{
@@ -282,6 +288,9 @@ function syncTradeMailLast3Days() {
 /** Отдельный триггер, чтобы сбой торговой статистики не ломал DEMO. */
 function installTradeMailDailyTrigger() {
   assertAdmin_();
+  if (PropertiesService.getScriptProperties().getProperty(TRADE_MAIL_HISTORY_READY_KEY_)!=='true') {
+    throw new Error('До установки ежедневного триггера завершите полную загрузку торговых писем с W27.');
+  }
   ScriptApp.getProjectTriggers().forEach(function(t){
     if(t.getHandlerFunction()==='dailyTradeMailSync')ScriptApp.deleteTrigger(t);
   });
