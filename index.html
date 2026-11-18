@@ -172,7 +172,7 @@ const start=location.hash.replace('#','');if(['week','actions','emails','trade',
     return (data.items||[]).filter(function(x){
       return (!direction||x.direction===direction) &&
         (!label||(x.labels||[]).indexOf(label)!==-1) &&
-        (!week||String(x.week)===week) &&
+        (!week||(String(x.date||'').slice(0,4)+'-W'+String(x.week).padStart(2,'0'))===week) &&
         (!search||(String(x.subject||'')+' '+String(x.campaign||'')).toLowerCase().indexOf(search)!==-1);
     }).sort(function(a,b){return (b.date+' '+b.time).localeCompare(a.date+' '+a.time);});
   }
@@ -298,6 +298,8 @@ const start=location.hash.replace('#','');if(['week','actions','emails','trade',
   q('#tradeRows').addEventListener('click',function(e){
     var row=e.target.closest('[data-trade-mail]');if(row)detail(row.dataset.tradeMail);
   });
+  var previousRenderAll=renderAll;
+  renderAll=function(){previousRenderAll();render();};
   loadTradeData();
 })();
 </script>
