@@ -274,3 +274,36 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 .vio-period-control select{min-height:36px;border:1px solid var(--line);border-radius:8px;background:#fff;padding:6px 10px;color:var(--ink)}
 .vio-period-control #vioFreshness{color:var(--muted)}
 .vio-period-control #vioFreshness.stale{color:#a34726;font-weight:750}
+
+
+/* All-month VIO demand trends. Month selection is deliberately not required. */
+.vio-history-panel{margin:16px 0 18px;padding:19px 20px}
+.vio-history-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:15px}
+.vio-history-head h2{font-size:18px;margin:0 0 5px;letter-spacing:-.02em}
+.vio-history-head p{font-size:12px;color:var(--muted);margin:0}
+.vio-months-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.vio-month-card{display:flex;flex-direction:column;min-width:0;padding:14px 15px;border:1px solid var(--line);background:#f9fafc;border-radius:13px}
+.vio-month-card small{font-size:10px;color:var(--muted);min-height:31px}
+.vio-month-card b{font-size:27px;line-height:1.1;letter-spacing:-.03em}
+.vio-month-card span{font-size:10px;color:var(--muted);margin-top:4px}
+.vio-month-card strong{font-size:12px;color:var(--ink);margin-top:5px}
+.vio-month-rate{height:6px;border-radius:5px;background:#e3e9f3;overflow:hidden;margin-top:13px}
+.vio-month-rate i,.vio-trend-share i{display:block;height:100%;background:var(--accent);border-radius:inherit}
+.vio-history-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.vio-history-filters input{min-width:230px;flex:1}
+.vio-history-filters select{min-width:205px}
+.vio-trend-table{width:100%;border-collapse:collapse;font-size:11px}
+.vio-trend-table th,.vio-trend-table td{border-bottom:1px solid var(--line);padding:12px 10px;vertical-align:middle}
+.vio-trend-table th{background:#f7f9fc;text-align:left;position:sticky;top:0;font-weight:850;color:#536178;white-space:nowrap}
+.vio-trend-table th small{display:block;font-weight:500;margin-top:3px;color:var(--muted)}
+.vio-trend-table .vio-trend-name{min-width:230px;max-width:340px}
+.vio-trend-table .vio-trend-cell{min-width:105px;font-variant-numeric:tabular-nums}
+.vio-trend-cell b{font-size:12px}
+.vio-trend-cell small{display:block;color:var(--muted);font-size:10px}
+.vio-trend-share{height:4px;background:#e4eaf3;border-radius:10px;margin-top:6px;overflow:hidden}
+.vio-trend-change{font-variant-numeric:tabular-nums;white-space:nowrap}
+.vio-trend-change.growing{color:var(--ok)}
+.vio-trend-change.falling{color:var(--danger)}
+.vio-history-footnote{font-size:10px;color:var(--muted);margin:12px 0 0}
+@media(max-width:1200px){.vio-months-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.vio-months-grid{grid-template-columns:1fr 1fr}.vio-history-panel{padding:13px}.vio-history-filters input,.vio-history-filters select{min-width:100%;width:100%}.vio-trend-table .vio-trend-name{min-width:175px}}
