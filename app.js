@@ -2164,7 +2164,7 @@ function vioTrendMarkup_(data){
   const delta=prev?shareOf(topic,last.month)-shareOf(topic,prev.month):0;
   return '<tr><td class="vio-trend-name"><b>'+esc(topic.name)+'</b></td>'+cells+
    '<td class="vio-trend-change '+(delta>0?'growing':delta<0?'falling':'')+'">'+
-   (prev?'<b>'+(delta>0?'+':'')+pct(delta)+' п.п.</b>':'—')+'</td></tr>';
+   (prev?'<b>'+(delta>0?'+':'')+new Intl.NumberFormat('ru-RU',{maximumFractionDigits:1}).format(delta)+' п.п.</b>':'—')+'</td></tr>';
  }).join('');
  return '<table class="vio-trend-table"><thead><tr><th>Тема</th>'+headings+
   '<th>Изменение доли<br>к прошлому месяцу</th></tr></thead><tbody>'+
