@@ -2241,8 +2241,10 @@ async function loadTrade(){
     if(!result||!Array.isArray(result.items))throw new Error('Сервер не вернул список торговых писем.');
     tradeData=result;tradeWeeks_();renderTrade();
     const meta=result.meta||{};
+    document.getElementById('tradeSyncRecent').disabled=!meta.historyReady;
     tradeStatus_('Период: с 29.06.2026 (неделя 27) · сохранено '+fmt(result.items.length)+
       ' отправок · последнее обновление '+(meta.lastSync?dateRu(meta.lastSync):'не выполнялось')+
+      (!meta.historyReady?' · сначала загрузите полную историю':'')+
       (meta.syncing?' · есть незавершённая синхронизация':''));
   }catch(e){
     tradeStatus_('Нет актуальных торговых данных: '+String(e&&e.message||e)+
