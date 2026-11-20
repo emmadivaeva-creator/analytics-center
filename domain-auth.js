@@ -78,6 +78,11 @@
     document.head.append(script);started=true;gate.hidden=true;
   }
   window.analyticsRpc = async function(method, ...parameters) {
+    // Public read-only status does not need to consume the owner Execution API.
+    // This also avoids an unnecessary browser-to-Google POST before importing.
+    if(config.publicReadUrl && method === 'getTradeMailUi'){
+      return publicRead(method,parameters);
+    }
     const hasLiveToken = Boolean(token && Date.now() < expiresAt);
     if(config.publicReadUrl && readMethods.has(method) && !hasLiveToken){
       return publicRead(method,parameters);
