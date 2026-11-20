@@ -2352,26 +2352,60 @@ async function syncTradeHistory_(){
   const button=document.getElementById('tradeSyncHistory');
   button.disabled=true;
   let processed=0,matched=0,complete=false;
+  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const isTransient=e=>/load failed|failed to fetch|fetch failed|networkerror|network request failed|ERR_NETWORK|timed out|timeout|429|500|502|503|504|too many requests|too many times in a short time/i.test(String(e&&e.message||e));
   try{
-    // Backend already has a persistent cursor. Never wipe staging on a retry.
+    // Resume from a saved server cursor; NEVER reset staging after a lost response.
     const remote=await rpc('getTradeMailUi');
     if(!remote||!remote.meta)throw new Error('Не удалось прочитать состояние импорта на сервере.');
     const resume=Boolean(remote.meta.syncing);
-    if(resume)tradeStatus_('Найден незавершённый импорт. Продолжаю его без удаления загруженных данных…');
+    if(resume)tradeStatus_('Продолжаю сохранённый импорт без удаления уже загруженных писем…');
     for(let page=0;page<1000;page++){
-      const result=await rpc('syncTradeMailBatch',page===0&&!resume);
+      let result;
+      const first=page===0&&!resume;
+      // The first request may have succeeded server-side even when the network
+      // dropped its response. Never send first=true a second time automatically.
+      let nextFirst=first;
+      for(let attempt=0;attempt<5;attempt++){
+        try{
+          result=await rpc('syncTradeMailBatch',nextFirst);
+          break;
+        }catch(error){
+          if(!isTransient(error)||attempt===4){
+            throw new Error(isTransient(error)
+              ? 'Соединение с Google прервалось после пяти попыток ('+String(error.message||error)+')'
+              : String(error.message||error));
+          }
+          nextFirst=false;
+          const pause=[1800,3500,7000,12000][attempt];
+          tradeStatus_('Временный сбой связи с Google. Пытаюсь продолжить ('+(attempt+1)+'/4), без очистки данных…');
+          await sleep(pause);
+          // If the previous final packet succeeded but its HTTP response
+          // was lost, historyReady is true and the cursor no longer exists.
+          try{
+            const check=await rpc('getTradeMailUi');
+            if(check?.meta?.historyReady&&!check.meta.syncing){
+              result={remaining:false,readTotal:processed,selectedTotal:matched,direction:''};
+              break;
+            }
+          }catch(_ignored){}
+        }
+      }
+      if(!result)throw new Error('Не получено подтверждение сохранения пакета.');
       processed=n(result.readTotal);
       matched=n(result.selectedTotal);
       tradeStatus_('Сверяю Sendsay: '+fmt(processed)+' выпусков · торговых '+fmt(matched)+
         ' · '+(result.direction||'')+' · с 29 июня 2026 года…');
       if(!result.remaining){complete=true;break;}
+      // Avoid hammering the Apps Script Execution API with back-to-back calls.
+      await sleep(650);
     }
-    if(!complete)throw new Error('Достигнут лимит пакетов: повторно нажмите «Продолжить загрузку»');
+    if(!complete)throw new Error('Достигнут лимит пакетов: нажмите «Продолжить загрузку» ещё раз.');
     tradeData=null;
     await loadTrade();
   }catch(e){
-    tradeStatus_('Синхронизация прервана: '+String(e&&e.message||e)+
-      '. Уже прочитанные пакеты сохранены. Войдите владельцем и нажмите «Продолжить загрузку».');
+    tradeStatus_('Загрузка остановилась: '+String(e&&e.message||e)+
+      '. Прогресс на сервере не сброшен. Повторно нажмите «Продолжить загрузку».');
     button.textContent='Продолжить загрузку с места остановки';
   }
   finally{tradeSyncing=false;button.disabled=false;}
