@@ -725,6 +725,7 @@ function storeMailBodyPreview_(ref,data){
    if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;
  });
  (newsRecentData_||[]).forEach(item=>{if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;});
+ newsRecentScheduleCache_();
  (tradeData?.items||[]).forEach(item=>{
    if((item.direction==='ГФ'?'52':'61')+':'+String(item.issueId||'')===ref)item.bodyPreview=normalized;
  });
@@ -775,7 +776,7 @@ function bindMailBodyPreviews_(rootSelector='#mailRows'){
 }
 async function preloadMailBodyPreviews_(rows,onProgress,maxCount,includeNews=false){
  const source=(rows||[]).filter(item=>item&&(includeNews||!isNewsMail(item)));
- const cachedRefs=new Set((registryData||[])
+ const cachedRefs=new Set((registryData||[]).concat(newsRecentData_||[])
    .filter(item=>item&&item.bodyPreview&&(item.bodyPreview.text||item.bodyPreview.note||item.bodyPreview.subject))
    .map(mailBodyRef_).filter(Boolean));
  const refs=[...new Set(source.map(mailBodyRef_).filter(Boolean))]
@@ -1041,6 +1042,40 @@ function renderRegistries(){for(const key of ['mail','news']){
 }}
 
 let newsRecentData_=null,newsRecentBusy_=null,newsRecentFetchedAt_=0,newsMaterialFetchError_='';
+const NEWS_RECENT_CACHE_KEY_='news-latest-v1';
+let newsRecentSaveTimer_=null;
+async function newsRecentReadCache_(){
+ const db=await registryDb_();
+ try{return await new Promise(resolve=>{
+  const tx=db.transaction(REGISTRY_CACHE_STORE,'readonly');
+  const req=tx.objectStore(REGISTRY_CACHE_STORE).get(NEWS_RECENT_CACHE_KEY_);
+  req.onsuccess=()=>resolve(req.result||null);
+  req.onerror=()=>resolve(null);
+ });}finally{db.close();}
+}
+async function newsRecentSaveCache_(){
+ if(!Array.isArray(newsRecentData_))return;
+ const db=await registryDb_();
+ try{await new Promise((resolve,reject)=>{
+  const tx=db.transaction(REGISTRY_CACHE_STORE,'readwrite');
+  tx.objectStore(REGISTRY_CACHE_STORE).put({savedAt:new Date().toISOString(),items:newsRecentData_},NEWS_RECENT_CACHE_KEY_);
+  tx.oncomplete=resolve;
+  tx.onerror=()=>reject(tx.error||new Error('Новостной кэш не записан'));
+ });}finally{db.close();}
+}
+function newsRecentScheduleCache_(){
+ clearTimeout(newsRecentSaveTimer_);
+ if(newsRecentData_)newsRecentSaveTimer_=setTimeout(()=>newsRecentSaveCache_().catch(()=>{}),900);
+}
+function newsRecentProductOptions_(){
+ const select=document.getElementById('newsProduct');
+ if(!select)return;
+ const chosen=select.value;
+ const products=[...new Set(newsRowsCurrent_().map(x=>x.product).filter(Boolean))].sort();
+ select.innerHTML='<option value="">Все продукты</option>'+
+   products.map(p=>'<option value="'+esc(p)+'">'+esc(p)+'</option>').join('');
+ select.value=products.includes(chosen)?chosen:'';
+}
 function newsRowsCurrent_(){
  const rows=new Map((registryData||[]).filter(isNewsMail).map(mail=>[String(mail.id),mail]));
  (newsRecentData_||[]).forEach(mail=>rows.set(String(mail.id),mail));
@@ -1056,11 +1091,29 @@ async function loadNewsRecent_(force=false){
  if(label)label.textContent='Проверяю свежие новостные отправки из Sendsay…';
  newsRecentBusy_=(async()=>{
   try{
+   if(!newsRecentData_){
+     try{
+       const cached=await newsRecentReadCache_();
+       if(cached&&Array.isArray(cached.items)&&cached.items.length){
+         newsRecentData_=cached.items;
+         newsRecentProductOptions_();
+         renderNewsLetters();
+       }
+     }catch(_cacheError){}
+   }
    const r=await rpc('getMailRegistryRecentUi',7);
    if(!r||!Array.isArray(r.emails))throw new Error('Сервер не вернул письма за семь дней');
-   newsRecentData_=r.emails.filter(isNewsMail);
+   const oldById=new Map((newsRecentData_||[]).map(x=>[String(x.id),x]));
+   newsRecentData_=r.emails.filter(isNewsMail).map(x=>{
+     const old=oldById.get(String(x.id));
+     if(old?.bodyPreview&&!x.bodyPreview)x.bodyPreview=old.bodyPreview;
+     if(old?.materialData&&!x.materialData)x.materialData=old.materialData;
+     return x;
+   });
    newsRecentFetchedAt_=Date.now();
+   newsRecentProductOptions_();
    renderNewsLetters();
+   newsRecentScheduleCache_();
    scheduleNewsBodyPreload_();
    if(document.getElementById('newsMaterialsPanel').classList.contains('hidden')===false)renderNewsMaterials();
    // The backend may not yet have the corrected materials parser deployed.
