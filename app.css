@@ -376,3 +376,18 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
  #page-trade .trade-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
  #page-trade .trade-mail-registry .trade-table td:nth-child(3){min-width:280px}
 }
+
+
+/* Cumulative news archive coverage: includes missing or unfinished weeks. */
+.news-archive-coverage{margin:10px 0 18px;padding:15px 17px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.news-archive-header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.news-archive-header b{font-size:13px}
+.news-archive-header span{color:var(--muted);font-size:11px}
+.news-archive-progress{height:6px;background:#e8edf5;border-radius:99px;overflow:hidden;margin:12px 0}
+.news-archive-progress i{display:block;height:100%;background:var(--accent);border-radius:99px}
+.news-archive-weeks{display:flex;gap:6px;flex-wrap:wrap}
+.news-archive-weeks span{display:inline-flex;gap:5px;align-items:center;padding:5px 7px;border-radius:7px;border:1px solid #e1e7ef;color:#5d6b7b;font-size:10px}
+.news-archive-weeks span.complete{background:#edf7f2;border-color:#d2e9dc;color:#276046}
+.news-archive-weeks span.pending{background:#fff8ec;border-color:#f2e3c5;color:#84612c}
+.news-archive-weeks b{font-weight:800}
+.news-archive-coverage p{margin:11px 0 0;color:var(--muted);font-size:10px}
