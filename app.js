@@ -1296,7 +1296,7 @@ function renderNewsTermSnapshot_(){
     'Статистика рассчитана непосредственно по строкам таблицы, без анализа рассылок. '+
     fmt(data.termsTotal||0)+' новостей (ГЗ '+fmt(data.groups?.['ГЗ']?.count||0)+
     ', ГФ '+fmt(data.groups?.['ГФ']?.count||0)+
-    ') · DEMO '+(selected?'за неделю '+selected:'за все недели 27–47')+
+    ') · DEMO '+(selected?'за неделю '+selected:'за все недели '+String(data.weeks?.[0]||27)+'–'+String(data.weeks?.at(-1)||47))+
     ' · данные считаны '+dateRu(checkedAt)+
     (newsMaterialSnapshotStale_?' · источник требует нового считывания':'')+
     '. Заголовки без подтверждения показываются по номеру Term.';
