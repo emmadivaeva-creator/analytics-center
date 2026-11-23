@@ -4,7 +4,7 @@
   let token = '', expiresAt = 0, client, started = false;
   const allowed = new Set(['v2HealthCheck', 'getPulseDataFresh', 'getPulseDataStoredUi', 'syncDriveReportsReliable',
     'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
-    'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi', 'getMailBodyUi', 'getDemandEvidenceUi',
+    'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi', 'getMailBodyUi', 'getDemandEvidenceUi', 'getNewsDemoTermsUi',
     'getVikaPlanUi', 'getVikaEditorialUi', 'saveVikaActiveDemoUi', 'getVioTrendsUi',
     'getTradeMailUi', 'syncTradeMailBatch', 'syncTradeMailLast3Days',
     'installDailySendsayApiTrigger', 'installTradeMailDailyTrigger']);
@@ -17,7 +17,7 @@
     status.textContent = message;
     button.disabled = !client;
   }
-  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getMailBodyUi','getDemandEvidenceUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi','getTradeMailUi']);
+  const readMethods = new Set(['v2HealthCheck','getPulseDataFresh','getPulseDataStoredUi','getMailRegistryUi','getMailRegistryRecentUi','getMailRegistryPageUi','getMailDemoDetailsUi','getMailBodyUi','getDemandEvidenceUi','getNewsDemoTermsUi','getVikaPlanUi','getVikaEditorialUi','getVioTrendsUi','getTradeMailUi']);
   let jsonpSeq = 0;
   function publicReadOnce_(method, parameters, timeoutMs) {
     return new Promise((resolve, reject) => {
