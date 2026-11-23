@@ -34,6 +34,7 @@ async function mapLimit(items,limit,fn){
 }
 
 const generatedAt=new Date().toISOString();
+console.log('Analytics snapshot refresh started:',generatedAt);
 
 const pulse=await call('getPulseDataFresh',[],180000);
 const pulseWeek=Number(pulse?.meta?.currentWeek)||0;
