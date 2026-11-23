@@ -38,7 +38,7 @@ function openPage(name,persist=true){
  if(name==='vika'&&!vikaData)loadVika();
  if(name==='calls')loadCalls();
  if(name==='mail')loadRegistry();
- if(name==='news')loadNewsRecent_();
+ if(name==='news'){loadNewsAllIssues_().catch(()=>{});loadNewsRecent_();}
  buttons.forEach(b=>b.classList.toggle('active',b.dataset.page===name));
  pages.forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
  if(persist)rememberPage(name);
@@ -727,6 +727,7 @@ function storeMailBodyPreview_(ref,data){
    if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;
  });
  (newsRecentData_||[]).forEach(item=>{if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;});
+ (newsArchiveIssues_||[]).forEach(item=>{if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;});
  newsRecentScheduleCache_();
  (tradeData?.items||[]).forEach(item=>{
    if((item.direction==='ГФ'?'52':'61')+':'+String(item.issueId||'')===ref)item.bodyPreview=normalized;
@@ -1045,6 +1046,22 @@ function renderRegistries(){for(const key of ['mail','news']){
 }}
 
 let newsRecentData_=null,newsRecentBusy_=null,newsRecentFetchedAt_=0,newsMaterialFetchError_='';
+let newsArchiveIssues_=null,newsArchiveIssuesRequest_=null;
+async function loadNewsAllIssues_(){
+ if(newsArchiveIssues_)return newsArchiveIssues_;
+ if(newsArchiveIssuesRequest_)return newsArchiveIssuesRequest_;
+ newsArchiveIssuesRequest_=(async()=>{
+  const response=await fetch('news-demo-inventory.json?ts='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('Не удалось открыть историю новостных рассылок: HTTP '+response.status);
+  const json=await response.json();
+  if(!Array.isArray(json.emails))throw new Error('История новостных рассылок повреждена.');
+  newsArchiveIssues_=json.emails.map(x=>({...x,type:'news'}));
+  newsRecentProductOptions_();
+  renderNewsLetters();
+  return newsArchiveIssues_;
+ })().finally(()=>{newsArchiveIssuesRequest_=null;});
+ return newsArchiveIssuesRequest_;
+}
 const NEWS_RECENT_CACHE_KEY_='news-latest-v1';
 let newsRecentSaveTimer_=null;
 async function newsRecentReadCache_(){
@@ -1080,8 +1097,17 @@ function newsRecentProductOptions_(){
  select.value=products.includes(chosen)?chosen:'';
 }
 function newsRowsCurrent_(){
- const rows=new Map((registryData||[]).filter(isNewsMail).map(mail=>[String(mail.id),mail]));
- (newsRecentData_||[]).forEach(mail=>rows.set(String(mail.id),mail));
+ // Full W27+ issue archive loads from a compact static index; do not gate
+ // the NEWS tab behind loading the complete 27k-row DEMO archive.
+ const rows=new Map((newsArchiveIssues_||[]).filter(isNewsMail).map(mail=>[String(mail.id),mail]));
+ (registryData||[]).filter(isNewsMail).forEach(mail=>{
+  const key=String(mail.id);
+  rows.set(key,{...(rows.get(key)||{}),...mail});
+ });
+ (newsRecentData_||[]).forEach(mail=>{
+  const key=String(mail.id);
+  rows.set(key,{...(rows.get(key)||{}),...mail});
+ });
  return [...rows.values()].sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
 }
 /** NEWS must open immediately from recent Sendsay data rather than wait for 27k archived DEMO rows. */
@@ -1139,6 +1165,7 @@ function renderNewsLetters(){
  const latest=rows.length?String(rows[0].date||''):'';
  document.getElementById('newsStatus').textContent='Новостных писем: '+fmt(rows.length)+
    ' · последнее '+(latest||'—')+
+   (newsArchiveIssues_?' · доступный реестр рассылок с W27: '+fmt(newsArchiveIssues_.length)+' выпусков (первые записи с W31)':'')+
    (newsRecentFetchedAt_?' · последние 7 дней сверены с Sendsay':' · просмотр сохранённого архива')+
    (latest&&latest<new Date(Date.now()-8*86400000).toISOString().slice(0,10)?' · последняя неделя ещё не проверена':'')+
    (newsMaterialFetchError_?' · '+newsMaterialFetchError_:'')+
