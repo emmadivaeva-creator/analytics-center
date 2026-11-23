@@ -1323,13 +1323,12 @@ function renderNewsTermSnapshot_(){
     '<div><b>'+fmt(all.reduce((sum,t)=>sum+t.green,0))+'</b><span>зелёных DEMO</span></div>';
   document.getElementById('newsMaterialRows').innerHTML=rows.length?
     '<table><thead><tr><th>Новость по UTM Term</th><th>Всего DEMO</th><th>Зелёные</th>'+
-    '<th>Жёлтые</th><th>Красные</th><th>Исходная строка</th></tr></thead><tbody>'+
+    '<th>Жёлтые</th><th>Красные</th></tr></thead><tbody>'+
     rows.map(t=>'<tr><td><b>'+safeLink(t.url,t.title||('Новость № '+t.term))+'</b>'+
       '<small>'+esc(t.group||'')+' · Term '+esc(t.term||'')+
       (t.titleStatus==='id-only'?' · заголовок страницы не проверен':'')+
       '</small></td><td>'+fmt(t.total)+'</td><td><b>'+fmt(t.green)+
       '</b></td><td>'+fmt(t.yellow)+'</td><td>'+fmt(t.red)+
-      '</td><td>'+safeLink(t.sourceUrl,'Строка '+t.sourceRow)+
       '</td></tr>').join('')+'</tbody></table>':
     '<p>Новостей по выбранным фильтрам не найдено.</p>';
 }
