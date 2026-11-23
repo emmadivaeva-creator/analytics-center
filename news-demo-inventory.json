@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-23T15:23:31.720Z",
+  "generatedAt": "2026-11-23T15:28:30.807Z",
   "from": "2026-06-29",
   "through": "2026-11-23",
   "source": "Analytics Center _Sendsay v2: canonical NEWS Sendsay API issues, unique by LBAC policy + issue ID",
@@ -4753,8 +4753,8 @@
       "opened": 1092,
       "openRate": 1.16,
       "clicks": 137,
-      "clickRate": 0.14,
-      "ctor": 12.54
+      "clickRate": 0.15,
+      "ctor": 12.55
     },
     {
       "id": "import-api:52:27142737",
@@ -4770,7 +4770,7 @@
       "openRate": 1.84,
       "clicks": 72,
       "clickRate": 0.12,
-      "ctor": 6.53
+      "ctor": 6.54
     },
     {
       "id": "import-api:61:27134091",
@@ -4783,9 +4783,9 @@
       "sent": 90633,
       "delivered": 90104,
       "opened": 3414,
-      "openRate": 3.78,
+      "openRate": 3.79,
       "clicks": 195,
-      "clickRate": 0.21,
+      "clickRate": 0.22,
       "ctor": 5.71
     },
     {
@@ -4801,8 +4801,8 @@
       "opened": 1365,
       "openRate": 2.47,
       "clicks": 98,
-      "clickRate": 0.17,
-      "ctor": 7.17
+      "clickRate": 0.18,
+      "ctor": 7.18
     },
     {
       "id": "import-api:52:27146350",
@@ -4815,10 +4815,10 @@
       "sent": 50066,
       "delivered": 49860,
       "opened": 397,
-      "openRate": 0.79,
+      "openRate": 0.8,
       "clicks": 46,
       "clickRate": 0.09,
-      "ctor": 11.58
+      "ctor": 11.59
     },
     {
       "id": "import-api:52:27154878",
@@ -4833,8 +4833,8 @@
       "opened": 987,
       "openRate": 3.04,
       "clicks": 103,
-      "clickRate": 0.31,
-      "ctor": 10.43
+      "clickRate": 0.32,
+      "ctor": 10.44
     },
     {
       "id": "import-api:61:27146345",
@@ -4863,10 +4863,10 @@
       "sent": 36231,
       "delivered": 35977,
       "opened": 646,
-      "openRate": 1.79,
+      "openRate": 1.8,
       "clicks": 37,
       "clickRate": 0.1,
-      "ctor": 5.72
+      "ctor": 5.73
     },
     {
       "id": "import-api:52:27158545",
@@ -4879,7 +4879,7 @@
       "sent": 22975,
       "delivered": 22874,
       "opened": 176,
-      "openRate": 0.76,
+      "openRate": 0.77,
       "clicks": 26,
       "clickRate": 0.11,
       "ctor": 14.77
@@ -4895,10 +4895,10 @@
       "sent": 30432,
       "delivered": 30185,
       "opened": 289,
-      "openRate": 0.95,
+      "openRate": 0.96,
       "clicks": 11,
-      "clickRate": 0.03,
-      "ctor": 3.8
+      "clickRate": 0.04,
+      "ctor": 3.81
     },
     {
       "id": "import-api:61:27167513",
@@ -4914,7 +4914,7 @@
       "openRate": 2.87,
       "clicks": 159,
       "clickRate": 0.15,
-      "ctor": 5.22
+      "ctor": 5.23
     },
     {
       "id": "import-api:52:27170850",
@@ -4930,7 +4930,7 @@
       "openRate": 0.94,
       "clicks": 38,
       "clickRate": 0.22,
-      "ctor": 23.89
+      "ctor": 23.9
     },
     {
       "id": "import-api:52:27179363",
@@ -4943,7 +4943,7 @@
       "sent": 14745,
       "delivered": 14682,
       "opened": 95,
-      "openRate": 0.64,
+      "openRate": 0.65,
       "clicks": 8,
       "clickRate": 0.05,
       "ctor": 8.42
@@ -4977,8 +4977,8 @@
       "opened": 113,
       "openRate": 0.75,
       "clicks": 6,
-      "clickRate": 0.03,
-      "ctor": 5.3
+      "clickRate": 0.04,
+      "ctor": 5.31
     },
     {
       "id": "import-api:52:27205336",
@@ -4991,9 +4991,9 @@
       "sent": 117819,
       "delivered": 111005,
       "opened": 2206,
-      "openRate": 1.98,
+      "openRate": 1.99,
       "clicks": 276,
-      "clickRate": 0.24,
+      "clickRate": 0.25,
       "ctor": 12.51
     },
     {
@@ -5009,10 +5009,10 @@
       "opened": 2272,
       "openRate": 2.18,
       "clicks": 112,
-      "clickRate": 0.1,
-      "ctor": 4.92
+      "clickRate": 0.11,
+      "ctor": 4.93
     }
   ],
-  "scanOffset": 2000,
-  "scanCheckedAt": "2026-11-23T15:23:31.720Z"
+  "scanOffset": 4000,
+  "scanCheckedAt": "2026-11-23T15:28:30.807Z"
 }
