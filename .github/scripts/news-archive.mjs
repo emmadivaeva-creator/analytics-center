@@ -17,7 +17,12 @@ export function normalizeIssue(raw) {
   const date=String(raw?.date||'').slice(0,10);
   const campaign=String(raw?.campaign||'').trim();
   if(!id||!/^2026-\d\d-\d\d$/.test(date)||date<NEWS_START||!newsCampaign(campaign))return null;
-  return {id,date,product:String(raw.product||''),campaign,subject:String(raw.subject||''),sendsay:String(raw.sendsay||'')};
+  const item={id,date,product:String(raw.product||''),campaign,subject:String(raw.subject||''),sendsay:String(raw.sendsay||'')};
+  if(raw.time!=null)item.time=String(raw.time||'');
+  for(const k of ['sent','delivered','opened','openRate','clicks','clickRate','ctor']){
+    if(raw[k]!=null)item[k]=asNum(raw[k]);
+  }
+  return item;
 }
 export function isoWeek(dateValue) {
   const d=new Date(String(dateValue||'')+'T12:00:00Z');
@@ -34,7 +39,9 @@ export function mergeIssues(existing, latest) {
     const mail=normalizeIssue(entry);
     if(!mail)continue;
     const prev=merged.get(mail.id);
-    if(!prev||(!prev.subject&&mail.subject)||(!prev.sendsay&&mail.sendsay))merged.set(mail.id,mail);
+    if(!prev){merged.set(mail.id,mail);continue;}
+    merged.set(mail.id,{...prev,...mail,subject:mail.subject||prev.subject,
+      sendsay:mail.sendsay||prev.sendsay,time:mail.time||prev.time});
   }
   return [...merged.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
 }
