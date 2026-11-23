@@ -137,9 +137,9 @@ async function test(browser,engine,before){
   await page.waitForTimeout(1600);
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('#newsRows tbody tr').first().waitFor();
-  await page.waitForFunction(()=>before
+  await page.waitForFunction(beforeFlag=>beforeFlag
     ? /DEMO проверены/.test(document.querySelector('#mailDemoStatus')?.textContent||'')
-    : /Новостных писем:/.test(document.querySelector('#newsStatus')?.textContent||''));
+    : /Новостных писем:/.test(document.querySelector('#newsStatus')?.textContent||''),before);
   await page.locator('#newsSearch').fill('Дайджест 90000');
   await page.locator('#newsRows .mail-body-preview summary').click();
   await page.locator('#newsRows .mail-body-text').waitFor();
