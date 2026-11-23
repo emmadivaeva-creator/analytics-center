@@ -55,20 +55,34 @@ export function mergeIssues(existing, latest) {
   }
   return [...merged.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
 }
+const RUS_TO_LATIN = Object.freeze({а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'h',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ы:'y',ь:'',ъ:'',э:'e',ю:'yu',я:'ya'});
+function translitTokens(raw) {
+  return String(raw||'').toLowerCase().replace(/[а-яё]/g,character=>RUS_TO_LATIN[character]||character)
+    .split(/[^a-z0-9]+/).filter(token=>token.length>=5&&!/^\d+$/.test(token));
+}
+function slugTitleMatches(url,title) {
+  const match=String(url||'').match(/\/(?:news|art|article)\/\d+-([^/?#]+)/i);
+  if(!match)return 0;
+  const slug=match[1].toLowerCase().split(/[^a-z0-9]+/).filter(token=>token.length>=5&&!/^\d+$/.test(token));
+  const titleTokens=new Set(translitTokens(title).map(token=>token.slice(0,5)));
+  return [...new Set(slug.map(token=>token.slice(0,5)))].filter(token=>titleTokens.has(token)).length;
+}
 function bestTitle(topic,title,url,date) {
   const t=String(title||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
   const u=String(url||'').trim();
-  // A full CMS slug is preferred over a short /news/ID or /art/ID link:
-  // the latter may carry a stale, unrelated call-to-action from a newsletter.
-  const fullCmsUrl=/\/\b(?:news|art|article)\/\d+-[^/?#]+/i.test(u);
+  // A full CMS slug is preferred over a short /news/ID link. Among full
+  // URLs, choose wording that actually matches the URL slug, not the latest
+  // unrelated CTA in a newsletter.
+  const fullCmsUrl=/\/(?:news|art|article)\/\d+-[^/?#]+/i.test(u);
   const validTitle=Boolean(t&&!/^https?:\/\//i.test(t)&&!/^Материал\s+\d+$/i.test(t));
   const editorialTitle=validTitle&&!/[→>]\s*$/.test(t);
-  const score=(fullCmsUrl?100:0)+(validTitle?10:0)+(editorialTitle?5:0);
+  const matched=validTitle?slugTitleMatches(u,t):0;
+  const score=(fullCmsUrl?1000:0)+(matched*30)+(validTitle?10:0)+(editorialTitle?5:0);
   const stamp=String(date||'').slice(0,10);
   if(!topic._titleSource || score>topic._titleSource.score ||
       (score===topic._titleSource.score&&stamp>topic._titleSource.date) ||
       (score===topic._titleSource.score&&stamp===topic._titleSource.date&&t.length>topic.title.length)) {
-    topic._titleSource={score,date:stamp};
+    topic._titleSource={score,date:stamp,matched};
     topic.url=u||topic.url;
     if(validTitle)topic.title=t;
   }
@@ -132,12 +146,16 @@ export function buildNewsSummary(inventory, archive, generatedAt=new Date().toIS
   const allTopics=[...topics.values()].map(topic=>{
     const urlAliases=topic._urlVariants.size;
     const titleVariants=topic._titleVariants.size;
+    // Where multiple addresses and unrelated anchor texts share a CMS ID,
+    // and none match the full URL's slug, do not invent a page headline.
+    const titleUnverified=urlAliases>1&&titleVariants>1&&!Number(topic._titleSource?.matched);
+    if(titleUnverified)topic.title=(topic.kind==='news'?'Новость № ':'Статья № ')+String(topic.term||'');
     delete topic.seenKeys;
     delete topic._urlVariants;
     delete topic._titleVariants;
     delete topic._titleSource;
     topic.letters.sort((a,b)=>b.date.localeCompare(a.date));
-    return {...topic,urlAliases,titleVariants,total:topic.red+topic.yellow+topic.green};
+    return {...topic,urlAliases,titleVariants,titleUnverified,total:topic.red+topic.yellow+topic.green};
   }).sort((a,b)=>b.green-a.green||b.total-a.total||a.title.localeCompare(b.title,'ru'));
   const lastDate=issues.reduce((a,m)=>m.date>a?m.date:a,'');
   const weeks=Array.from({length:Math.max(1,Math.min(53,isoWeek(lastDate)||27)-26)},(_,i)=>i+27);
