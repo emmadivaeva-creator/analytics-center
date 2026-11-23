@@ -1,11 +1,11 @@
 {
   "generatedAt": "2026-11-23T14:57:33.084Z",
   "period": {
-    "from": "2026-11-17",
+    "from": "2026-06-29",
     "to": "2026-11-23",
-    "days": 7
+    "days": 0
   },
-  "periodLabel": "2026-11-17 — 2026-11-23",
+  "periodLabel": "с 29.06.2026 по 23.11.2026",
   "mailsChecked": 17,
   "latestNewsletterDate": "2026-11-23",
   "successfulDetails": 17,
@@ -31,7 +31,8 @@
     44,
     45,
     46,
-    47
+    47,
+    48
   ],
   "topics": [
     {
@@ -10546,5 +10547,151 @@
       ],
       "total": 0
     }
-  ]
+  ],
+  "schemaVersion": 2,
+  "mailsTotal": 311,
+  "pendingCount": 294,
+  "archiveComplete": false,
+  "sourceMissingWeeks": [
+    27,
+    28,
+    29,
+    30
+  ],
+  "weeklyCoverage": [
+    {
+      "week": 27,
+      "expected": 0,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 28,
+      "expected": 0,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 29,
+      "expected": 0,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 30,
+      "expected": 0,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 31,
+      "expected": 19,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 32,
+      "expected": 19,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 33,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 34,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 35,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 36,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 37,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 38,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 39,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 40,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 41,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 42,
+      "expected": 20,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 43,
+      "expected": 14,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 44,
+      "expected": 12,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 45,
+      "expected": 10,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 46,
+      "expected": 16,
+      "processed": 0,
+      "complete": false
+    },
+    {
+      "week": 47,
+      "expected": 19,
+      "processed": 15,
+      "complete": false
+    },
+    {
+      "week": 48,
+      "expected": 2,
+      "processed": 2,
+      "complete": true
+    }
+  ],
+  "archiveProgressNote": "Предварительный срез: результаты 17 недавних писем. Исторические материалы с W27–W46 ещё проходят проверку; это не полный архив.",
+  "snapshotOrigin": "last-seven-days-bootstrap"
 }
