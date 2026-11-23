@@ -1529,11 +1529,13 @@ async function loadDemandSnapshot_(){
 }
 async function loadDemand(force=false){
  if(demandBusy)return;
+ if(demandData&&!force){renderDemand();return;}
  demandBusy=true;
  const button=document.getElementById('demandReload');
  button.disabled=true;
  const status=document.getElementById('demandStatus');
- status.textContent='Проверяю свежий DEMO-факт и письма Sendsay…';
+ if(demandData)renderDemand();
+ else status.textContent='Проверяю свежий DEMO-факт и письма Sendsay…';
  try{
   if(!demandData){
     const snapshot=await loadDemandSnapshot_();
