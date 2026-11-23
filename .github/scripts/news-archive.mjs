@@ -77,7 +77,7 @@ function bestTitle(topic,title,url,date) {
   const validTitle=Boolean(t&&!/^https?:\/\//i.test(t)&&!/^Материал\s+\d+$/i.test(t));
   const editorialTitle=validTitle&&!/[→>]\s*$/.test(t);
   const matched=validTitle?slugTitleMatches(u,t):0;
-  const score=(fullCmsUrl?1000:0)+(matched*30)+(validTitle?10:0)+(editorialTitle?5:0);
+  const score=(fullCmsUrl?1000:0)+(matched*30)+(validTitle?10:0)+(editorialTitle?5:0)+Math.min(t.length,130)/10;
   const stamp=String(date||'').slice(0,10);
   if(!topic._titleSource || score>topic._titleSource.score ||
       (score===topic._titleSource.score&&stamp>topic._titleSource.date) ||
