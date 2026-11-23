@@ -132,7 +132,12 @@ const newsSnapshot={
   weeks,
   topics:cleanTopics
 };
-await fs.writeFile('news-demo-current.json',JSON.stringify(newsSnapshot,null,2)+'\n','utf8');
+if(newsSnapshot.mailsChecked>0&&newsSnapshot.successfulDetails===0&&newsSnapshot.errors.length){
+  console.warn('NEWS_SNAPSHOT_PRESERVED: all recent material reads failed:',newsSnapshot.errors.join(' | '));
+  // Do not replace the last valid material report with an empty success-shaped JSON.
+}else{
+  await fs.writeFile('news-demo-current.json',JSON.stringify(newsSnapshot,null,2)+'\n','utf8');
+}
 
 console.log(JSON.stringify({
   pulseWeek,
