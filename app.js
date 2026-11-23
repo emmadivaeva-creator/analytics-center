@@ -38,7 +38,7 @@ function openPage(name,persist=true){
  if(name==='vika'&&!vikaData)loadVika();
  if(name==='calls')loadCalls();
  if(name==='mail')loadRegistry();
- if(name==='news')loadRegistry().then(()=>startMaterialMatching());
+ if(name==='news')loadNewsRecent_();
  buttons.forEach(b=>b.classList.toggle('active',b.dataset.page===name));
  pages.forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
  if(persist)rememberPage(name);
@@ -49,13 +49,12 @@ window.addEventListener('analytics-authenticated',()=>{
   checkServer();
   loadData();
   const page=rememberedPage();
-  if(page==='mail'||page==='news'){
+  if(page==='mail'){
     registryData=null;
     registryPromise=null;
-    loadRegistry().then(()=>{
-      if(page==='news')startMaterialMatching();
-    }).catch(()=>{});
+    loadRegistry().catch(()=>{});
   }
+  if(page==='news')loadNewsRecent_(true);
   if(page==='demand'){demandData=null;loadDemand(true);}
   if(page==='sources'){sourceData=null;loadSources();}
   if(page==='vio'){vioData=null;loadVio();}
@@ -423,7 +422,7 @@ function scheduleNewsBodyPreload_(){
 }
 async function preloadLatestNewsBodies_(){
  if(newsBodyPreloadPromise||!registryData)return newsBodyPreloadPromise;
- const news=(registryData||[]).filter(isNewsMail);
+ const news=newsRowsCurrent_();
  const latestWeek=Math.max(0,...news.map(mailWeek_).filter(Boolean));
  const rows=latestWeek?news.filter(item=>mailWeek_(item)===latestWeek):news.slice(0,80);
  if(!rows.length)return null;
@@ -725,6 +724,7 @@ function storeMailBodyPreview_(ref,data){
  (registryData||[]).forEach(item=>{
    if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;
  });
+ (newsRecentData_||[]).forEach(item=>{if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;});
  (tradeData?.items||[]).forEach(item=>{
    if((item.direction==='ГФ'?'52':'61')+':'+String(item.issueId||'')===ref)item.bodyPreview=normalized;
  });
@@ -1039,15 +1039,54 @@ function renderRegistries(){for(const key of ['mail','news']){
  document.getElementById(key+'Rows').querySelectorAll('.material-demo').forEach(button=>button.onclick=()=>loadMaterialDemo(button));
  if(key==='mail')bindMailBodyPreviews_();
 }}
+
+let newsRecentData_=null,newsRecentBusy_=null,newsRecentFetchedAt_=0,newsMaterialFetchError_='';
+function newsRowsCurrent_(){
+ const rows=new Map((registryData||[]).filter(isNewsMail).map(mail=>[String(mail.id),mail]));
+ (newsRecentData_||[]).forEach(mail=>rows.set(String(mail.id),mail));
+ return [...rows.values()].sort((a,b)=>mailDate(b).localeCompare(mailDate(a)));
+}
+/** NEWS must open immediately from recent Sendsay data rather than wait for 27k archived DEMO rows. */
+async function loadNewsRecent_(force=false){
+ if(newsRecentBusy_)return newsRecentBusy_;
+ if(!force&&newsRecentFetchedAt_&&Date.now()-newsRecentFetchedAt_<15*60*1000){
+  renderNewsLetters();return newsRecentData_;
+ }
+ const label=document.getElementById('newsStatus');
+ if(label)label.textContent='Проверяю свежие новостные отправки из Sendsay…';
+ newsRecentBusy_=(async()=>{
+  try{
+   const r=await rpc('getMailRegistryRecentUi',7);
+   if(!r||!Array.isArray(r.emails))throw new Error('Сервер не вернул письма за семь дней');
+   newsRecentData_=r.emails.filter(isNewsMail);
+   newsRecentFetchedAt_=Date.now();
+   renderNewsLetters();
+   scheduleNewsBodyPreload_();
+   if(document.getElementById('newsMaterialsPanel').classList.contains('hidden')===false)renderNewsMaterials();
+   // The backend may not yet have the corrected materials parser deployed.
+   startMaterialMatching().catch(()=>{});
+   return newsRecentData_;
+  }catch(e){
+   newsRecentFetchedAt_=0;
+   const note='Не удалось проверить последние семь дней: '+String(e&&e.message||e);
+   if(label)label.textContent=note+(newsRowsCurrent_().length?' · сохранённые письма оставлены':'');
+   return null;
+  }
+ })().finally(()=>{newsRecentBusy_=null;});
+ return newsRecentBusy_;
+}
+
 function renderNewsLetters(){
  const openPreviews=new Set([...document.querySelectorAll('#newsRows .mail-body-preview[open]')].map(d=>d.dataset.bodyRef));
  const query=document.getElementById('newsSearch').value.trim().toLowerCase(),product=document.getElementById('newsProduct').value;
- const rows=(registryData||[]).filter(isNewsMail).filter(x=>(!product||x.product===product)&&(!query||[x.subject,x.campaign].join(' ').toLowerCase().includes(query)));
+ const rows=newsRowsCurrent_().filter(x=>(!product||x.product===product)&&(!query||[x.subject,x.campaign].join(' ').toLowerCase().includes(query)));
  const latest=rows.length?String(rows[0].date||''):'';
- document.getElementById('newsStatus').textContent='Писем: '+fmt(rows.length)+' · последнее письмо '+(latest||'—')+
-   ' · свежие сверху'+registryCacheNote_()+
-   (latest&&latest<new Date(Date.now()-8*86400000).toISOString().slice(0,10)?' · архив может быть устаревшим, проверяю сервер…':'')+
-   '. Демо материалов — в разделе «Какие новости дают демо».';
+ document.getElementById('newsStatus').textContent='Новостных писем: '+fmt(rows.length)+
+   ' · последнее '+(latest||'—')+
+   (newsRecentFetchedAt_?' · последние 7 дней сверены с Sendsay':' · просмотр сохранённого архива')+
+   (latest&&latest<new Date(Date.now()-8*86400000).toISOString().slice(0,10)?' · последняя неделя ещё не проверена':'')+
+   (newsMaterialFetchError_?' · '+newsMaterialFetchError_:'')+
+   '. Аналитика DEMO по новостям — в соседнем разделе.';
  document.getElementById('newsRows').innerHTML=rows.length?`<table><thead><tr><th>Дата</th><th>Продукт</th><th>Письмо в Sendsay</th><th>Отправлено</th><th>Доставлено</th><th>Открытия, %</th><th>Клики</th><th>Клики, %</th><th>CTOR, %</th></tr></thead><tbody>${rows.slice(0,registryLimits.news).map(x=>`<tr><td>${esc(x.date)}<small>${esc(x.time||'')}</small></td><td>${esc(x.product)}</td><td><b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>${mailBodyPreviewHtml_(x)}</td><td>${x.sent==null?'—':fmt(x.sent)}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?'—':pct(x.openRate)}</td><td>${x.clicks==null?'—':fmt(x.clicks)}</td><td>${x.clickRate==null?'—':pct(x.clickRate)}</td><td>${x.ctor==null?'—':pct(x.ctor)}</td></tr>`).join('')}</tbody></table><p>«—» — показатель не передан источником.</p>`:'<p>Нет писем по выбранным условиям.</p>';
  document.getElementById('newsMore').classList.toggle('hidden',rows.length<=registryLimits.news);
  bindMailBodyPreviews_('#newsRows');
@@ -1112,7 +1151,7 @@ function renderNewsMaterials(){
  if(newsMaterialSnapshot&&(!newsMaterialSnapshotStale_||!latestProcessed)){
    renderNewsMaterialSnapshot_();return;
  }
- const mails=(registryData||[]).filter(isNewsMail),done=mails.filter(m=>m.materialData).length,errors=mails.filter(m=>m.materialError).length;
+ const mails=newsRowsCurrent_(),done=mails.filter(m=>m.materialData).length,errors=mails.filter(m=>m.materialError).length;
  const select=document.getElementById('newsMaterialWeek'),previous=select.value;
  const weeks=[...new Set(mails.flatMap(m=>(m.materialData?.rows||[]).flatMap(r=>(r.weeks||[]).map(w=>w.week))))].sort((a,b)=>b-a);
  select.innerHTML='<option value="">Все доступные недели</option>'+weeks.map(w=>`<option value="${w}">Неделя ${w}</option>`).join('');select.value=weeks.some(w=>String(w)===previous)?previous:'';
@@ -1130,13 +1169,19 @@ function materialDetails(x){return x.materialData?`<p>Материалов: ${x.
 async function startMaterialMatching(){
  const current=registryData;
  // Process the newest issues first; an old archive must not block November.
- const recentNews=(current||[]).filter(isNewsMail)
-   .sort((a,b)=>mailDate(b).localeCompare(mailDate(a))).slice(0,45);
+ const recentNews=newsRowsCurrent_().slice(0,45);
  for(const mail of recentNews){
   if(current!==registryData)return;
   if(mail.materialData||mail.materialLoading)continue;
   mail.materialLoading=true;
-  try{mail.materialData=await rpc('getMailDemoDetailsUi',mail.id);delete mail.materialError;}catch(e){mail.materialError=e.message;}finally{mail.materialLoading=false;}
+  try{mail.materialData=await rpc('getMailDemoDetailsUi',mail.id);delete mail.materialError;}catch(e){
+    mail.materialError=e.message;
+    if(/Не найдены заголовки Новостные демо Школа/.test(String(e.message||''))){
+      newsMaterialFetchError_='На сервере Apps Script пока не обновлён разборщик новостной статистики. Сами свежие письма доступны.';
+      mail.materialLoading=false;
+      break;
+    }
+  }finally{mail.materialLoading=false;}
   if(current!==registryData)return;
   // Preserve expanded evidence while automatic results arrive.
   const opened=[];for(const key of ['mail','news'])document.querySelectorAll('#'+key+'Rows tbody tr').forEach((r,i)=>{if(r.querySelector('details[open]'))opened.push([key,i]);});
