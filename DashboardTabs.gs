@@ -715,12 +715,21 @@ function dashboardDemoRows_(reference) {
     const sheet=book.getSheetByName(spec.name);
     if(!sheet)throw new Error('Нет листа '+spec.name);
     const rows=sheet.getDataRange().getDisplayValues();
-    const h=rows.findIndex(r=>norm_(r[0])==='издательская группа'&&/^utm /i.test(r[1]||''));
+    // Some pivots (notably «Новостные демо Школа») start at column B,
+    // while Periodika and System pivots start at A.
+    let h=-1,offset=0;
+    for(let i=0;i<rows.length&&h<0;i++){
+      for(let c=0;c<3;c++){
+        if(norm_(rows[i][c])==='издательская группа'&&/^utm /i.test(String(rows[i][c+1]||''))){
+          h=i;offset=c;break;
+        }
+      }
+    }
     if(h<1)throw new Error('Не найдены заголовки '+spec.name);
     const columns=[],seen={};
     rows[h].forEach((v,c)=>{const metric=demoMetric_(v),m=String(rows[h-1][c]||'').match(/^\s*(\d{1,2})\s*$/);if(!metric||!m||seen[m[1]+'|'+metric])return;seen[m[1]+'|'+metric]=true;columns.push({c,metric,week:Number(m[1])});});
     rows.slice(h+1).forEach((r,i)=>{
-      const group=demoGroup_(r[0]),key=String(r[1]||'').trim(),term=String(r[2]||'').trim();
+      const group=demoGroup_(r[offset]),key=String(r[offset+1]||'').trim(),term=String(r[offset+2]||'').trim();
       if(!group||!key||/итог/i.test(key)||(reference&&/итог/i.test(term)))return;
       const weeks={};columns.forEach(col=>{if(!weeks[col.week])weeks[col.week]={week:col.week,red:0,yellow:0,green:0};weeks[col.week][col.metric]+=number_(r[col.c]);});
       out.push({product:group+' '+spec.family,key,term:reference?term:'',weeks:Object.values(weeks),source:spec.name,sourceUrl:book.getUrl()+'#gid='+sheet.getSheetId()+'&range=A'+(h+i+2)});
