@@ -103,6 +103,21 @@ function tradeMailReadRows_(sheet) {
     .getValues().filter(function(row){return row[0] && row[2];});
 }
 
+function tradeMailDate_(value) {
+  // Sheets converts date strings into Date cells; String(Date) is NOT ISO.
+  return normalizeDate_(value);
+}
+function tradeMailTime_(value) {
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, APP_TIME_ZONE_(), 'HH:mm');
+  }
+  const m=String(value||'').match(/(?:^|\\s)(\\d{1,2}):(\\d{2})(?::\\d{2})?/);
+  return m ? ('0'+m[1]).slice(-2)+':'+m[2] : '';
+}
+function tradeMailSort_(a,b) {
+  const key=function(row){return tradeMailDate_(row[3])+' '+tradeMailTime_(row[4]);};
+  return key(b).localeCompare(key(a)) || String(a[0]+'|'+a[2]).localeCompare(String(b[0]+'|'+b[2]));
+}
 function tradeMailWriteRows_(sheet, rows) {
   const old = Math.max(0,sheet.getLastRow()-1);
   if (rows.length) {
@@ -192,10 +207,7 @@ function syncTradeMailBatch(firstPass) {
       const stage=tradeMailReadRows_(tradeMailSheet_(TRADE_MAIL_STAGE_SHEET_));
       const uniq={};
       stage.forEach(function(row){uniq[String(row[0])+'|'+String(row[2])]=row;});
-      const all=Object.keys(uniq).map(function(key){return uniq[key];}).sort(function(a,b){
-        return String(b[3]+' '+b[4]).localeCompare(String(a[3]+' '+a[4])) ||
-          String(a[2]).localeCompare(String(b[2]));
-      });
+      const all=Object.keys(uniq).map(function(key){return uniq[key];}).sort(tradeMailSort_);
       tradeMailWriteRows_(tradeMailSheet_(TRADE_MAIL_MAIN_SHEET_),all);
       total=all.length;
       props.setProperty(TRADE_MAIL_LAST_SYNC_KEY_,new Date().toISOString());
@@ -220,7 +232,7 @@ function getTradeMailUi() {
       id:'trade-'+String(row[0])+'-'+String(row[2]),
       direction:String(row[1]||''),
       issueId:String(row[2]||''),
-      date:date,time:String(row[4]||''),
+      date:date,time:tradeMailTime_(row[4]),
       week:isoWeek_(date),
       year:date.slice(0,4),
       labels:String(row[5]||'').split('|').filter(function(tag){
@@ -247,7 +259,8 @@ function getTradeMailUi() {
       lastSync:props.getProperty(TRADE_MAIL_LAST_SYNC_KEY_)||'',
       syncing:Boolean(props.getProperty(TRADE_MAIL_CURSOR_KEY_)),
       historyReady:props.getProperty(TRADE_MAIL_HISTORY_READY_KEY_)==='true',
-      count:output.length
+      count:output.length,
+      latestDate:output.reduce(function(max,x){return x.date>max?x.date:max;},'')
     }
   };
 }
@@ -265,9 +278,21 @@ function syncTradeMailLast3Days() {
   const lock=LockService.getScriptLock();
   lock.waitLock(20000);
   try{
-    const to=todayIso_(),from=shiftIsoDate_(to,-2);
+    const to=todayIso_();
     const sheet=tradeMailSheet_(TRADE_MAIL_MAIN_SHEET_);
     const current=tradeMailReadRows_(sheet);
+    // A three-day-only refresh can permanently skip days after a stalled import
+    // (e.g. archive ending on 18 Nov, refresh running on 23 Nov). Catch up.
+    const latest=current.reduce(function(max,row){
+      const date=tradeMailDate_(row[3]);
+      return date>max?date:max;
+    },'');
+    if(!latest)throw new Error('В рабочей истории нет дат. Повторный импорт без проверки запрещён.');
+    const gapDays=Math.round((Date.parse(to+'T12:00:00Z')-Date.parse(latest+'T12:00:00Z'))/86400000);
+    if(gapDays>28)throw new Error('В торговой истории пропущено более 28 дней. Нужна пакетная догрузка без потери архива.');
+    const trailing=shiftIsoDate_(to,-2);
+    const overlap=shiftIsoDate_(latest,-2);
+    const from=(overlap<trailing?overlap:trailing)<TRADE_MAIL_FROM_?TRADE_MAIL_FROM_:(overlap<trailing?overlap:trailing);
     const recent=new Map();
     SENDSAY_API.policies.forEach(function(policy){
       for(let skip=0,pageNo=0;pageNo<100;pageNo++){
@@ -281,12 +306,15 @@ function syncTradeMailLast3Days() {
         if(pageNo===99)throw new Error('Слишком много выпусков за 3 дня: '+policy.name);
       }
     });
-    const retained=current.filter(function(row){return String(row[3]||'')<from;});
+    const retained=current.filter(function(row){return tradeMailDate_(row[3])<from;});
     recent.forEach(function(row){retained.push(row);});
-    retained.sort(function(a,b){return String(b[3]+' '+b[4]).localeCompare(String(a[3]+' '+a[4]));});
+    retained.sort(tradeMailSort_);
     tradeMailWriteRows_(sheet,retained);
     PropertiesService.getScriptProperties().setProperty(TRADE_MAIL_LAST_SYNC_KEY_,new Date().toISOString());
-    return {ok:true,from:from,to:to,changed:recent.size,total:retained.length};
+    return {ok:true,from:from,to:to,changed:recent.size,total:retained.length,
+      previousLatest:latest,latestDate:retained.reduce(function(max,row){
+        const date=tradeMailDate_(row[3]);return date>max?date:max;
+      },'')};
   }finally{lock.releaseLock();}
 }
 
@@ -300,7 +328,7 @@ function installTradeMailDailyTrigger() {
     if(t.getHandlerFunction()==='dailyTradeMailSync')ScriptApp.deleteTrigger(t);
   });
   ScriptApp.newTrigger('dailyTradeMailSync').timeBased()
-    .atHour(8).nearMinute(35).everyDays(1).create();
+    .atHour(8).nearMinute(35).everyDays(1).inTimezone('Europe/Moscow').create();
   return {ok:true,handler:'dailyTradeMailSync',near:'08:35 МСК'};
 }
 function dailyTradeMailSync() {
