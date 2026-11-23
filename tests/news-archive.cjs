@@ -26,5 +26,28 @@ const path=require('node:path');
  assert.deepEqual(result.weeks.slice(0,4),[27,28,29,30]);
  assert.equal(result.weeklyCoverage[0].complete,false,'Missing W27 registry cannot be presented as zero demand');
  assert.equal(result.weeklyCoverage.find(w=>w.week===31).processed,1);
- console.log('NEWS_ARCHIVE_TESTS',JSON.stringify({ok:true,tests:8}));
+ const short='https://www.pro-goszakaz.ru/news/119557';
+ const canonical='https://www.pro-goszakaz.ru/news/119557-postotchet-po-malym-zakupkam-prikaz-o-naznachenii-otvetstvennyh-obyazatelen';
+ const stale='Когда возможна уголовная ответственность';
+ const actual='Приказ о назначении ответственных за формирование и размещение в ЕИС постотчета стал обязательным';
+ const oldMail={id:'import-api:61:26187545',date:'2026-08-31',product:'ГЗ Периодика',campaign:'letter_news_goszakaz_regular_news_digest_31.08.2026',subject:'Письмо с короткой ссылкой'};
+ const newMail={id:'import-api:61:27083732',date:'2026-11-12',product:'ГЗ Периодика',campaign:'letter_news_goszakaz_regular_news_digest_12.11.2026',subject:'Минфин обязал издавать приказ'};
+ const makeRecord=(url,title)=>({
+  materials:[{id:'119557',url,title,kind:'news'}],
+  rows:[{product:'ГЗ Периодика',term:'119557',title,url,
+   sourceUrl:'https://docs.google.com/spreadsheets/d/example/edit#gid=1&range=A86',
+   weeks:[{week:31,red:6,yellow:17,green:8}]}]
+ });
+ const fixed=archive.buildNewsSummary({emails:[oldMail,newMail],missingEarlyWeeks:[]},
+  {results:{[oldMail.id]:makeRecord(short,stale),[newMail.id]:makeRecord(canonical,actual)},failures:{}});
+ assert.equal(archive.materialIdentity(short),archive.materialIdentity(canonical),'CMS ID must be stable across URL slugs');
+ assert.equal(fixed.topics.length,1,'Short and canonical URL must not create two result rows');
+ assert.equal(fixed.topics[0].url,canonical,'A full canonical-looking slug wins over a bare ID URL');
+ assert.equal(fixed.topics[0].title,actual,'A descriptive slug-matching title wins over stale newsletter CTA');
+ assert.equal(fixed.topics[0].green,8,'Aliases may not duplicate DEMO counts');
+ assert.equal(fixed.topics[0].total,31,'Aliases may not duplicate total DEMO counts');
+ assert.equal(fixed.topics[0].letters.length,2,'Both newsletters remain as evidence');
+ assert.equal(fixed.topics[0].urlAliases,2,'Variant URL count remains auditable');
+ assert.notEqual(archive.materialIdentity(short),archive.materialIdentity('https://www.budgetnik.ru/news/119557'),'Different sites must not merge by numeric ID alone');
+ console.log('NEWS_ARCHIVE_TESTS',JSON.stringify({ok:true,tests:17}));
 })().catch(e=>{console.error(e);process.exitCode=1;});
