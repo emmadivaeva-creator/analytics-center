@@ -1959,7 +1959,7 @@ function setupSourceFilters(){
  meta.fullWeeks=fullLabel;
  meta.weeks=loaded.length?'27–'+latest:'нет данных';
  if(!sourceWeek||sourceWeek!=='all'&&!loaded.includes(Number(sourceWeek)))
-  sourceWeek=latest?String(latest):'all';
+  sourceWeek='all';
  sourceProductOptions();
  const select=document.getElementById('sourcesWeek');
  if(select){
