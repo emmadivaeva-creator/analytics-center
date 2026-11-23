@@ -42,7 +42,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_27.07.2026",
       "subject": "Изменения в КБК и КВР",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25764018/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25764018/summary",
+      "time": "15:31",
+      "sent": 42443,
+      "delivered": 42299,
+      "opened": 1154,
+      "openRate": 2.72,
+      "clicks": 107,
+      "clickRate": 0.25,
+      "ctor": 9.27
     },
     {
       "id": "import-api:61:25753242",
@@ -50,7 +58,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_27.04.2026",
       "subject": "Что изменилось в закупке топлива по 44-ФЗ этим летом",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25753242/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25753242/summary",
+      "time": "4:01",
+      "sent": 125718,
+      "delivered": 124814,
+      "opened": 2870,
+      "openRate": 2.29,
+      "clicks": 166,
+      "clickRate": 0.13,
+      "ctor": 5.78
     },
     {
       "id": "import-api:61:25764021",
@@ -58,7 +74,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_27.04.2026",
       "subject": "Минфин впервые разъяснил правила расчета НМЦК с едпоставщиком",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25764021/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25764021/summary",
+      "time": "15:31",
+      "sent": 45548,
+      "delivered": 45303,
+      "opened": 1545,
+      "openRate": 3.41,
+      "clicks": 207,
+      "clickRate": 0.45,
+      "ctor": 13.39
     },
     {
       "id": "import-api:52:25765951",
@@ -66,7 +90,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_28.07.2026",
       "subject": "Минфин снова пересмотрел матзапасы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25765951/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25765951/summary",
+      "time": "4:02",
+      "sent": 139725,
+      "delivered": 139183,
+      "opened": 2346,
+      "openRate": 1.68,
+      "clicks": 156,
+      "clickRate": 0.11,
+      "ctor": 6.64
     },
     {
       "id": "import-api:52:25776688",
@@ -74,7 +106,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_28.07.2026",
       "subject": "Бухгалтерам потребуются собственные документы для списания канцтоваров",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25776688/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25776688/summary",
+      "time": "15:31",
+      "sent": 22725,
+      "delivered": 22644,
+      "opened": 596,
+      "openRate": 2.63,
+      "clicks": 76,
+      "clickRate": 0.33,
+      "ctor": 12.75
     },
     {
       "id": "import-api:61:25765984",
@@ -82,7 +122,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_28.04.2026",
       "subject": "Свежая подборка образцов допсоглашений по всем основаниям",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25765984/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25765984/summary",
+      "time": "4:02",
+      "sent": 125465,
+      "delivered": 124790,
+      "opened": 2725,
+      "openRate": 2.18,
+      "clicks": 188,
+      "clickRate": 0.15,
+      "ctor": 6.89
     },
     {
       "id": "import-api:61:25776691",
@@ -90,7 +138,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_28.04.2026",
       "subject": "Сразу два отчета вручную – для тех, кто не оцифровал малые закупки",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25776691/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25776691/summary",
+      "time": "15:31",
+      "sent": 22059,
+      "delivered": 21919,
+      "opened": 734,
+      "openRate": 3.34,
+      "clicks": 65,
+      "clickRate": 0.29,
+      "ctor": 8.85
     },
     {
       "id": "import-api:52:25780221",
@@ -98,7 +154,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_29.07.2026",
       "subject": "Ответственность бухгалтера и оформителя первички разграничили",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25780221/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25780221/summary",
+      "time": "7:02",
+      "sent": 29913,
+      "delivered": 29806,
+      "opened": 556,
+      "openRate": 1.86,
+      "clicks": 50,
+      "clickRate": 0.16,
+      "ctor": 8.99
     },
     {
       "id": "import-api:52:25789126",
@@ -106,7 +170,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_29.07.2026",
       "subject": "Списание матзапасов - теперь в три этапа",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25789126/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25789126/summary",
+      "time": "15:31",
+      "sent": 18029,
+      "delivered": 17970,
+      "opened": 489,
+      "openRate": 2.72,
+      "clicks": 78,
+      "clickRate": 0.43,
+      "ctor": 15.95
     },
     {
       "id": "import-api:61:25787272",
@@ -114,7 +186,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_29.07.2026",
       "subject": "Заказчиков обязали сдавать новый отчет по малым закупкам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25787272/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25787272/summary",
+      "time": "11:17",
+      "sent": 124398,
+      "delivered": 123797,
+      "opened": 3521,
+      "openRate": 2.84,
+      "clicks": 347,
+      "clickRate": 0.28,
+      "ctor": 9.85
     },
     {
       "id": "import-api:61:25789198",
@@ -122,7 +202,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_29.07.2026",
       "subject": "Срочно обновите документы контрактной службы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25789198/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25789198/summary",
+      "time": "15:32",
+      "sent": 122724,
+      "delivered": 122129,
+      "opened": 3437,
+      "openRate": 2.81,
+      "clicks": 325,
+      "clickRate": 0.26,
+      "ctor": 9.45
     },
     {
       "id": "import-api:52:25792932",
@@ -130,7 +218,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_30.07.2026",
       "subject": "Обновите положение об учете матзапасов!",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25792932/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25792932/summary",
+      "time": "7:02",
+      "sent": 16580,
+      "delivered": 16526,
+      "opened": 310,
+      "openRate": 1.87,
+      "clicks": 26,
+      "clickRate": 0.15,
+      "ctor": 8.38
     },
     {
       "id": "import-api:52:25802131",
@@ -138,7 +234,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_30.07.2026",
       "subject": "Передавайте имущество строго перед отпуском!",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25802131/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25802131/summary",
+      "time": "15:32",
+      "sent": 11115,
+      "delivered": 11082,
+      "opened": 157,
+      "openRate": 1.41,
+      "clicks": 18,
+      "clickRate": 0.16,
+      "ctor": 11.46
     },
     {
       "id": "import-api:61:25792920",
@@ -146,7 +250,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_30.07.2026",
       "subject": "Новые безопасные алгоритмы заключения контракта с едпоставщиком",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25792920/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25792920/summary",
+      "time": "7:02",
+      "sent": 12745,
+      "delivered": 12698,
+      "opened": 360,
+      "openRate": 2.83,
+      "clicks": 32,
+      "clickRate": 0.25,
+      "ctor": 8.88
     },
     {
       "id": "import-api:61:25802128",
@@ -154,7 +266,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_30.07.2026",
       "subject": "Сразу два отчета вручную – для тех, кто не оцифровал малые закупки",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25802128/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25802128/summary",
+      "time": "15:32",
+      "sent": 11276,
+      "delivered": 11237,
+      "opened": 394,
+      "openRate": 3.5,
+      "clicks": 29,
+      "clickRate": 0.25,
+      "ctor": 7.36
     },
     {
       "id": "import-api:52:25805609",
@@ -162,7 +282,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_31.07.2026",
       "subject": "Подготовьтесь к новому стандарту внутреннего контроля",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25805609/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25805609/summary",
+      "time": "7:02",
+      "sent": 5787,
+      "delivered": 5762,
+      "opened": 90,
+      "openRate": 1.56,
+      "clicks": 10,
+      "clickRate": 0.17,
+      "ctor": 11.11
     },
     {
       "id": "import-api:52:25814798",
@@ -170,7 +298,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_31.07.2026",
       "subject": "Новый подход к классификации хозинвентаря",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25814798/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25814798/summary",
+      "time": "15:31",
+      "sent": 2684,
+      "delivered": 2677,
+      "opened": 61,
+      "openRate": 2.27,
+      "clicks": 8,
+      "clickRate": 0.29,
+      "ctor": 13.11
     },
     {
       "id": "import-api:61:25805612",
@@ -178,7 +314,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_31.07.2026",
       "subject": "Минфин ввел новую отчетность по закупкам малого объема",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25805612/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25805612/summary",
+      "time": "7:02",
+      "sent": 8820,
+      "delivered": 8781,
+      "opened": 275,
+      "openRate": 3.13,
+      "clicks": 21,
+      "clickRate": 0.23,
+      "ctor": 7.63
     },
     {
       "id": "import-api:61:25814799",
@@ -186,7 +330,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_31.07.2026",
       "subject": "Минфин и Минпромторг впервые дали разъяснения по НМЦК у едпоставщика",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25814799/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25814799/summary",
+      "time": "15:31",
+      "sent": 6383,
+      "delivered": 6354,
+      "opened": 219,
+      "openRate": 3.44,
+      "clicks": 14,
+      "clickRate": 0.22,
+      "ctor": 6.39
     },
     {
       "id": "import-api:52:25842104",
@@ -194,7 +346,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_03.08.2026",
       "subject": "Матзапасы на контроле: как избежать штрафов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25842104/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25842104/summary",
+      "time": "7:32",
+      "sent": 87298,
+      "delivered": 87022,
+      "opened": 1451,
+      "openRate": 1.66,
+      "clicks": 97,
+      "clickRate": 0.11,
+      "ctor": 6.68
     },
     {
       "id": "import-api:52:25850763",
@@ -202,7 +362,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_03.08.2026",
       "subject": "Бухгалтерам придется перестроить работу уже в августе",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25850763/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25850763/summary",
+      "time": "15:32",
+      "sent": 68224,
+      "delivered": 68016,
+      "opened": 1340,
+      "openRate": 1.97,
+      "clicks": 127,
+      "clickRate": 0.18,
+      "ctor": 9.47
     },
     {
       "id": "import-api:61:25842106",
@@ -210,7 +378,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_03.08.2026",
       "subject": "Расчёт начальной цены контракта на охранные услуги по-новому",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25842106/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25842106/summary",
+      "time": "7:32",
+      "sent": 76008,
+      "delivered": 75659,
+      "opened": 1812,
+      "openRate": 2.39,
+      "clicks": 147,
+      "clickRate": 0.19,
+      "ctor": 8.11
     },
     {
       "id": "import-api:61:25850769",
@@ -218,7 +394,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_03.08.2026",
       "subject": "Новый вид отчетности по закупкам малого объема",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25850769/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25850769/summary",
+      "time": "15:32",
+      "sent": 64762,
+      "delivered": 64423,
+      "opened": 1940,
+      "openRate": 3.01,
+      "clicks": 236,
+      "clickRate": 0.36,
+      "ctor": 12.16
     },
     {
       "id": "import-api:52:25854492",
@@ -226,7 +410,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_04.08.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25854492/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25854492/summary",
+      "time": "7:03",
+      "sent": 42503,
+      "delivered": 42371,
+      "opened": 3045,
+      "openRate": 7.18,
+      "clicks": 380,
+      "clickRate": 0.89,
+      "ctor": 12.47
     },
     {
       "id": "import-api:52:25863758",
@@ -234,7 +426,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_04.08.2026",
       "subject": "Казначейство раскрыло карту рисков: за системные ошибки штрафы станут выше",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25863758/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25863758/summary",
+      "time": "16:02",
+      "sent": 136204,
+      "delivered": 135705,
+      "opened": 2447,
+      "openRate": 1.8,
+      "clicks": 125,
+      "clickRate": 0.09,
+      "ctor": 5.1
     },
     {
       "id": "import-api:61:25854464",
@@ -242,7 +442,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_04.08.2026",
       "subject": "С 7 августа отменяется особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25854464/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25854464/summary",
+      "time": "7:02",
+      "sent": 37625,
+      "delivered": 37418,
+      "opened": 995,
+      "openRate": 2.65,
+      "clicks": 103,
+      "clickRate": 0.27,
+      "ctor": 10.35
     },
     {
       "id": "import-api:61:25863320",
@@ -250,7 +458,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_04.08.2026",
       "subject": "Новые образцы локалки для работы с закупками во втором полугодии",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25863320/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25863320/summary",
+      "time": "15:31",
+      "sent": 22770,
+      "delivered": 22631,
+      "opened": 590,
+      "openRate": 2.6,
+      "clicks": 39,
+      "clickRate": 0.17,
+      "ctor": 6.61
     },
     {
       "id": "import-api:52:25867045",
@@ -258,7 +474,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_05.08.2026",
       "subject": "Списание ОС: теперь нужно три документа",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25867045/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25867045/summary",
+      "time": "7:02",
+      "sent": 100003,
+      "delivered": 99552,
+      "opened": 1867,
+      "openRate": 1.87,
+      "clicks": 177,
+      "clickRate": 0.17,
+      "ctor": 9.48
     },
     {
       "id": "import-api:52:25876235",
@@ -266,7 +490,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_05.08.2026",
       "subject": "Казначейство раскрыло карту рисков: за системные ошибки штрафы станут выше",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25876235/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25876235/summary",
+      "time": "16:02",
+      "sent": 80483,
+      "delivered": 80123,
+      "opened": 1300,
+      "openRate": 1.62,
+      "clicks": 78,
+      "clickRate": 0.09,
+      "ctor": 6
     },
     {
       "id": "import-api:61:25876056",
@@ -274,7 +506,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_05.08.2026",
       "subject": "Новые образцы локалки для работы с закупками во втором полугодии",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25876056/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25876056/summary",
+      "time": "15:33",
+      "sent": 119789,
+      "delivered": 119024,
+      "opened": 2905,
+      "openRate": 2.44,
+      "clicks": 140,
+      "clickRate": 0.11,
+      "ctor": 4.81
     },
     {
       "id": "import-api:52:25879620",
@@ -282,7 +522,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_06.08.2026",
       "subject": "Средний заработок теперь считают иначе: проверьте выплаты",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25879620/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25879620/summary",
+      "time": "7:03",
+      "sent": 70248,
+      "delivered": 69990,
+      "opened": 1052,
+      "openRate": 1.5,
+      "clicks": 150,
+      "clickRate": 0.21,
+      "ctor": 14.25
     },
     {
       "id": "import-api:52:25888986",
@@ -290,7 +538,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_06.08.2026",
       "subject": "Учетную политику предложили разделить на отдельные документы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25888986/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25888986/summary",
+      "time": "16:01",
+      "sent": 53398,
+      "delivered": 53210,
+      "opened": 826,
+      "openRate": 1.55,
+      "clicks": 66,
+      "clickRate": 0.12,
+      "ctor": 7.99
     },
     {
       "id": "import-api:61:25879610",
@@ -298,7 +554,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_06.08.2026",
       "subject": "Документы для закупок, без которых нельзя работать в августе",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25879610/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25879610/summary",
+      "time": "7:02",
+      "sent": 67913,
+      "delivered": 67458,
+      "opened": 1121,
+      "openRate": 1.66,
+      "clicks": 76,
+      "clickRate": 0.11,
+      "ctor": 6.77
     },
     {
       "id": "import-api:61:25888652",
@@ -306,7 +570,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_06.08.2026",
       "subject": "Новые образцы локалки для работы с закупками во втором полугодии",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25888652/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25888652/summary",
+      "time": "15:31",
+      "sent": 49266,
+      "delivered": 48971,
+      "opened": 962,
+      "openRate": 1.96,
+      "clicks": 59,
+      "clickRate": 0.12,
+      "ctor": 6.13
     },
     {
       "id": "import-api:52:25892196",
@@ -314,7 +586,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_07.08.2026",
       "subject": "Акт 0510460, штрафы и причины списания: итоги недели",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25892196/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25892196/summary",
+      "time": "7:02",
+      "sent": 50396,
+      "delivered": 50222,
+      "opened": 726,
+      "openRate": 1.44,
+      "clicks": 62,
+      "clickRate": 0.12,
+      "ctor": 8.53
     },
     {
       "id": "import-api:52:25901500",
@@ -322,7 +602,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_07.08.2026",
       "subject": "Учетную политику предложили разделить на отдельные документы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25901500/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25901500/summary",
+      "time": "16:01",
+      "sent": 35732,
+      "delivered": 35596,
+      "opened": 409,
+      "openRate": 1.14,
+      "clicks": 29,
+      "clickRate": 0.08,
+      "ctor": 7.09
     },
     {
       "id": "import-api:61:25892193",
@@ -330,7 +618,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_07.08.2026",
       "subject": "Что изменилось в приемке маркированного товара",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25892193/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25892193/summary",
+      "time": "7:02",
+      "sent": 46352,
+      "delivered": 46100,
+      "opened": 1873,
+      "openRate": 4.06,
+      "clicks": 96,
+      "clickRate": 0.2,
+      "ctor": 5.12
     },
     {
       "id": "import-api:61:25901127",
@@ -338,7 +634,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_07.08.2026",
       "subject": "Путин подписал закон об упрощении госзакупок",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25901127/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25901127/summary",
+      "time": "15:31",
+      "sent": 31321,
+      "delivered": 31143,
+      "opened": 958,
+      "openRate": 3.07,
+      "clicks": 193,
+      "clickRate": 0.61,
+      "ctor": 20.14
     },
     {
       "id": "import-api:52:25928050",
@@ -346,7 +650,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_10.08.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25928050/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25928050/summary",
+      "time": "7:02",
+      "sent": 134984,
+      "delivered": 134398,
+      "opened": 6945,
+      "openRate": 5.16,
+      "clicks": 559,
+      "clickRate": 0.41,
+      "ctor": 8.04
     },
     {
       "id": "import-api:52:25936890",
@@ -354,7 +666,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_10.08.2026",
       "subject": "Минфин разделил перечни матзапасов: проверьте, какой применять",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25936890/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25936890/summary",
+      "time": "16:02",
+      "sent": 120003,
+      "delivered": 119486,
+      "opened": 2164,
+      "openRate": 1.81,
+      "clicks": 147,
+      "clickRate": 0.12,
+      "ctor": 6.79
     },
     {
       "id": "import-api:61:25928062",
@@ -362,7 +682,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_10.08.2026",
       "subject": "Новые правила закупок со второго полугодия 2026 года",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25928062/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25928062/summary",
+      "time": "7:03",
+      "sent": 120483,
+      "delivered": 119656,
+      "opened": 2618,
+      "openRate": 2.18,
+      "clicks": 182,
+      "clickRate": 0.15,
+      "ctor": 6.95
     },
     {
       "id": "import-api:61:25936838",
@@ -370,7 +698,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_10.08.2026",
       "subject": "Путин подписал закон об упрощении госзакупок",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25936838/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25936838/summary",
+      "time": "15:31",
+      "sent": 118595,
+      "delivered": 117844,
+      "opened": 4303,
+      "openRate": 3.65,
+      "clicks": 847,
+      "clickRate": 0.71,
+      "ctor": 19.68
     },
     {
       "id": "import-api:52:25940581",
@@ -378,7 +714,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_11.08.2026",
       "subject": "С 1 сентября за ошибки на bus.gov.ru начнут штрафовать до 30 000 рублей",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25940581/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25940581/summary",
+      "time": "7:02",
+      "sent": 105704,
+      "delivered": 105269,
+      "opened": 1747,
+      "openRate": 1.65,
+      "clicks": 120,
+      "clickRate": 0.11,
+      "ctor": 6.86
     },
     {
       "id": "import-api:52:25949757",
@@ -386,7 +730,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_11.08.2026",
       "subject": "Канцтовары нельзя списывать без инвентаризации: решение суда",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25949757/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25949757/summary",
+      "time": "16:01",
+      "sent": 78956,
+      "delivered": 78637,
+      "opened": 1677,
+      "openRate": 2.13,
+      "clicks": 195,
+      "clickRate": 0.24,
+      "ctor": 11.62
     },
     {
       "id": "import-api:61:25940578",
@@ -394,7 +746,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_11.08.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25940578/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25940578/summary",
+      "time": "7:02",
+      "sent": 82493,
+      "delivered": 81985,
+      "opened": 1846,
+      "openRate": 2.25,
+      "clicks": 133,
+      "clickRate": 0.16,
+      "ctor": 7.2
     },
     {
       "id": "import-api:61:25949422",
@@ -402,7 +762,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_11.08.2026",
       "subject": "Матвиенко предложила ввести мораторий на закупки по 44-ФЗ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25949422/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25949422/summary",
+      "time": "15:31",
+      "sent": 63846,
+      "delivered": 63445,
+      "opened": 2364,
+      "openRate": 3.72,
+      "clicks": 538,
+      "clickRate": 0.84,
+      "ctor": 22.75
     },
     {
       "id": "import-api:52:25953135",
@@ -410,7 +778,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_12.08.2026",
       "subject": "Суд: формы 0510451 недостаточно для списания канцтоваров",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25953135/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25953135/summary",
+      "time": "7:03",
+      "sent": 73660,
+      "delivered": 73355,
+      "opened": 3773,
+      "openRate": 5.14,
+      "clicks": 440,
+      "clickRate": 0.59,
+      "ctor": 11.66
     },
     {
       "id": "import-api:52:25962399",
@@ -418,7 +794,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_12.08.2026",
       "subject": "Главбух ушел в отпуск: доплата заму зависит от одной формулировки",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25962399/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25962399/summary",
+      "time": "16:01",
+      "sent": 50114,
+      "delivered": 49944,
+      "opened": 1001,
+      "openRate": 2,
+      "clicks": 120,
+      "clickRate": 0.24,
+      "ctor": 11.98
     },
     {
       "id": "import-api:61:25953130",
@@ -426,7 +810,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_12.08.2026",
       "subject": "Казначейство установило сроки сдачи нового постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25953130/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25953130/summary",
+      "time": "7:02",
+      "sent": 50626,
+      "delivered": 50307,
+      "opened": 1190,
+      "openRate": 2.36,
+      "clicks": 107,
+      "clickRate": 0.21,
+      "ctor": 8.99
     },
     {
       "id": "import-api:61:25962107",
@@ -434,7 +826,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_12.08.2026",
       "subject": "Владимир Путин подписал закон об упрощении закупок по 44-ФЗ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25962107/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25962107/summary",
+      "time": "15:31",
+      "sent": 37334,
+      "delivered": 37126,
+      "opened": 1463,
+      "openRate": 3.94,
+      "clicks": 307,
+      "clickRate": 0.82,
+      "ctor": 20.98
     },
     {
       "id": "import-api:52:25965754",
@@ -442,7 +842,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_13.08.2026",
       "subject": "Подотчетник принес чек без QR-кода: деньги вернуть можно",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25965754/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25965754/summary",
+      "time": "7:01",
+      "sent": 38412,
+      "delivered": 38263,
+      "opened": 533,
+      "openRate": 1.39,
+      "clicks": 34,
+      "clickRate": 0.08,
+      "ctor": 6.37
     },
     {
       "id": "import-api:52:25975046",
@@ -450,7 +858,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_13.08.2026",
       "subject": "Бухгалтеров переведут на риск-ориентированный контроль",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25975046/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25975046/summary",
+      "time": "16:01",
+      "sent": 28046,
+      "delivered": 27947,
+      "opened": 462,
+      "openRate": 1.65,
+      "clicks": 33,
+      "clickRate": 0.11,
+      "ctor": 7.14
     },
     {
       "id": "import-api:61:25965758",
@@ -458,7 +874,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_13.08.2026",
       "subject": "Правила приемки изменились из-за обязательной маркировки",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25965758/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25965758/summary",
+      "time": "7:02",
+      "sent": 33193,
+      "delivered": 32992,
+      "opened": 1472,
+      "openRate": 4.46,
+      "clicks": 74,
+      "clickRate": 0.22,
+      "ctor": 5.02
     },
     {
       "id": "import-api:61:25974771",
@@ -466,7 +890,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_13.08.2026",
       "subject": "Закон 44-ФЗ временно отменят?",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25974771/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25974771/summary",
+      "time": "15:31",
+      "sent": 27325,
+      "delivered": 27176,
+      "opened": 944,
+      "openRate": 3.47,
+      "clicks": 168,
+      "clickRate": 0.61,
+      "ctor": 17.79
     },
     {
       "id": "import-api:52:25978403",
@@ -474,7 +906,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_14.08.2026",
       "subject": "С 1 сентября СФР не примет отчетность без обновленной подписи",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25978403/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25978403/summary",
+      "time": "7:02",
+      "sent": 33093,
+      "delivered": 33004,
+      "opened": 715,
+      "openRate": 2.16,
+      "clicks": 66,
+      "clickRate": 0.19,
+      "ctor": 9.23
     },
     {
       "id": "import-api:52:25987659",
@@ -482,7 +922,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_14.08.2026",
       "subject": "КСП потребовала вернуть субсидию за просроченные материалы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25987659/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25987659/summary",
+      "time": "16:01",
+      "sent": 20410,
+      "delivered": 20352,
+      "opened": 444,
+      "openRate": 2.18,
+      "clicks": 25,
+      "clickRate": 0.12,
+      "ctor": 5.63
     },
     {
       "id": "import-api:61:25978385",
@@ -490,7 +938,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_14.08.2026",
       "subject": "Отменили особый расчет НМЦК на ГСМ в августе",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25978385/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25978385/summary",
+      "time": "7:02",
+      "sent": 32385,
+      "delivered": 32236,
+      "opened": 1854,
+      "openRate": 5.75,
+      "clicks": 154,
+      "clickRate": 0.47,
+      "ctor": 8.3
     },
     {
       "id": "import-api:61:25987653",
@@ -498,7 +954,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_14.08.2026",
       "subject": "Минфин обязал заказчиков отклонять иностранные заявки при наличии хотя бы одной российской",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/25987653/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/25987653/summary",
+      "time": "16:01",
+      "sent": 18864,
+      "delivered": 18769,
+      "opened": 592,
+      "openRate": 3.15,
+      "clicks": 47,
+      "clickRate": 0.25,
+      "ctor": 7.93
     },
     {
       "id": "import-api:52:26014224",
@@ -506,7 +970,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_17.08.2026",
       "subject": "Суд решил спор об учете картриджей",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26014224/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26014224/summary",
+      "time": "7:02",
+      "sent": 82740,
+      "delivered": 82527,
+      "opened": 1455,
+      "openRate": 1.76,
+      "clicks": 144,
+      "clickRate": 0.17,
+      "ctor": 9.89
     },
     {
       "id": "import-api:52:26023476",
@@ -514,7 +986,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_17.08.2026",
       "subject": "Минфин уточнил первичку для расходов по закупкам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26023476/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26023476/summary",
+      "time": "16:02",
+      "sent": 62090,
+      "delivered": 61861,
+      "opened": 1129,
+      "openRate": 1.82,
+      "clicks": 81,
+      "clickRate": 0.13,
+      "ctor": 7.17
     },
     {
       "id": "import-api:61:26014222",
@@ -522,7 +1002,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_17.08.2026",
       "subject": "Отменили особый расчет НМЦК на ГСМ в августе",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26014222/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26014222/summary",
+      "time": "7:02",
+      "sent": 67985,
+      "delivered": 67666,
+      "opened": 2941,
+      "openRate": 4.34,
+      "clicks": 220,
+      "clickRate": 0.32,
+      "ctor": 7.48
     },
     {
       "id": "import-api:61:26023089",
@@ -530,7 +1018,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_17.08.2026",
       "subject": "Установили штрафы за новую отчетность по малым закупкам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26023089/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26023089/summary",
+      "time": "15:31",
+      "sent": 54672,
+      "delivered": 54386,
+      "opened": 1679,
+      "openRate": 3.08,
+      "clicks": 156,
+      "clickRate": 0.28,
+      "ctor": 9.29
     },
     {
       "id": "import-api:52:26026862",
@@ -538,7 +1034,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_18.08.2026",
       "subject": "Как миновать \"подводные камни\" Акта 0510460",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26026862/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26026862/summary",
+      "time": "7:01",
+      "sent": 37946,
+      "delivered": 37820,
+      "opened": 678,
+      "openRate": 1.79,
+      "clicks": 41,
+      "clickRate": 0.1,
+      "ctor": 6.04
     },
     {
       "id": "import-api:52:26035802",
@@ -546,7 +1050,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_18.08.2026",
       "subject": "Минфин разделил перечни матзапасов для учреждений",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26035802/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26035802/summary",
+      "time": "15:31",
+      "sent": 22719,
+      "delivered": 22645,
+      "opened": 533,
+      "openRate": 2.35,
+      "clicks": 56,
+      "clickRate": 0.24,
+      "ctor": 10.5
     },
     {
       "id": "import-api:61:26026854",
@@ -554,7 +1066,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_18.08.2026",
       "subject": "Для цифрового контракта ввели новое условие",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26026854/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26026854/summary",
+      "time": "7:01",
+      "sent": 28557,
+      "delivered": 28396,
+      "opened": 608,
+      "openRate": 2.14,
+      "clicks": 34,
+      "clickRate": 0.11,
+      "ctor": 5.59
     },
     {
       "id": "import-api:61:26036085",
@@ -562,7 +1082,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_18.08.2026",
       "subject": "ФАС уточнила нацрежим по 223-ФЗ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26036085/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26036085/summary",
+      "time": "16:01",
+      "sent": 18997,
+      "delivered": 18892,
+      "opened": 625,
+      "openRate": 3.3,
+      "clicks": 69,
+      "clickRate": 0.36,
+      "ctor": 11.04
     },
     {
       "id": "import-api:52:26039456",
@@ -570,7 +1098,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_19.08.2026",
       "subject": "Учет основных средств: где вы могли ошибиться",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26039456/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26039456/summary",
+      "time": "7:02",
+      "sent": 20995,
+      "delivered": 20911,
+      "opened": 390,
+      "openRate": 1.86,
+      "clicks": 31,
+      "clickRate": 0.14,
+      "ctor": 7.94
     },
     {
       "id": "import-api:52:26048291",
@@ -578,7 +1114,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_19.08.2026",
       "subject": "За отсутствие внутреннего контроля - штраф!",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26048291/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26048291/summary",
+      "time": "15:31",
+      "sent": 16314,
+      "delivered": 16251,
+      "opened": 304,
+      "openRate": 1.87,
+      "clicks": 51,
+      "clickRate": 0.31,
+      "ctor": 16.77
     },
     {
       "id": "import-api:61:26039441",
@@ -586,7 +1130,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_19.08.2026",
       "subject": "Минфин предложил единые правила для малых закупок",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26039441/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26039441/summary",
+      "time": "7:02",
+      "sent": 15802,
+      "delivered": 15695,
+      "opened": 384,
+      "openRate": 2.44,
+      "clicks": 53,
+      "clickRate": 0.33,
+      "ctor": 13.8
     },
     {
       "id": "import-api:61:26048290",
@@ -594,7 +1146,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_19.08.2026",
       "subject": "Контракты в ЕИС больше не придется закрывать вручную",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26048290/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26048290/summary",
+      "time": "15:31",
+      "sent": 14299,
+      "delivered": 14212,
+      "opened": 464,
+      "openRate": 3.26,
+      "clicks": 77,
+      "clickRate": 0.54,
+      "ctor": 16.59
     },
     {
       "id": "import-api:52:26052070",
@@ -602,7 +1162,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_20.08.2026",
       "subject": "Срочно обновите внутренний контроль",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26052070/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26052070/summary",
+      "time": "7:02",
+      "sent": 10409,
+      "delivered": 10361,
+      "opened": 165,
+      "openRate": 1.59,
+      "clicks": 28,
+      "clickRate": 0.27,
+      "ctor": 16.96
     },
     {
       "id": "import-api:52:26060941",
@@ -610,7 +1178,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_20.08.2026",
       "subject": "СФР не примет отчетность со старой подписью",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26060941/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26060941/summary",
+      "time": "15:31",
+      "sent": 6695,
+      "delivered": 6655,
+      "opened": 91,
+      "openRate": 1.36,
+      "clicks": 17,
+      "clickRate": 0.25,
+      "ctor": 18.68
     },
     {
       "id": "import-api:61:26052063",
@@ -618,7 +1194,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_20.08.2026",
       "subject": "Маркированный товар: что проверить до подписи в ЕИС",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26052063/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26052063/summary",
+      "time": "7:02",
+      "sent": 7442,
+      "delivered": 7400,
+      "opened": 187,
+      "openRate": 2.52,
+      "clicks": 19,
+      "clickRate": 0.25,
+      "ctor": 10.16
     },
     {
       "id": "import-api:61:26060939",
@@ -626,7 +1210,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_20.08.2026",
       "subject": "Бумажные УПД запретили требовать при цифровой приемке",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26060939/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26060939/summary",
+      "time": "15:31",
+      "sent": 5605,
+      "delivered": 5576,
+      "opened": 346,
+      "openRate": 6.2,
+      "clicks": 31,
+      "clickRate": 0.55,
+      "ctor": 8.95
     },
     {
       "id": "import-api:52:26064554",
@@ -634,7 +1226,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_21.08.2026",
       "subject": "Как разместить информацию на bus.gov.ru и не получить штраф",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26064554/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26064554/summary",
+      "time": "7:02",
+      "sent": 4331,
+      "delivered": 4308,
+      "opened": 52,
+      "openRate": 1.2,
+      "clicks": 8,
+      "clickRate": 0.18,
+      "ctor": 15.38
     },
     {
       "id": "import-api:52:26073637",
@@ -642,7 +1242,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_21.08.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26073637/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26073637/summary",
+      "time": "15:31",
+      "sent": 3414,
+      "delivered": 3397,
+      "opened": 93,
+      "openRate": 2.73,
+      "clicks": 17,
+      "clickRate": 0.5,
+      "ctor": 18.27
     },
     {
       "id": "import-api:61:26064546",
@@ -650,7 +1258,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_21.08.2026",
       "subject": "Путин: Закон 44-ФЗ временно отменяют",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26064546/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26064546/summary",
+      "time": "7:02",
+      "sent": 4424,
+      "delivered": 4403,
+      "opened": 176,
+      "openRate": 3.99,
+      "clicks": 51,
+      "clickRate": 1.15,
+      "ctor": 28.97
     },
     {
       "id": "import-api:61:26073640",
@@ -658,7 +1274,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_21.08.2026",
       "subject": "Иностранная заявка, НМЦК и ЕИС: что проверить перед закупкой",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26073640/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26073640/summary",
+      "time": "15:31",
+      "sent": 3583,
+      "delivered": 3565,
+      "opened": 157,
+      "openRate": 4.4,
+      "clicks": 10,
+      "clickRate": 0.28,
+      "ctor": 6.36
     },
     {
       "id": "import-api:52:26100469",
@@ -666,7 +1290,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_24.08.2026",
       "subject": "Срочно пересмотрите положение о матзапасах",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26100469/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26100469/summary",
+      "time": "7:02",
+      "sent": 82813,
+      "delivered": 82521,
+      "opened": 1287,
+      "openRate": 1.55,
+      "clicks": 83,
+      "clickRate": 0.1,
+      "ctor": 6.44
     },
     {
       "id": "import-api:52:26109506",
@@ -674,7 +1306,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_24.08.2026",
       "subject": "Минфин меняет классификацию матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26109506/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26109506/summary",
+      "time": "15:32",
+      "sent": 70942,
+      "delivered": 70697,
+      "opened": 1393,
+      "openRate": 1.97,
+      "clicks": 200,
+      "clickRate": 0.28,
+      "ctor": 14.35
     },
     {
       "id": "import-api:61:26100482",
@@ -682,7 +1322,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_24.08.2026",
       "subject": "Путин: Закон 44-ФЗ временно отменяют",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26100482/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26100482/summary",
+      "time": "7:03",
+      "sent": 69322,
+      "delivered": 68945,
+      "opened": 2616,
+      "openRate": 3.79,
+      "clicks": 525,
+      "clickRate": 0.76,
+      "ctor": 20.06
     },
     {
       "id": "import-api:61:26109504",
@@ -690,7 +1338,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_24.08.2026",
       "subject": "Нацрежим меняют: российским товарам дадут скидку до 30%",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26109504/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26109504/summary",
+      "time": "15:32",
+      "sent": 59365,
+      "delivered": 59049,
+      "opened": 1613,
+      "openRate": 2.73,
+      "clicks": 104,
+      "clickRate": 0.17,
+      "ctor": 6.44
     },
     {
       "id": "import-api:52:26118772",
@@ -698,7 +1354,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_25.08.2026",
       "subject": "Минфин требует внедрить новый внутренний контроль",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26118772/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26118772/summary",
+      "time": "10:37",
+      "sent": 135203,
+      "delivered": 134645,
+      "opened": 2517,
+      "openRate": 1.86,
+      "clicks": 151,
+      "clickRate": 0.11,
+      "ctor": 5.99
     },
     {
       "id": "import-api:52:26122234",
@@ -706,7 +1370,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_25.08.2026",
       "subject": "Форма 0510460 больше не закроет списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26122234/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26122234/summary",
+      "time": "15:31",
+      "sent": 37977,
+      "delivered": 37857,
+      "opened": 1860,
+      "openRate": 4.91,
+      "clicks": 233,
+      "clickRate": 0.61,
+      "ctor": 12.52
     },
     {
       "id": "import-api:61:26113139",
@@ -714,7 +1386,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_25.08.2026",
       "subject": "Что проверить в ЕИС до конца августа: приемка, контракт и документы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26113139/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26113139/summary",
+      "time": "7:02",
+      "sent": 30746,
+      "delivered": 30560,
+      "opened": 1313,
+      "openRate": 4.29,
+      "clicks": 65,
+      "clickRate": 0.21,
+      "ctor": 4.95
     },
     {
       "id": "import-api:61:26122500",
@@ -722,7 +1402,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_25.08.2026",
       "subject": "Заберите обновленные образцы для контрактной службы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26122500/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26122500/summary",
+      "time": "16:01",
+      "sent": 20325,
+      "delivered": 20195,
+      "opened": 562,
+      "openRate": 2.78,
+      "clicks": 53,
+      "clickRate": 0.26,
+      "ctor": 9.43
     },
     {
       "id": "import-api:52:26125826",
@@ -730,7 +1418,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_26.08.2026",
       "subject": "Минфин меняет учет матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26125826/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26125826/summary",
+      "time": "7:01",
+      "sent": 22358,
+      "delivered": 22285,
+      "opened": 444,
+      "openRate": 1.99,
+      "clicks": 47,
+      "clickRate": 0.21,
+      "ctor": 10.58
     },
     {
       "id": "import-api:52:26134888",
@@ -738,7 +1434,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_26.08.2026",
       "subject": "Минфин опубликовал критерии для матзапасов и ОС",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26134888/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26134888/summary",
+      "time": "15:31",
+      "sent": 20486,
+      "delivered": 20423,
+      "opened": 374,
+      "openRate": 1.83,
+      "clicks": 49,
+      "clickRate": 0.23,
+      "ctor": 13.1
     },
     {
       "id": "import-api:61:26125822",
@@ -746,7 +1450,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_26.08.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26125822/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26125822/summary",
+      "time": "7:01",
+      "sent": 16395,
+      "delivered": 16276,
+      "opened": 380,
+      "openRate": 2.33,
+      "clicks": 25,
+      "clickRate": 0.15,
+      "ctor": 6.57
     },
     {
       "id": "import-api:61:26135100",
@@ -754,7 +1466,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_26.08.2026",
       "subject": "ФАС уточнила нацрежим по 223-ФЗ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26135100/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26135100/summary",
+      "time": "16:01",
+      "sent": 15116,
+      "delivered": 15032,
+      "opened": 409,
+      "openRate": 2.72,
+      "clicks": 46,
+      "clickRate": 0.3,
+      "ctor": 11.24
     },
     {
       "id": "import-api:52:26138528",
@@ -762,7 +1482,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_27.08.2026",
       "subject": "Одного Акта о списании 0510460 теперь недостаточно!",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26138528/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26138528/summary",
+      "time": "7:02",
+      "sent": 78700,
+      "delivered": 78339,
+      "opened": 2362,
+      "openRate": 3.01,
+      "clicks": 229,
+      "clickRate": 0.29,
+      "ctor": 9.69
     },
     {
       "id": "import-api:52:26147567",
@@ -770,7 +1498,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_27.08.2026",
       "subject": "Казначейство назвало зоны риска для внутреннего контроля",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26147567/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26147567/summary",
+      "time": "15:31",
+      "sent": 56746,
+      "delivered": 56520,
+      "opened": 637,
+      "openRate": 1.12,
+      "clicks": 56,
+      "clickRate": 0.09,
+      "ctor": 8.79
     },
     {
       "id": "import-api:61:26138525",
@@ -778,7 +1514,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_27.08.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26138525/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26138525/summary",
+      "time": "7:02",
+      "sent": 73045,
+      "delivered": 72540,
+      "opened": 1092,
+      "openRate": 1.5,
+      "clicks": 83,
+      "clickRate": 0.11,
+      "ctor": 7.6
     },
     {
       "id": "import-api:61:26147888",
@@ -786,7 +1530,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_27.08.2026",
       "subject": "Новые правила в закупках с 1 сентября",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26147888/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26147888/summary",
+      "time": "16:01",
+      "sent": 52911,
+      "delivered": 52584,
+      "opened": 1074,
+      "openRate": 2.04,
+      "clicks": 90,
+      "clickRate": 0.17,
+      "ctor": 8.37
     },
     {
       "id": "import-api:52:26151204",
@@ -794,7 +1546,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_28.08.2026",
       "subject": "Контроль за канцтоварами усилился",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26151204/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26151204/summary",
+      "time": "7:02",
+      "sent": 54355,
+      "delivered": 54132,
+      "opened": 531,
+      "openRate": 0.98,
+      "clicks": 59,
+      "clickRate": 0.1,
+      "ctor": 11.11
     },
     {
       "id": "import-api:52:26160233",
@@ -802,7 +1562,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_28.08.2026",
       "subject": "Минфин разделил перечни матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26160233/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26160233/summary",
+      "time": "15:31",
+      "sent": 42287,
+      "delivered": 42101,
+      "opened": 401,
+      "openRate": 0.95,
+      "clicks": 61,
+      "clickRate": 0.14,
+      "ctor": 15.21
     },
     {
       "id": "import-api:61:26151211",
@@ -810,7 +1578,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_28.08.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26151211/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26151211/summary",
+      "time": "7:02",
+      "sent": 51807,
+      "delivered": 51484,
+      "opened": 677,
+      "openRate": 1.31,
+      "clicks": 43,
+      "clickRate": 0.08,
+      "ctor": 6.35
     },
     {
       "id": "import-api:61:26160472",
@@ -818,7 +1594,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_28.08.2026",
       "subject": "Нацрежим меняют: российским товарам дадут скидку до 30%",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26160472/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26160472/summary",
+      "time": "16:01",
+      "sent": 39288,
+      "delivered": 39033,
+      "opened": 601,
+      "openRate": 1.53,
+      "clicks": 37,
+      "clickRate": 0.09,
+      "ctor": 6.15
     },
     {
       "id": "import-api:52:26187184",
@@ -826,7 +1610,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_31.08.2026",
       "subject": "Минфин пересмотрел учет матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26187184/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26187184/summary",
+      "time": "7:02",
+      "sent": 131824,
+      "delivered": 131170,
+      "opened": 1955,
+      "openRate": 1.49,
+      "clicks": 108,
+      "clickRate": 0.08,
+      "ctor": 5.52
     },
     {
       "id": "import-api:52:26196136",
@@ -834,7 +1626,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_31.08.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26196136/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26196136/summary",
+      "time": "15:32",
+      "sent": 114652,
+      "delivered": 114083,
+      "opened": 4753,
+      "openRate": 4.16,
+      "clicks": 452,
+      "clickRate": 0.39,
+      "ctor": 9.5
     },
     {
       "id": "import-api:61:26187545",
@@ -842,7 +1642,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_31.08.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26187545/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26187545/summary",
+      "time": "7:32",
+      "sent": 117842,
+      "delivered": 117010,
+      "opened": 2308,
+      "openRate": 1.97,
+      "clicks": 114,
+      "clickRate": 0.09,
+      "ctor": 4.93
     },
     {
       "id": "import-api:61:26196131",
@@ -850,7 +1658,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_31.08.2026",
       "subject": "Поправки в 44-ФЗ заработают с 1 октября",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26196131/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26196131/summary",
+      "time": "15:32",
+      "sent": 111626,
+      "delivered": 110867,
+      "opened": 2659,
+      "openRate": 2.39,
+      "clicks": 259,
+      "clickRate": 0.23,
+      "ctor": 9.74
     },
     {
       "id": "import-api:52:26199812",
@@ -858,7 +1674,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_01.09.2026",
       "subject": "С 1 сентября электронные транспортные накладные обязательны!",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26199812/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26199812/summary",
+      "time": "7:01",
+      "sent": 91158,
+      "delivered": 90725,
+      "opened": 1359,
+      "openRate": 1.49,
+      "clicks": 78,
+      "clickRate": 0.08,
+      "ctor": 5.73
     },
     {
       "id": "import-api:52:26208671",
@@ -866,7 +1690,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_01.09.2026",
       "subject": "Минфин прояснил разницу между основным средством и матзапасом",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26208671/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26208671/summary",
+      "time": "15:31",
+      "sent": 74152,
+      "delivered": 73769,
+      "opened": 1101,
+      "openRate": 1.49,
+      "clicks": 162,
+      "clickRate": 0.21,
+      "ctor": 14.71
     },
     {
       "id": "import-api:61:26199814",
@@ -874,7 +1706,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_01.09.2026",
       "subject": "Новые правила закупок со второго полугодия 2026 года",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26199814/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26199814/summary",
+      "time": "7:01",
+      "sent": 72051,
+      "delivered": 71542,
+      "opened": 1365,
+      "openRate": 1.9,
+      "clicks": 101,
+      "clickRate": 0.14,
+      "ctor": 7.39
     },
     {
       "id": "import-api:61:26208656",
@@ -882,7 +1722,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_01.09.2026",
       "subject": "Путин подписал закон об упрощении госзакупок",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26208656/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26208656/summary",
+      "time": "15:31",
+      "sent": 56530,
+      "delivered": 56127,
+      "opened": 1566,
+      "openRate": 2.79,
+      "clicks": 354,
+      "clickRate": 0.63,
+      "ctor": 22.6
     },
     {
       "id": "import-api:52:26212374",
@@ -890,7 +1738,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_02.09.2026",
       "subject": "Новый внутренний контроль вступил в силу",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26212374/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26212374/summary",
+      "time": "7:01",
+      "sent": 62899,
+      "delivered": 62556,
+      "opened": 799,
+      "openRate": 1.27,
+      "clicks": 45,
+      "clickRate": 0.07,
+      "ctor": 5.63
     },
     {
       "id": "import-api:52:26221293",
@@ -898,7 +1754,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_02.09.2026",
       "subject": "Суд определил порядок списания канцтоваров",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26221293/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26221293/summary",
+      "time": "15:31",
+      "sent": 46004,
+      "delivered": 45749,
+      "opened": 602,
+      "openRate": 1.31,
+      "clicks": 87,
+      "clickRate": 0.19,
+      "ctor": 14.45
     },
     {
       "id": "import-api:61:26212377",
@@ -906,7 +1770,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_02.09.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26212377/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26212377/summary",
+      "time": "7:01",
+      "sent": 50111,
+      "delivered": 49752,
+      "opened": 921,
+      "openRate": 1.85,
+      "clicks": 58,
+      "clickRate": 0.11,
+      "ctor": 6.29
     },
     {
       "id": "import-api:61:26221285",
@@ -914,7 +1786,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_02.09.2026",
       "subject": "Путин подписал закон об упрощении госзакупок",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26221285/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26221285/summary",
+      "time": "15:31",
+      "sent": 36342,
+      "delivered": 36099,
+      "opened": 928,
+      "openRate": 2.57,
+      "clicks": 197,
+      "clickRate": 0.54,
+      "ctor": 21.22
     },
     {
       "id": "import-api:52:26225060",
@@ -922,7 +1802,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_03.09.2026",
       "subject": "Введены новые сведения и штрафы для bus.gov.ru",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26225060/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26225060/summary",
+      "time": "7:02",
+      "sent": 36906,
+      "delivered": 36700,
+      "opened": 408,
+      "openRate": 1.11,
+      "clicks": 45,
+      "clickRate": 0.12,
+      "ctor": 11.02
     },
     {
       "id": "import-api:52:26234083",
@@ -930,7 +1818,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_03.09.2026",
       "subject": "Минфин меняет правила учета НФА",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26234083/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26234083/summary",
+      "time": "15:31",
+      "sent": 25528,
+      "delivered": 25402,
+      "opened": 281,
+      "openRate": 1.1,
+      "clicks": 30,
+      "clickRate": 0.11,
+      "ctor": 10.67
     },
     {
       "id": "import-api:61:26225061",
@@ -938,7 +1834,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_03.09.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26225061/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26225061/summary",
+      "time": "7:02",
+      "sent": 32900,
+      "delivered": 32682,
+      "opened": 503,
+      "openRate": 1.53,
+      "clicks": 27,
+      "clickRate": 0.08,
+      "ctor": 5.36
     },
     {
       "id": "import-api:61:26234085",
@@ -946,7 +1850,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_03.09.2026",
       "subject": "Пять новых оснований для изменения условий контракта с 1 октября",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26234085/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26234085/summary",
+      "time": "15:31",
+      "sent": 20356,
+      "delivered": 20192,
+      "opened": 275,
+      "openRate": 1.36,
+      "clicks": 24,
+      "clickRate": 0.11,
+      "ctor": 8.72
     },
     {
       "id": "import-api:52:26237699",
@@ -954,7 +1866,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_04.09.2026",
       "subject": "Один Акт 0510460 не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26237699/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26237699/summary",
+      "time": "7:01",
+      "sent": 24080,
+      "delivered": 23972,
+      "opened": 550,
+      "openRate": 2.29,
+      "clicks": 49,
+      "clickRate": 0.2,
+      "ctor": 8.9
     },
     {
       "id": "import-api:52:26246643",
@@ -962,7 +1882,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_04.09.2026",
       "subject": "Минфин объяснил, как различать основные средства и матзапасы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26246643/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26246643/summary",
+      "time": "15:31",
+      "sent": 20997,
+      "delivered": 20895,
+      "opened": 210,
+      "openRate": 1,
+      "clicks": 21,
+      "clickRate": 0.1,
+      "ctor": 10
     },
     {
       "id": "import-api:61:26237702",
@@ -970,7 +1898,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_04.09.2026",
       "subject": "С 1 октября вступают в силу масштабные поправки в 44-ФЗ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26237702/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26237702/summary",
+      "time": "7:01",
+      "sent": 22722,
+      "delivered": 22564,
+      "opened": 417,
+      "openRate": 1.84,
+      "clicks": 40,
+      "clickRate": 0.17,
+      "ctor": 9.59
     },
     {
       "id": "import-api:61:26246642",
@@ -978,7 +1914,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_04.09.2026",
       "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26246642/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26246642/summary",
+      "time": "15:31",
+      "sent": 16499,
+      "delivered": 16381,
+      "opened": 270,
+      "openRate": 1.64,
+      "clicks": 37,
+      "clickRate": 0.22,
+      "ctor": 13.7
     },
     {
       "id": "import-api:52:26273685",
@@ -986,7 +1930,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_07.09.2026",
       "subject": "Минфин меняет учет матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26273685/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26273685/summary",
+      "time": "7:02",
+      "sent": 131620,
+      "delivered": 131035,
+      "opened": 2024,
+      "openRate": 1.54,
+      "clicks": 139,
+      "clickRate": 0.1,
+      "ctor": 6.86
     },
     {
       "id": "import-api:52:26282520",
@@ -994,7 +1946,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_07.09.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26282520/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26282520/summary",
+      "time": "15:31",
+      "sent": 126281,
+      "delivered": 125685,
+      "opened": 5465,
+      "openRate": 4.34,
+      "clicks": 536,
+      "clickRate": 0.42,
+      "ctor": 9.8
     },
     {
       "id": "import-api:61:26273673",
@@ -1002,7 +1962,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_07.09.2026",
       "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26273673/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26273673/summary",
+      "time": "7:01",
+      "sent": 117534,
+      "delivered": 116776,
+      "opened": 2528,
+      "openRate": 2.16,
+      "clicks": 186,
+      "clickRate": 0.15,
+      "ctor": 7.35
     },
     {
       "id": "import-api:61:26282515",
@@ -1010,7 +1978,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_07.09.2026",
       "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26282515/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26282515/summary",
+      "time": "15:31",
+      "sent": 113445,
+      "delivered": 112754,
+      "opened": 2959,
+      "openRate": 2.62,
+      "clicks": 293,
+      "clickRate": 0.25,
+      "ctor": 9.9
     },
     {
       "id": "import-api:52:26286363",
@@ -1018,7 +1994,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_08.09.2026",
       "subject": "Вступил в силу новый внутренний контроль",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26286363/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26286363/summary",
+      "time": "7:02",
+      "sent": 102988,
+      "delivered": 102473,
+      "opened": 1374,
+      "openRate": 1.34,
+      "clicks": 86,
+      "clickRate": 0.08,
+      "ctor": 6.25
     },
     {
       "id": "import-api:52:26295234",
@@ -1026,7 +2010,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_08.09.2026",
       "subject": "Минфин внес ясность в учет имущественных налогов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26295234/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26295234/summary",
+      "time": "15:31",
+      "sent": 73461,
+      "delivered": 73097,
+      "opened": 1035,
+      "openRate": 1.41,
+      "clicks": 52,
+      "clickRate": 0.07,
+      "ctor": 5.02
     },
     {
       "id": "import-api:61:26286356",
@@ -1034,7 +2026,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_08.09.2026",
       "subject": "С 1 сентября старые лицензии на охрану больше не работают",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26286356/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26286356/summary",
+      "time": "7:02",
+      "sent": 95826,
+      "delivered": 95211,
+      "opened": 1646,
+      "openRate": 1.72,
+      "clicks": 91,
+      "clickRate": 0.09,
+      "ctor": 5.52
     },
     {
       "id": "import-api:61:26295226",
@@ -1042,7 +2042,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_08.09.2026",
       "subject": "Изменение страны происхождения впервые закрепили в 44-ФЗ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26295226/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26295226/summary",
+      "time": "15:31",
+      "sent": 62069,
+      "delivered": 61651,
+      "opened": 1443,
+      "openRate": 2.34,
+      "clicks": 107,
+      "clickRate": 0.17,
+      "ctor": 7.41
     },
     {
       "id": "import-api:52:26298959",
@@ -1050,7 +2058,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_09.09.2026",
       "subject": "Казначейство потребовало перейти на цифровой акт приемки",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26298959/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26298959/summary",
+      "time": "7:01",
+      "sent": 69681,
+      "delivered": 69351,
+      "opened": 869,
+      "openRate": 1.25,
+      "clicks": 49,
+      "clickRate": 0.07,
+      "ctor": 5.63
     },
     {
       "id": "import-api:52:26307919",
@@ -1058,7 +2074,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_09.09.2026",
       "subject": "Минфин требует срочно пересмотреть внутренний контроль",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26307919/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26307919/summary",
+      "time": "15:31",
+      "sent": 54838,
+      "delivered": 54492,
+      "opened": 536,
+      "openRate": 0.98,
+      "clicks": 59,
+      "clickRate": 0.1,
+      "ctor": 11
     },
     {
       "id": "import-api:61:26298968",
@@ -1066,7 +2090,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_09.09.2026",
       "subject": "С 1 сентября старые лицензии на охрану больше не работают",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26298968/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26298968/summary",
+      "time": "7:02",
+      "sent": 58159,
+      "delivered": 57749,
+      "opened": 987,
+      "openRate": 1.7,
+      "clicks": 60,
+      "clickRate": 0.1,
+      "ctor": 6.07
     },
     {
       "id": "import-api:61:26307915",
@@ -1074,7 +2106,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_09.09.2026",
       "subject": "Изменение страны происхождения впервые закрепили в 44-ФЗ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26307915/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26307915/summary",
+      "time": "15:31",
+      "sent": 46403,
+      "delivered": 46059,
+      "opened": 767,
+      "openRate": 1.66,
+      "clicks": 59,
+      "clickRate": 0.12,
+      "ctor": 7.69
     },
     {
       "id": "import-api:52:26311659",
@@ -1082,7 +2122,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_10.09.2026",
       "subject": "Минфин меняет учет матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26311659/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26311659/summary",
+      "time": "7:01",
+      "sent": 34782,
+      "delivered": 34584,
+      "opened": 326,
+      "openRate": 0.94,
+      "clicks": 33,
+      "clickRate": 0.09,
+      "ctor": 10.12
     },
     {
       "id": "import-api:52:26320621",
@@ -1090,7 +2138,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_10.09.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26320621/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26320621/summary",
+      "time": "15:31",
+      "sent": 25237,
+      "delivered": 25091,
+      "opened": 553,
+      "openRate": 2.2,
+      "clicks": 89,
+      "clickRate": 0.35,
+      "ctor": 16.09
     },
     {
       "id": "import-api:61:26311687",
@@ -1098,7 +2154,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_10.09.2026",
       "subject": "Новый вид отчетности по закупкам малого объема",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26311687/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26311687/summary",
+      "time": "7:02",
+      "sent": 40549,
+      "delivered": 40233,
+      "opened": 532,
+      "openRate": 1.32,
+      "clicks": 54,
+      "clickRate": 0.13,
+      "ctor": 10.15
     },
     {
       "id": "import-api:61:26320624",
@@ -1106,7 +2170,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_10.09.2026",
       "subject": "Срочные изменения в работе закупщика в сентябре-октябре",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26320624/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26320624/summary",
+      "time": "15:31",
+      "sent": 22637,
+      "delivered": 22467,
+      "opened": 361,
+      "openRate": 1.6,
+      "clicks": 51,
+      "clickRate": 0.22,
+      "ctor": 14.12
     },
     {
       "id": "import-api:52:26324337",
@@ -1114,7 +2186,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_11.09.2026",
       "subject": "Минфин требует срочно пересмотреть внутренний контроль",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26324337/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26324337/summary",
+      "time": "7:02",
+      "sent": 130829,
+      "delivered": 130357,
+      "opened": 2381,
+      "openRate": 1.82,
+      "clicks": 128,
+      "clickRate": 0.09,
+      "ctor": 5.37
     },
     {
       "id": "import-api:52:26333346",
@@ -1122,7 +2202,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_11.09.2026",
       "subject": "За ошибку в платежных документах - новый штраф",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26333346/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26333346/summary",
+      "time": "16:31",
+      "sent": 130683,
+      "delivered": 130142,
+      "opened": 4214,
+      "openRate": 3.23,
+      "clicks": 440,
+      "clickRate": 0.33,
+      "ctor": 10.44
     },
     {
       "id": "import-api:61:26324342",
@@ -1130,7 +2218,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_11.09.2026",
       "subject": "Новый вид отчетности по закупкам малого объема",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26324342/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26324342/summary",
+      "time": "7:02",
+      "sent": 116424,
+      "delivered": 115797,
+      "opened": 2370,
+      "openRate": 2.04,
+      "clicks": 126,
+      "clickRate": 0.1,
+      "ctor": 5.31
     },
     {
       "id": "import-api:61:26333339",
@@ -1138,7 +2234,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_11.09.2026",
       "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26333339/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26333339/summary",
+      "time": "16:30",
+      "sent": 116273,
+      "delivered": 115621,
+      "opened": 2736,
+      "openRate": 2.36,
+      "clicks": 217,
+      "clickRate": 0.18,
+      "ctor": 7.93
     },
     {
       "id": "import-api:52:26360172",
@@ -1146,7 +2250,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_14.09.2026",
       "subject": "Минфин по-новому разграничил ОС и матзапасы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26360172/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26360172/summary",
+      "time": "7:02",
+      "sent": 128332,
+      "delivered": 127758,
+      "opened": 1780,
+      "openRate": 1.39,
+      "clicks": 119,
+      "clickRate": 0.09,
+      "ctor": 6.68
     },
     {
       "id": "import-api:52:26369040",
@@ -1154,7 +2266,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_14.09.2026",
       "subject": "Минфин объяснил, как отличить ОС от матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26369040/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26369040/summary",
+      "time": "15:31",
+      "sent": 105260,
+      "delivered": 104704,
+      "opened": 1667,
+      "openRate": 1.59,
+      "clicks": 163,
+      "clickRate": 0.15,
+      "ctor": 9.77
     },
     {
       "id": "import-api:61:26360149",
@@ -1162,7 +2282,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_14.09.2026",
       "subject": "Установили контрольные сроки сдачи нового постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26360149/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26360149/summary",
+      "time": "7:01",
+      "sent": 116004,
+      "delivered": 115235,
+      "opened": 2217,
+      "openRate": 1.92,
+      "clicks": 109,
+      "clickRate": 0.09,
+      "ctor": 4.91
     },
     {
       "id": "import-api:61:26369047",
@@ -1170,7 +2298,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_14.09.2026",
       "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26369047/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26369047/summary",
+      "time": "15:31",
+      "sent": 102445,
+      "delivered": 101781,
+      "opened": 2088,
+      "openRate": 2.05,
+      "clicks": 189,
+      "clickRate": 0.18,
+      "ctor": 9.05
     },
     {
       "id": "import-api:52:26372923",
@@ -1178,7 +2314,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_15.09.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26372923/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26372923/summary",
+      "time": "7:01",
+      "sent": 87194,
+      "delivered": 86746,
+      "opened": 3195,
+      "openRate": 3.68,
+      "clicks": 287,
+      "clickRate": 0.33,
+      "ctor": 8.98
     },
     {
       "id": "import-api:52:26381776",
@@ -1186,7 +2330,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_15.09.2026",
       "subject": "Казначейство назвало зоны риска для внутреннего контроля",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26381776/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26381776/summary",
+      "time": "15:31",
+      "sent": 71499,
+      "delivered": 71083,
+      "opened": 1091,
+      "openRate": 1.53,
+      "clicks": 85,
+      "clickRate": 0.11,
+      "ctor": 7.79
     },
     {
       "id": "import-api:61:26372930",
@@ -1194,7 +2346,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_15.09.2026",
       "subject": "Путин подписал закон об упрощении закупок",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26372930/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26372930/summary",
+      "time": "7:01",
+      "sent": 70376,
+      "delivered": 69913,
+      "opened": 1605,
+      "openRate": 2.29,
+      "clicks": 204,
+      "clickRate": 0.29,
+      "ctor": 12.71
     },
     {
       "id": "import-api:61:26381774",
@@ -1202,7 +2362,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_15.09.2026",
       "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26381774/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26381774/summary",
+      "time": "15:31",
+      "sent": 56771,
+      "delivered": 56341,
+      "opened": 1097,
+      "openRate": 1.94,
+      "clicks": 95,
+      "clickRate": 0.16,
+      "ctor": 8.65
     },
     {
       "id": "import-api:52:26385511",
@@ -1210,7 +2378,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_16.09.2026",
       "subject": "Минфин утвердил закрытый перечень имущества для счета 105",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26385511/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26385511/summary",
+      "time": "7:01",
+      "sent": 58554,
+      "delivered": 58207,
+      "opened": 625,
+      "openRate": 1.07,
+      "clicks": 71,
+      "clickRate": 0.12,
+      "ctor": 11.36
     },
     {
       "id": "import-api:52:26394466",
@@ -1218,7 +2394,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_16.09.2026",
       "subject": "Изменились правила расчета зарплаты и пособий",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26394466/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26394466/summary",
+      "time": "15:31",
+      "sent": 39387,
+      "delivered": 39149,
+      "opened": 462,
+      "openRate": 1.18,
+      "clicks": 86,
+      "clickRate": 0.21,
+      "ctor": 18.61
     },
     {
       "id": "import-api:61:26385512",
@@ -1226,7 +2410,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_16.09.2026",
       "subject": "С 1 октября заработают новые правила замены товара",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26385512/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26385512/summary",
+      "time": "7:01",
+      "sent": 55846,
+      "delivered": 55478,
+      "opened": 998,
+      "openRate": 1.79,
+      "clicks": 64,
+      "clickRate": 0.11,
+      "ctor": 6.41
     },
     {
       "id": "import-api:61:26394474",
@@ -1234,7 +2426,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_16.09.2026",
       "subject": "Правительство утвердило новые правила для заказчиков по 5 направлениям",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26394474/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26394474/summary",
+      "time": "15:31",
+      "sent": 36716,
+      "delivered": 36442,
+      "opened": 663,
+      "openRate": 1.81,
+      "clicks": 66,
+      "clickRate": 0.18,
+      "ctor": 9.95
     },
     {
       "id": "import-api:52:26398226",
@@ -1242,7 +2442,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_17.09.2026",
       "subject": "Минфин меняет учет матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26398226/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26398226/summary",
+      "time": "7:02",
+      "sent": 29220,
+      "delivered": 29066,
+      "opened": 280,
+      "openRate": 0.96,
+      "clicks": 33,
+      "clickRate": 0.11,
+      "ctor": 11.78
     },
     {
       "id": "import-api:52:26407201",
@@ -1250,7 +2458,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_17.09.2026",
       "subject": "СФР нагрянет с проверкой по новым формам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26407201/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26407201/summary",
+      "time": "15:31",
+      "sent": 22962,
+      "delivered": 22807,
+      "opened": 284,
+      "openRate": 1.24,
+      "clicks": 41,
+      "clickRate": 0.17,
+      "ctor": 14.43
     },
     {
       "id": "import-api:61:26398205",
@@ -1258,7 +2474,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_17.09.2026",
       "subject": "Появились новые основания для изменения условий контракта",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26398205/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26398205/summary",
+      "time": "7:01",
+      "sent": 29064,
+      "delivered": 28839,
+      "opened": 478,
+      "openRate": 1.65,
+      "clicks": 28,
+      "clickRate": 0.09,
+      "ctor": 5.85
     },
     {
       "id": "import-api:61:26407200",
@@ -1266,7 +2490,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_17.09.2026",
       "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26407200/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26407200/summary",
+      "time": "15:31",
+      "sent": 20989,
+      "delivered": 20815,
+      "opened": 309,
+      "openRate": 1.48,
+      "clicks": 28,
+      "clickRate": 0.13,
+      "ctor": 9.06
     },
     {
       "id": "import-api:52:26410869",
@@ -1274,7 +2506,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_18.09.2026",
       "subject": "Казначейство назвало зоны риска для внутреннего контроля",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26410869/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26410869/summary",
+      "time": "7:01",
+      "sent": 22984,
+      "delivered": 22830,
+      "opened": 202,
+      "openRate": 0.88,
+      "clicks": 12,
+      "clickRate": 0.05,
+      "ctor": 5.94
     },
     {
       "id": "import-api:52:26419814",
@@ -1282,7 +2522,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_18.09.2026",
       "subject": "Новый штраф за ошибки в акте 0510452",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26419814/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26419814/summary",
+      "time": "15:31",
+      "sent": 19993,
+      "delivered": 19858,
+      "opened": 218,
+      "openRate": 1.09,
+      "clicks": 25,
+      "clickRate": 0.12,
+      "ctor": 11.46
     },
     {
       "id": "import-api:61:26410890",
@@ -1290,7 +2538,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_18.09.2026",
       "subject": "Восемь правил, которые следует соблюдать при формировании постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26410890/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26410890/summary",
+      "time": "7:02",
+      "sent": 22771,
+      "delivered": 22585,
+      "opened": 336,
+      "openRate": 1.48,
+      "clicks": 32,
+      "clickRate": 0.14,
+      "ctor": 9.52
     },
     {
       "id": "import-api:61:26419810",
@@ -1298,7 +2554,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_18.09.2026",
       "subject": "Срочный алгоритм, чтобы добрать квоту СМП этой осенью",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26419810/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26419810/summary",
+      "time": "15:31",
+      "sent": 17328,
+      "delivered": 17171,
+      "opened": 204,
+      "openRate": 1.18,
+      "clicks": 16,
+      "clickRate": 0.09,
+      "ctor": 7.84
     },
     {
       "id": "import-api:52:26446837",
@@ -1306,7 +2570,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_21.09.2026",
       "subject": "Минфин: акт 0510477 нужен не всегда",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26446837/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26446837/summary",
+      "time": "7:01",
+      "sent": 130803,
+      "delivered": 130229,
+      "opened": 1714,
+      "openRate": 1.31,
+      "clicks": 115,
+      "clickRate": 0.08,
+      "ctor": 6.7
     },
     {
       "id": "import-api:52:26455823",
@@ -1314,7 +2586,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_21.09.2026",
       "subject": "Ревизоры штрафуют за списание в обход счета 02",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26455823/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26455823/summary",
+      "time": "15:31",
+      "sent": 108092,
+      "delivered": 107548,
+      "opened": 1587,
+      "openRate": 1.47,
+      "clicks": 117,
+      "clickRate": 0.1,
+      "ctor": 7.37
     },
     {
       "id": "import-api:61:26446836",
@@ -1322,7 +2602,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_21.09.2026",
       "subject": "Работу заказчиков с 1 октября упростили",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26446836/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26446836/summary",
+      "time": "7:01",
+      "sent": 113093,
+      "delivered": 112319,
+      "opened": 2026,
+      "openRate": 1.8,
+      "clicks": 129,
+      "clickRate": 0.11,
+      "ctor": 6.36
     },
     {
       "id": "import-api:61:26455814",
@@ -1330,7 +2618,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_21.09.2026",
       "subject": "Контролеры уже проверяют локальные акты заказчиков на актуальность",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26455814/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26455814/summary",
+      "time": "15:31",
+      "sent": 89202,
+      "delivered": 88547,
+      "opened": 1514,
+      "openRate": 1.7,
+      "clicks": 112,
+      "clickRate": 0.12,
+      "ctor": 7.39
     },
     {
       "id": "import-api:52:26459648",
@@ -1338,7 +2634,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_22.09.2026",
       "subject": "Казначейство требует оформлять цифровой акт 0510452",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26459648/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26459648/summary",
+      "time": "7:02",
+      "sent": 107928,
+      "delivered": 107440,
+      "opened": 1365,
+      "openRate": 1.27,
+      "clicks": 88,
+      "clickRate": 0.08,
+      "ctor": 6.44
     },
     {
       "id": "import-api:52:26468475",
@@ -1346,7 +2650,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_22.09.2026",
       "subject": "Минфин определил критерии для матзапасов и ОС",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26468475/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26468475/summary",
+      "time": "15:31",
+      "sent": 73386,
+      "delivered": 72999,
+      "opened": 1048,
+      "openRate": 1.43,
+      "clicks": 115,
+      "clickRate": 0.15,
+      "ctor": 10.97
     },
     {
       "id": "import-api:61:26459642",
@@ -1354,7 +2666,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_22.09.2026",
       "subject": "Установили контрольные сроки сдачи нового постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26459642/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26459642/summary",
+      "time": "7:01",
+      "sent": 80226,
+      "delivered": 79745,
+      "opened": 1500,
+      "openRate": 1.88,
+      "clicks": 97,
+      "clickRate": 0.12,
+      "ctor": 6.46
     },
     {
       "id": "import-api:61:26468474",
@@ -1362,7 +2682,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_22.09.2026",
       "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26468474/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26468474/summary",
+      "time": "15:31",
+      "sent": 57309,
+      "delivered": 56913,
+      "opened": 1094,
+      "openRate": 1.92,
+      "clicks": 95,
+      "clickRate": 0.16,
+      "ctor": 8.68
     },
     {
       "id": "import-api:52:26472210",
@@ -1370,7 +2698,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_23.09.2026",
       "subject": "Инвентаризация перед списанием стала обязательной",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26472210/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26472210/summary",
+      "time": "7:01",
+      "sent": 69350,
+      "delivered": 69031,
+      "opened": 887,
+      "openRate": 1.28,
+      "clicks": 87,
+      "clickRate": 0.12,
+      "ctor": 9.8
     },
     {
       "id": "import-api:52:26481136",
@@ -1378,7 +2714,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_23.09.2026",
       "subject": "Правительство утвердило выходные дни в 2027 году",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26481136/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26481136/summary",
+      "time": "15:31",
+      "sent": 49765,
+      "delivered": 49474,
+      "opened": 654,
+      "openRate": 1.32,
+      "clicks": 174,
+      "clickRate": 0.35,
+      "ctor": 26.6
     },
     {
       "id": "import-api:61:26472226",
@@ -1386,7 +2730,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_23.09.2026",
       "subject": "ФАС начала штрафовать за ошибки в статусе товара",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26472226/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26472226/summary",
+      "time": "7:02",
+      "sent": 49397,
+      "delivered": 49059,
+      "opened": 831,
+      "openRate": 1.69,
+      "clicks": 84,
+      "clickRate": 0.17,
+      "ctor": 10.1
     },
     {
       "id": "import-api:61:26481135",
@@ -1394,7 +2746,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_23.09.2026",
       "subject": "С 1 октября реестр контрактов заработает по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26481135/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26481135/summary",
+      "time": "15:31",
+      "sent": 33131,
+      "delivered": 32877,
+      "opened": 606,
+      "openRate": 1.84,
+      "clicks": 92,
+      "clickRate": 0.27,
+      "ctor": 15.18
     },
     {
       "id": "import-api:52:26484914",
@@ -1402,7 +2762,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_24.09.2026",
       "subject": "Минфин утвердил перечень имущества для счета 105",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26484914/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26484914/summary",
+      "time": "7:02",
+      "sent": 28349,
+      "delivered": 28224,
+      "opened": 277,
+      "openRate": 0.98,
+      "clicks": 49,
+      "clickRate": 0.17,
+      "ctor": 17.68
     },
     {
       "id": "import-api:52:26493909",
@@ -1410,7 +2778,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_24.09.2026",
       "subject": "Минфин пересмотрел учет имущества",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26493909/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26493909/summary",
+      "time": "15:31",
+      "sent": 23097,
+      "delivered": 23009,
+      "opened": 293,
+      "openRate": 1.27,
+      "clicks": 44,
+      "clickRate": 0.19,
+      "ctor": 15.01
     },
     {
       "id": "import-api:61:26489263",
@@ -1418,7 +2794,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_24.09.2026",
       "subject": "Казначейство утвердило новые правила возврата неиспользованного аванса",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26489263/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26489263/summary",
+      "time": "9:42",
+      "sent": 115431,
+      "delivered": 114795,
+      "opened": 2380,
+      "openRate": 2.07,
+      "clicks": 115,
+      "clickRate": 0.1,
+      "ctor": 4.83
     },
     {
       "id": "import-api:52:26497592",
@@ -1426,7 +2810,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_25.09.2026",
       "subject": "Срочно обновите внутренний контроль",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26497592/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26497592/summary",
+      "time": "7:01",
+      "sent": 24606,
+      "delivered": 24521,
+      "opened": 215,
+      "openRate": 0.87,
+      "clicks": 19,
+      "clickRate": 0.07,
+      "ctor": 8.83
     },
     {
       "id": "import-api:52:26506579",
@@ -1434,7 +2826,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_25.09.2026",
       "subject": "Списание в обход счета 02 попало под запрет",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26506579/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26506579/summary",
+      "time": "15:31",
+      "sent": 21003,
+      "delivered": 20930,
+      "opened": 553,
+      "openRate": 2.64,
+      "clicks": 60,
+      "clickRate": 0.28,
+      "ctor": 10.84
     },
     {
       "id": "import-api:61:26497578",
@@ -1442,7 +2842,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_25.09.2026",
       "subject": "Казначейство утвердило новые правила возврата неиспользованного аванса",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26497578/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26497578/summary",
+      "time": "7:01",
+      "sent": 27451,
+      "delivered": 27288,
+      "opened": 294,
+      "openRate": 1.07,
+      "clicks": 18,
+      "clickRate": 0.06,
+      "ctor": 6.12
     },
     {
       "id": "import-api:61:26506578",
@@ -1450,7 +2858,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_25.09.2026",
       "subject": "Заказчиков освободят от нацрежима по разрешению Минпромторга",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26506578/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26506578/summary",
+      "time": "15:31",
+      "sent": 17235,
+      "delivered": 17123,
+      "opened": 257,
+      "openRate": 1.5,
+      "clicks": 47,
+      "clickRate": 0.27,
+      "ctor": 18.28
     },
     {
       "id": "import-api:61:26506615",
@@ -1458,7 +2874,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_24.09.2026",
       "subject": "Путин подписал закон об упрощении закупок с 1 октября",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26506615/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26506615/summary",
+      "time": "15:32",
+      "sent": 115138,
+      "delivered": 114618,
+      "opened": 3475,
+      "openRate": 3.03,
+      "clicks": 597,
+      "clickRate": 0.52,
+      "ctor": 17.17
     },
     {
       "id": "import-api:52:26533416",
@@ -1466,7 +2890,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_28.09.2026",
       "subject": "Объявлен МРОТ на 2027 год",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26533416/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26533416/summary",
+      "time": "7:01",
+      "sent": 130216,
+      "delivered": 129651,
+      "opened": 3824,
+      "openRate": 2.94,
+      "clicks": 764,
+      "clickRate": 0.58,
+      "ctor": 19.97
     },
     {
       "id": "import-api:52:26543116",
@@ -1474,7 +2906,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_28.09.2026",
       "subject": "Минфин пересматривает учет имущества",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26543116/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26543116/summary",
+      "time": "16:17",
+      "sent": 130805,
+      "delivered": 130284,
+      "opened": 2105,
+      "openRate": 1.61,
+      "clicks": 124,
+      "clickRate": 0.09,
+      "ctor": 5.89
     },
     {
       "id": "import-api:61:26533428",
@@ -1482,7 +2922,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_28.09.2026",
       "subject": "Заказчики обязаны формировать новый вид отчетности",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26533428/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26533428/summary",
+      "time": "7:01",
+      "sent": 115730,
+      "delivered": 114952,
+      "opened": 2096,
+      "openRate": 1.82,
+      "clicks": 125,
+      "clickRate": 0.1,
+      "ctor": 5.96
     },
     {
       "id": "import-api:61:26542292",
@@ -1490,7 +2938,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_28.09.2026",
       "subject": "Изменения в реестре контрактов с 1 октября",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26542292/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26542292/summary",
+      "time": "15:31",
+      "sent": 99858,
+      "delivered": 99225,
+      "opened": 1895,
+      "openRate": 1.9,
+      "clicks": 251,
+      "clickRate": 0.25,
+      "ctor": 13.24
     },
     {
       "id": "import-api:52:26546151",
@@ -1498,7 +2954,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_29.09.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26546151/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26546151/summary",
+      "time": "7:02",
+      "sent": 111670,
+      "delivered": 111206,
+      "opened": 4259,
+      "openRate": 3.82,
+      "clicks": 372,
+      "clickRate": 0.33,
+      "ctor": 8.73
     },
     {
       "id": "import-api:52:26554988",
@@ -1506,7 +2970,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_29.09.2026",
       "subject": "50.000 рублей - за неверный КОСГУ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26554988/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26554988/summary",
+      "time": "15:31",
+      "sent": 73991,
+      "delivered": 73675,
+      "opened": 1259,
+      "openRate": 1.7,
+      "clicks": 103,
+      "clickRate": 0.13,
+      "ctor": 8.18
     },
     {
       "id": "import-api:61:26546147",
@@ -1514,7 +2986,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_29.09.2026",
       "subject": "Президент подписал закон об упрощении закупок",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26546147/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26546147/summary",
+      "time": "7:02",
+      "sent": 91635,
+      "delivered": 91086,
+      "opened": 1773,
+      "openRate": 1.94,
+      "clicks": 185,
+      "clickRate": 0.2,
+      "ctor": 10.43
     },
     {
       "id": "import-api:61:26554987",
@@ -1522,7 +3002,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_29.09.2026",
       "subject": "С 1 октября реестр контрактов заработает по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26554987/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26554987/summary",
+      "time": "15:31",
+      "sent": 57263,
+      "delivered": 56907,
+      "opened": 1579,
+      "openRate": 2.77,
+      "clicks": 168,
+      "clickRate": 0.29,
+      "ctor": 10.63
     },
     {
       "id": "import-api:52:26558697",
@@ -1530,7 +3018,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_30.09.2026",
       "subject": "Инвентаризация пройдет по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26558697/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26558697/summary",
+      "time": "7:01",
+      "sent": 67183,
+      "delivered": 66923,
+      "opened": 802,
+      "openRate": 1.19,
+      "clicks": 81,
+      "clickRate": 0.12,
+      "ctor": 10.09
     },
     {
       "id": "import-api:52:26567579",
@@ -1538,7 +3034,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_30.09.2026",
       "subject": "Минфин разрешил списывать матзапасы без инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26567579/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26567579/summary",
+      "time": "15:31",
+      "sent": 49529,
+      "delivered": 49276,
+      "opened": 593,
+      "openRate": 1.2,
+      "clicks": 71,
+      "clickRate": 0.14,
+      "ctor": 11.97
     },
     {
       "id": "import-api:61:26558698",
@@ -1546,7 +3050,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_30.09.2026",
       "subject": "Минфин обязал издавать приказ об ответственном за постотчет",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26558698/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26558698/summary",
+      "time": "7:01",
+      "sent": 51068,
+      "delivered": 50772,
+      "opened": 1097,
+      "openRate": 2.16,
+      "clicks": 78,
+      "clickRate": 0.15,
+      "ctor": 7.11
     },
     {
       "id": "import-api:61:26567580",
@@ -1554,7 +3066,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_30.09.2026",
       "subject": "С 1 октября реестр контрактов заработает по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26567580/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26567580/summary",
+      "time": "15:31",
+      "sent": 38098,
+      "delivered": 37862,
+      "opened": 746,
+      "openRate": 1.97,
+      "clicks": 80,
+      "clickRate": 0.21,
+      "ctor": 10.72
     },
     {
       "id": "import-api:52:26571251",
@@ -1562,7 +3082,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_01.10.2026",
       "subject": "С 1 октября вырастут оклады госслужащих",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26571251/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26571251/summary",
+      "time": "7:02",
+      "sent": 29660,
+      "delivered": 29508,
+      "opened": 457,
+      "openRate": 1.54,
+      "clicks": 123,
+      "clickRate": 0.41,
+      "ctor": 26.91
     },
     {
       "id": "import-api:52:26579995",
@@ -1570,7 +3098,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_01.10.2026",
       "subject": "Бухгалтер не отвечает за чужую первичку",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26579995/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26579995/summary",
+      "time": "15:31",
+      "sent": 24322,
+      "delivered": 24183,
+      "opened": 249,
+      "openRate": 1.02,
+      "clicks": 28,
+      "clickRate": 0.11,
+      "ctor": 11.24
     },
     {
       "id": "import-api:61:26571255",
@@ -1578,7 +3114,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_01.10.2026",
       "subject": "Заработали новые правила замены товара",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26571255/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26571255/summary",
+      "time": "7:02",
+      "sent": 32172,
+      "delivered": 31971,
+      "opened": 470,
+      "openRate": 1.47,
+      "clicks": 37,
+      "clickRate": 0.11,
+      "ctor": 7.87
     },
     {
       "id": "import-api:61:26579992",
@@ -1586,7 +3130,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_01.10.2026",
       "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26579992/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26579992/summary",
+      "time": "15:31",
+      "sent": 19684,
+      "delivered": 19514,
+      "opened": 398,
+      "openRate": 2.03,
+      "clicks": 58,
+      "clickRate": 0.29,
+      "ctor": 14.57
     },
     {
       "id": "import-api:52:26583700",
@@ -1594,7 +3146,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_02.10.2026",
       "subject": "Минфин разъяснил, как сдать отчетность за 9 месяцев",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26583700/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26583700/summary",
+      "time": "7:01",
+      "sent": 23106,
+      "delivered": 23012,
+      "opened": 173,
+      "openRate": 0.75,
+      "clicks": 21,
+      "clickRate": 0.09,
+      "ctor": 12.13
     },
     {
       "id": "import-api:52:26592609",
@@ -1602,7 +3162,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_02.10.2026",
       "subject": "Минфин опубликовал критерии для матзапасов и ОС",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26592609/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26592609/summary",
+      "time": "15:31",
+      "sent": 20663,
+      "delivered": 20574,
+      "opened": 137,
+      "openRate": 0.66,
+      "clicks": 10,
+      "clickRate": 0.04,
+      "ctor": 7.29
     },
     {
       "id": "import-api:61:26583698",
@@ -1610,7 +3178,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_02.10.2026",
       "subject": "Проводить запрос котировок теперь можно при НМЦК 20 млн рублей",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26583698/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26583698/summary",
+      "time": "7:01",
+      "sent": 22388,
+      "delivered": 22225,
+      "opened": 304,
+      "openRate": 1.36,
+      "clicks": 22,
+      "clickRate": 0.09,
+      "ctor": 7.23
     },
     {
       "id": "import-api:61:26592604",
@@ -1618,7 +3194,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_02.10.2026",
       "subject": "Срочные изменения в работе закупщика с 1 октября",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26592604/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26592604/summary",
+      "time": "15:31",
+      "sent": 15966,
+      "delivered": 15842,
+      "opened": 150,
+      "openRate": 0.94,
+      "clicks": 22,
+      "clickRate": 0.13,
+      "ctor": 14.66
     },
     {
       "id": "import-api:52:26619184",
@@ -1626,7 +3210,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_05.10.2026",
       "subject": "Минфин внедряет новые документы по инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26619184/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26619184/summary",
+      "time": "7:01",
+      "sent": 131109,
+      "delivered": 130599,
+      "opened": 1746,
+      "openRate": 1.33,
+      "clicks": 120,
+      "clickRate": 0.09,
+      "ctor": 6.87
     },
     {
       "id": "import-api:52:26628114",
@@ -1634,7 +3226,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_05.10.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26628114/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26628114/summary",
+      "time": "15:31",
+      "sent": 111129,
+      "delivered": 110582,
+      "opened": 4855,
+      "openRate": 4.39,
+      "clicks": 396,
+      "clickRate": 0.35,
+      "ctor": 8.15
     },
     {
       "id": "import-api:61:26619180",
@@ -1642,7 +3242,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_05.10.2026",
       "subject": "Заработали пять новых правил, чтобы изменить условия контракта",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26619180/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26619180/summary",
+      "time": "7:01",
+      "sent": 116873,
+      "delivered": 116180,
+      "opened": 2071,
+      "openRate": 1.78,
+      "clicks": 105,
+      "clickRate": 0.09,
+      "ctor": 5.07
     },
     {
       "id": "import-api:61:26628113",
@@ -1650,7 +3258,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_05.10.2026",
       "subject": "Правительство повысило порог НМЦК для СМП до 30 млн рублей",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26628113/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26628113/summary",
+      "time": "15:31",
+      "sent": 100000,
+      "delivered": 99333,
+      "opened": 2208,
+      "openRate": 2.22,
+      "clicks": 147,
+      "clickRate": 0.14,
+      "ctor": 6.65
     },
     {
       "id": "import-api:52:26631871",
@@ -1658,7 +3274,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_06.10.2026",
       "subject": "Сдайте обновленную отчетность за 9 месяцев",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26631871/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26631871/summary",
+      "time": "7:01",
+      "sent": 99207,
+      "delivered": 98701,
+      "opened": 1053,
+      "openRate": 1.06,
+      "clicks": 54,
+      "clickRate": 0.05,
+      "ctor": 5.12
     },
     {
       "id": "import-api:52:26640597",
@@ -1666,7 +3290,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_06.10.2026",
       "subject": "Списать матзапасы можно без инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26640597/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26640597/summary",
+      "time": "15:31",
+      "sent": 70832,
+      "delivered": 70417,
+      "opened": 1118,
+      "openRate": 1.58,
+      "clicks": 125,
+      "clickRate": 0.17,
+      "ctor": 11.18
     },
     {
       "id": "import-api:61:26631869",
@@ -1674,7 +3306,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_06.10.2026",
       "subject": "Новый постотчет: как избежать блокировки в ЕИС",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26631869/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26631869/summary",
+      "time": "7:01",
+      "sent": 83619,
+      "delivered": 83034,
+      "opened": 1308,
+      "openRate": 1.57,
+      "clicks": 94,
+      "clickRate": 0.11,
+      "ctor": 7.18
     },
     {
       "id": "import-api:61:26640587",
@@ -1682,7 +3322,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_06.10.2026",
       "subject": "Закупки с полки теперь на маркетплейсах",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26640587/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26640587/summary",
+      "time": "15:31",
+      "sent": 57700,
+      "delivered": 57300,
+      "opened": 1332,
+      "openRate": 2.32,
+      "clicks": 122,
+      "clickRate": 0.21,
+      "ctor": 9.15
     },
     {
       "id": "import-api:52:26644370",
@@ -1690,7 +3338,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_07.10.2026",
       "subject": "Оклады госслужащих выросли с 1 октября",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26644370/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26644370/summary",
+      "time": "7:02",
+      "sent": 61763,
+      "delivered": 61429,
+      "opened": 914,
+      "openRate": 1.48,
+      "clicks": 252,
+      "clickRate": 0.41,
+      "ctor": 27.57
     },
     {
       "id": "import-api:52:26653179",
@@ -1698,7 +3354,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_07.10.2026",
       "subject": "Инвентаризация по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26653179/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26653179/summary",
+      "time": "15:31",
+      "sent": 43939,
+      "delivered": 43676,
+      "opened": 521,
+      "openRate": 1.19,
+      "clicks": 60,
+      "clickRate": 0.13,
+      "ctor": 11.51
     },
     {
       "id": "import-api:61:26644363",
@@ -1706,7 +3370,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_07.10.2026",
       "subject": "Новый постотчет: как избежать блокировки в ЕИС",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26644363/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26644363/summary",
+      "time": "7:01",
+      "sent": 53186,
+      "delivered": 52839,
+      "opened": 907,
+      "openRate": 1.71,
+      "clicks": 64,
+      "clickRate": 0.12,
+      "ctor": 7.05
     },
     {
       "id": "import-api:61:26653176",
@@ -1714,7 +3386,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_07.10.2026",
       "subject": "Реестр контрактов заработал по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26653176/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26653176/summary",
+      "time": "15:31",
+      "sent": 39242,
+      "delivered": 38944,
+      "opened": 826,
+      "openRate": 2.12,
+      "clicks": 63,
+      "clickRate": 0.16,
+      "ctor": 7.62
     },
     {
       "id": "import-api:52:26656946",
@@ -1722,7 +3402,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_08.10.2026",
       "subject": "Новый внутренний контроль вступил в силу",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26656946/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26656946/summary",
+      "time": "7:02",
+      "sent": 27127,
+      "delivered": 26977,
+      "opened": 206,
+      "openRate": 0.76,
+      "clicks": 27,
+      "clickRate": 0.1,
+      "ctor": 13.1
     },
     {
       "id": "import-api:52:26665805",
@@ -1730,7 +3418,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_08.10.2026",
       "subject": "Ревизоры ужесточили контроль за списанием имущества",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26665805/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26665805/summary",
+      "time": "15:31",
+      "sent": 23129,
+      "delivered": 22994,
+      "opened": 249,
+      "openRate": 1.08,
+      "clicks": 32,
+      "clickRate": 0.13,
+      "ctor": 12.85
     },
     {
       "id": "import-api:61:26656938",
@@ -1738,7 +3434,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_08.10.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26656938/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26656938/summary",
+      "time": "7:01",
+      "sent": 31782,
+      "delivered": 31551,
+      "opened": 416,
+      "openRate": 1.31,
+      "clicks": 37,
+      "clickRate": 0.11,
+      "ctor": 8.89
     },
     {
       "id": "import-api:61:26665803",
@@ -1746,7 +3450,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_08.10.2026",
       "subject": "Шесть новых правил от ФАС, как применять КТРУ с перечнями нацрежима",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26665803/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26665803/summary",
+      "time": "15:31",
+      "sent": 18962,
+      "delivered": 18814,
+      "opened": 298,
+      "openRate": 1.58,
+      "clicks": 30,
+      "clickRate": 0.15,
+      "ctor": 10.06
     },
     {
       "id": "import-api:52:26669489",
@@ -1754,7 +3466,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_09.10.2026",
       "subject": "Минфин объяснил, как отличить ОС от матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26669489/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26669489/summary",
+      "time": "7:01",
+      "sent": 22298,
+      "delivered": 22199,
+      "opened": 144,
+      "openRate": 0.64,
+      "clicks": 20,
+      "clickRate": 0.09,
+      "ctor": 13.88
     },
     {
       "id": "import-api:52:26678431",
@@ -1762,7 +3482,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_09.10.2026",
       "subject": "Применили старую опись — штраф до 30 000 ₽",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26678431/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26678431/summary",
+      "time": "15:31",
+      "sent": 19579,
+      "delivered": 19494,
+      "opened": 90,
+      "openRate": 0.46,
+      "clicks": 12,
+      "clickRate": 0.06,
+      "ctor": 13.33
     },
     {
       "id": "import-api:61:26669481",
@@ -1770,7 +3498,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_09.10.2026",
       "subject": "Отменили особый порядок расчета НМЦК на топливо",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26669481/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26669481/summary",
+      "time": "7:01",
+      "sent": 18408,
+      "delivered": 18276,
+      "opened": 216,
+      "openRate": 1.18,
+      "clicks": 11,
+      "clickRate": 0.06,
+      "ctor": 5.09
     },
     {
       "id": "import-api:61:26678812",
@@ -1778,7 +3514,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_09.10.2026",
       "subject": "Реестр контрактов заработал по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26678812/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26678812/summary",
+      "time": "16:02",
+      "sent": 114973,
+      "delivered": 114437,
+      "opened": 1497,
+      "openRate": 1.3,
+      "clicks": 92,
+      "clickRate": 0.08,
+      "ctor": 6.14
     },
     {
       "id": "import-api:52:26705015",
@@ -1786,7 +3530,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_12.10.2026",
       "subject": "Минфин меняет КВР и КОСГУ задним числом",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26705015/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26705015/summary",
+      "time": "7:01",
+      "sent": 129795,
+      "delivered": 76923,
+      "opened": 1682,
+      "openRate": 2.18,
+      "clicks": 174,
+      "clickRate": 0.22,
+      "ctor": 10.34
     },
     {
       "id": "import-api:52:26713861",
@@ -1794,7 +3546,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_12.10.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26713861/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26713861/summary",
+      "time": "15:31",
+      "sent": 94395,
+      "delivered": 60781,
+      "opened": 3858,
+      "openRate": 6.34,
+      "clicks": 365,
+      "clickRate": 0.6,
+      "ctor": 9.46
     },
     {
       "id": "import-api:61:26705025",
@@ -1802,7 +3562,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_12.10.2026",
       "subject": "В личном кабинете заказчика уже появилась новая форма отчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26705025/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26705025/summary",
+      "time": "7:02",
+      "sent": 116438,
+      "delivered": 72903,
+      "opened": 4177,
+      "openRate": 5.72,
+      "clicks": 230,
+      "clickRate": 0.31,
+      "ctor": 5.5
     },
     {
       "id": "import-api:61:26713862",
@@ -1810,7 +3578,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_12.10.2026",
       "subject": "Реестр контрактов заработал по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26713862/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26713862/summary",
+      "time": "15:31",
+      "sent": 94339,
+      "delivered": 63821,
+      "opened": 2063,
+      "openRate": 3.23,
+      "clicks": 145,
+      "clickRate": 0.22,
+      "ctor": 7.02
     },
     {
       "id": "import-api:52:26717612",
@@ -1818,7 +3594,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_13.10.2026",
       "subject": "Инвентаризация пройдет по-новому",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26717612/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26717612/summary",
+      "time": "7:01",
+      "sent": 84022,
+      "delivered": 55045,
+      "opened": 985,
+      "openRate": 1.78,
+      "clicks": 81,
+      "clickRate": 0.14,
+      "ctor": 8.22
     },
     {
       "id": "import-api:52:26726314",
@@ -1826,7 +3610,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_13.10.2026",
       "subject": "Минфин внедрил 6 новых описей для инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26726314/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26726314/summary",
+      "time": "15:31",
+      "sent": 60974,
+      "delivered": 42000,
+      "opened": 726,
+      "openRate": 1.72,
+      "clicks": 51,
+      "clickRate": 0.12,
+      "ctor": 7.02
     },
     {
       "id": "import-api:61:26717615",
@@ -1834,7 +3626,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_13.10.2026",
       "subject": "Заказчики рискуют получить штраф 200 тыс. руб. за ошибки в замене товара",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26717615/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26717615/summary",
+      "time": "7:01",
+      "sent": 74188,
+      "delivered": 52296,
+      "opened": 1070,
+      "openRate": 2.04,
+      "clicks": 64,
+      "clickRate": 0.12,
+      "ctor": 5.98
     },
     {
       "id": "import-api:61:26726302",
@@ -1842,7 +3642,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_13.10.2026",
       "subject": "Ошиблись в закупке с неизвестным объёмом — штраф до 50 000 рублей",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26726302/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26726302/summary",
+      "time": "15:31",
+      "sent": 50253,
+      "delivered": 35940,
+      "opened": 1667,
+      "openRate": 4.63,
+      "clicks": 85,
+      "clickRate": 0.23,
+      "ctor": 5.09
     },
     {
       "id": "import-api:52:26730051",
@@ -1850,7 +3658,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_14.10.2026",
       "subject": "Ошиблись с классификацией — исказили баланс и амортизацию",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26730051/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26730051/summary",
+      "time": "7:01",
+      "sent": 54775,
+      "delivered": 49279,
+      "opened": 447,
+      "openRate": 0.9,
+      "clicks": 39,
+      "clickRate": 0.07,
+      "ctor": 8.72
     },
     {
       "id": "import-api:52:26738871",
@@ -1858,7 +3674,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_14.10.2026",
       "subject": "Списание неактива с ошибкой привело к взысканию",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26738871/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26738871/summary",
+      "time": "15:31",
+      "sent": 38700,
+      "delivered": 34436,
+      "opened": 855,
+      "openRate": 2.48,
+      "clicks": 64,
+      "clickRate": 0.18,
+      "ctor": 7.48
     },
     {
       "id": "import-api:61:26730052",
@@ -1866,7 +3690,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_14.10.2026",
       "subject": "С октября локальные акты заказчиков не соответствуют закону",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26730052/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26730052/summary",
+      "time": "7:01",
+      "sent": 46648,
+      "delivered": 46287,
+      "opened": 827,
+      "openRate": 1.78,
+      "clicks": 74,
+      "clickRate": 0.15,
+      "ctor": 8.94
     },
     {
       "id": "import-api:61:26738870",
@@ -1874,7 +3706,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_14.10.2026",
       "subject": "Реестр контрактов заработал по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26738870/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26738870/summary",
+      "time": "15:31",
+      "sent": 33824,
+      "delivered": 33493,
+      "opened": 489,
+      "openRate": 1.46,
+      "clicks": 36,
+      "clickRate": 0.1,
+      "ctor": 7.36
     },
     {
       "id": "import-api:52:26742593",
@@ -1882,7 +3722,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_15.10.2026",
       "subject": "Инвентаризация уже началась - срочно проверьте положение",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26742593/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26742593/summary",
+      "time": "7:02",
+      "sent": 29968,
+      "delivered": 29787,
+      "opened": 279,
+      "openRate": 0.93,
+      "clicks": 34,
+      "clickRate": 0.11,
+      "ctor": 12.18
     },
     {
       "id": "import-api:52:26751461",
@@ -1890,7 +3738,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_15.10.2026",
       "subject": "Инвентаризацию признали недействительной из-за даты в решении",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26751461/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26751461/summary",
+      "time": "15:31",
+      "sent": 22899,
+      "delivered": 22770,
+      "opened": 402,
+      "openRate": 1.76,
+      "clicks": 52,
+      "clickRate": 0.22,
+      "ctor": 12.93
     },
     {
       "id": "import-api:61:26742599",
@@ -1898,7 +3754,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_15.10.2026",
       "subject": "С октября локальные акты заказчиков не соответствуют закону",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26742599/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26742599/summary",
+      "time": "7:02",
+      "sent": 29179,
+      "delivered": 28943,
+      "opened": 356,
+      "openRate": 1.23,
+      "clicks": 37,
+      "clickRate": 0.12,
+      "ctor": 10.39
     },
     {
       "id": "import-api:61:26751460",
@@ -1906,7 +3770,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_15.10.2026",
       "subject": "Как избежать штрафа 50 тыс. руб. за ошибки в работе по КТРУ с нацрежиму",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26751460/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26751460/summary",
+      "time": "15:31",
+      "sent": 18071,
+      "delivered": 17887,
+      "opened": 285,
+      "openRate": 1.59,
+      "clicks": 17,
+      "clickRate": 0.09,
+      "ctor": 5.96
     },
     {
       "id": "import-api:52:26755128",
@@ -1914,7 +3786,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_16.10.2026",
       "subject": "Минфин меняет КВР и КОСГУ задним числом",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26755128/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26755128/summary",
+      "time": "7:01",
+      "sent": 21540,
+      "delivered": 21436,
+      "opened": 244,
+      "openRate": 1.13,
+      "clicks": 47,
+      "clickRate": 0.21,
+      "ctor": 19.26
     },
     {
       "id": "import-api:52:26764075",
@@ -1922,7 +3802,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_16.10.2026",
       "subject": "Минфин по-новому разграничил ОС и матзапасы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26764075/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26764075/summary",
+      "time": "15:31",
+      "sent": 19779,
+      "delivered": 19674,
+      "opened": 161,
+      "openRate": 0.81,
+      "clicks": 16,
+      "clickRate": 0.08,
+      "ctor": 9.93
     },
     {
       "id": "import-api:61:26755133",
@@ -1930,7 +3818,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_16.10.2026",
       "subject": "Утвердили контрольные сроки сдачи нового отчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26755133/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26755133/summary",
+      "time": "7:01",
+      "sent": 20055,
+      "delivered": 19854,
+      "opened": 225,
+      "openRate": 1.13,
+      "clicks": 23,
+      "clickRate": 0.11,
+      "ctor": 10.22
     },
     {
       "id": "import-api:61:26764078",
@@ -1938,7 +3834,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_16.10.2026",
       "subject": "Реестр контрактов заработал по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26764078/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26764078/summary",
+      "time": "15:31",
+      "sent": 15745,
+      "delivered": 15595,
+      "opened": 151,
+      "openRate": 0.96,
+      "clicks": 8,
+      "clickRate": 0.05,
+      "ctor": 5.29
     },
     {
       "id": "import-api:52:26790593",
@@ -1946,7 +3850,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_19.10.2026",
       "subject": "Минфин потребовал внедрить новую систему внутреннего контроля",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26790593/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26790593/summary",
+      "time": "7:01",
+      "sent": 131263,
+      "delivered": 130571,
+      "opened": 2521,
+      "openRate": 1.93,
+      "clicks": 168,
+      "clickRate": 0.12,
+      "ctor": 6.66
     },
     {
       "id": "import-api:52:26799359",
@@ -1954,7 +3866,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_19.10.2026",
       "subject": "Минфин разделил матзапасы для казенных и бюджетных учреждений",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26799359/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26799359/summary",
+      "time": "15:31",
+      "sent": 104829,
+      "delivered": 104263,
+      "opened": 1994,
+      "openRate": 1.91,
+      "clicks": 154,
+      "clickRate": 0.14,
+      "ctor": 7.72
     },
     {
       "id": "import-api:61:26790600",
@@ -1962,7 +3882,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_19.10.2026",
       "subject": "В вашем личном кабинете появилась новая форма отчетности",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26790600/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26790600/summary",
+      "time": "7:02",
+      "sent": 111683,
+      "delivered": 110867,
+      "opened": 2523,
+      "openRate": 2.27,
+      "clicks": 162,
+      "clickRate": 0.14,
+      "ctor": 6.42
     },
     {
       "id": "import-api:61:26799356",
@@ -1970,7 +3898,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_19.10.2026",
       "subject": "Реестр контрактов заработал по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26799356/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26799356/summary",
+      "time": "15:31",
+      "sent": 98045,
+      "delivered": 97319,
+      "opened": 2167,
+      "openRate": 2.22,
+      "clicks": 130,
+      "clickRate": 0.13,
+      "ctor": 5.99
     },
     {
       "id": "import-api:52:26803036",
@@ -1978,7 +3914,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_20.10.2026",
       "subject": "Минфин утвердил шесть новых инвентаризационных описей",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26803036/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26803036/summary",
+      "time": "7:01",
+      "sent": 90987,
+      "delivered": 90582,
+      "opened": 1127,
+      "openRate": 1.24,
+      "clicks": 103,
+      "clickRate": 0.11,
+      "ctor": 9.13
     },
     {
       "id": "import-api:52:26811820",
@@ -1986,7 +3930,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_20.10.2026",
       "subject": "Ревизоры штрафуют за старые описи",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26811820/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26811820/summary",
+      "time": "15:31",
+      "sent": 73332,
+      "delivered": 72968,
+      "opened": 1355,
+      "openRate": 1.85,
+      "clicks": 100,
+      "clickRate": 0.13,
+      "ctor": 7.38
     },
     {
       "id": "import-api:61:26803034",
@@ -1994,7 +3946,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_20.10.2026",
       "subject": "В вашем личном кабинете появилась новая форма отчетности",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26803034/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26803034/summary",
+      "time": "7:01",
+      "sent": 64932,
+      "delivered": 64504,
+      "opened": 997,
+      "openRate": 1.54,
+      "clicks": 60,
+      "clickRate": 0.09,
+      "ctor": 6.01
     },
     {
       "id": "import-api:61:26811808",
@@ -2002,7 +3962,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_20.10.2026",
       "subject": "Как избежать штрафа 50 тыс.руб. за ошибки в КТРУ",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26811808/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26811808/summary",
+      "time": "15:31",
+      "sent": 51436,
+      "delivered": 51061,
+      "opened": 953,
+      "openRate": 1.86,
+      "clicks": 52,
+      "clickRate": 0.1,
+      "ctor": 5.45
     },
     {
       "id": "import-api:52:26815333",
@@ -2010,7 +3978,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_21.10.2026",
       "subject": "Минфин по-новому разграничил основные средства и матзапасы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26815333/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26815333/summary",
+      "time": "7:01",
+      "sent": 58043,
+      "delivered": 57757,
+      "opened": 542,
+      "openRate": 0.93,
+      "clicks": 49,
+      "clickRate": 0.08,
+      "ctor": 9.04
     },
     {
       "id": "import-api:52:26823828",
@@ -2018,7 +3994,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_21.10.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26823828/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26823828/summary",
+      "time": "15:31",
+      "sent": 35942,
+      "delivered": 35727,
+      "opened": 1101,
+      "openRate": 3.08,
+      "clicks": 117,
+      "clickRate": 0.32,
+      "ctor": 10.62
     },
     {
       "id": "import-api:61:26815348",
@@ -2026,7 +4010,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_21.10.2026",
       "subject": "Заказчику придется обновить локальные акты",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26815348/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26815348/summary",
+      "time": "7:01",
+      "sent": 41068,
+      "delivered": 40715,
+      "opened": 496,
+      "openRate": 1.21,
+      "clicks": 40,
+      "clickRate": 0.09,
+      "ctor": 8.06
     },
     {
       "id": "import-api:61:26824430",
@@ -2034,7 +4026,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_21.10.2026",
       "subject": "Реестр контрактов заработал по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26824430/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26824430/summary",
+      "time": "16:12",
+      "sent": 113873,
+      "delivered": 113226,
+      "opened": 2573,
+      "openRate": 2.27,
+      "clicks": 124,
+      "clickRate": 0.1,
+      "ctor": 4.81
     },
     {
       "id": "import-api:52:26827492",
@@ -2042,7 +4042,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_22.10.2026",
       "subject": "Приказ или решение: как начать инвентаризацию",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26827492/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26827492/summary",
+      "time": "7:02",
+      "sent": 30944,
+      "delivered": 30738,
+      "opened": 141,
+      "openRate": 0.45,
+      "clicks": 25,
+      "clickRate": 0.08,
+      "ctor": 17.73
     },
     {
       "id": "import-api:61:26827482",
@@ -2050,7 +4058,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_22.10.2026",
       "subject": "Заказчику придется обновить локальные акты",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26827482/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26827482/summary",
+      "time": "7:02",
+      "sent": 22726,
+      "delivered": 17845,
+      "opened": 138,
+      "openRate": 0.77,
+      "clicks": 10,
+      "clickRate": 0.05,
+      "ctor": 7.24
     },
     {
       "id": "import-api:52:26898235",
@@ -2058,7 +4074,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_28.10.2026",
       "subject": "Минфин меняет учет матзпасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26898235/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26898235/summary",
+      "time": "7:01",
+      "sent": 48094,
+      "delivered": 47828,
+      "opened": 598,
+      "openRate": 1.25,
+      "clicks": 76,
+      "clickRate": 0.15,
+      "ctor": 12.7
     },
     {
       "id": "import-api:52:26906776",
@@ -2066,7 +4090,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_28.10.2026",
       "subject": "Ошибка в дате сделала инвентаризацию недействительной",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26906776/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26906776/summary",
+      "time": "15:31",
+      "sent": 33693,
+      "delivered": 33534,
+      "opened": 910,
+      "openRate": 2.71,
+      "clicks": 92,
+      "clickRate": 0.27,
+      "ctor": 10.1
     },
     {
       "id": "import-api:61:26898234",
@@ -2074,7 +4106,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_28.10.2026",
       "subject": "Документы для закупок, без которых нельзя работать во втором полугодии",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26898234/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26898234/summary",
+      "time": "7:01",
+      "sent": 26129,
+      "delivered": 25915,
+      "opened": 509,
+      "openRate": 1.96,
+      "clicks": 28,
+      "clickRate": 0.1,
+      "ctor": 5.5
     },
     {
       "id": "import-api:61:26906756",
@@ -2082,7 +4122,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_28.10.2026",
       "subject": "Требования к охранным услугам изменились",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26906756/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26906756/summary",
+      "time": "15:31",
+      "sent": 16152,
+      "delivered": 16039,
+      "opened": 421,
+      "openRate": 2.62,
+      "clicks": 41,
+      "clickRate": 0.25,
+      "ctor": 9.73
     },
     {
       "id": "import-api:52:26910488",
@@ -2090,7 +4138,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_29.10.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26910488/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26910488/summary",
+      "time": "7:02",
+      "sent": 26161,
+      "delivered": 26062,
+      "opened": 690,
+      "openRate": 2.64,
+      "clicks": 88,
+      "clickRate": 0.33,
+      "ctor": 12.75
     },
     {
       "id": "import-api:52:26918985",
@@ -2098,7 +4154,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_29.10.2026",
       "subject": "Минфин обязал применять новый счет для матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26918985/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26918985/summary",
+      "time": "15:31",
+      "sent": 18488,
+      "delivered": 18441,
+      "opened": 311,
+      "openRate": 1.68,
+      "clicks": 42,
+      "clickRate": 0.22,
+      "ctor": 13.5
     },
     {
       "id": "import-api:61:26910434",
@@ -2106,7 +4170,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_29.10.2026",
       "subject": "Документы для закупок, без которых нельзя работать во втором полугодии",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26910434/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26910434/summary",
+      "time": "7:01",
+      "sent": 11833,
+      "delivered": 11743,
+      "opened": 216,
+      "openRate": 1.83,
+      "clicks": 11,
+      "clickRate": 0.09,
+      "ctor": 5.09
     },
     {
       "id": "import-api:61:26918970",
@@ -2114,7 +4186,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_29.10.2026",
       "subject": "Минфин и Минпромторг разъяснили порядок проверки страны происхождения",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26918970/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26918970/summary",
+      "time": "15:31",
+      "sent": 7717,
+      "delivered": 7686,
+      "opened": 232,
+      "openRate": 3.01,
+      "clicks": 33,
+      "clickRate": 0.42,
+      "ctor": 14.22
     },
     {
       "id": "import-api:52:26922573",
@@ -2122,7 +4202,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_30.10.2026",
       "subject": "Новый порядок инвентаризации уже вступил в силу",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26922573/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26922573/summary",
+      "time": "7:02",
+      "sent": 20496,
+      "delivered": 20398,
+      "opened": 176,
+      "openRate": 0.86,
+      "clicks": 16,
+      "clickRate": 0.07,
+      "ctor": 9.09
     },
     {
       "id": "import-api:52:26930742",
@@ -2130,7 +4218,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_30.10.2026",
       "subject": "Минфин меняет требования к учету имущества",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26930742/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26930742/summary",
+      "time": "15:31",
+      "sent": 17173,
+      "delivered": 17116,
+      "opened": 154,
+      "openRate": 0.89,
+      "clicks": 11,
+      "clickRate": 0.06,
+      "ctor": 7.14
     },
     {
       "id": "import-api:61:26922536",
@@ -2138,7 +4234,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_30.10.2026",
       "subject": "Документы для закупок, без которых нельзя работать во втором полугодии",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26922536/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26922536/summary",
+      "time": "7:01",
+      "sent": 7932,
+      "delivered": 7872,
+      "opened": 157,
+      "openRate": 1.99,
+      "clicks": 8,
+      "clickRate": 0.1,
+      "ctor": 5.09
     },
     {
       "id": "import-api:61:26930730",
@@ -2146,7 +4250,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_30.10.2026",
       "subject": "ФАС разъяснила, как выбирать характеристики КТРУ без ограничения конкуренции",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26930730/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26930730/summary",
+      "time": "15:31",
+      "sent": 6681,
+      "delivered": 6646,
+      "opened": 95,
+      "openRate": 1.42,
+      "clicks": 7,
+      "clickRate": 0.1,
+      "ctor": 7.36
     },
     {
       "id": "import-api:52:26956889",
@@ -2154,7 +4266,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_02.11.2026",
       "subject": "Минфин требует пересмотреть учетную политику",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26956889/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26956889/summary",
+      "time": "7:02",
+      "sent": 121026,
+      "delivered": 120269,
+      "opened": 1907,
+      "openRate": 1.58,
+      "clicks": 99,
+      "clickRate": 0.08,
+      "ctor": 5.19
     },
     {
       "id": "import-api:52:26965207",
@@ -2162,7 +4282,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_02.11.2026",
       "subject": "Минфин по-новому разграничил основные средства и матзапасы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26965207/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26965207/summary",
+      "time": "15:31",
+      "sent": 102616,
+      "delivered": 102025,
+      "opened": 2273,
+      "openRate": 2.22,
+      "clicks": 206,
+      "clickRate": 0.2,
+      "ctor": 9.06
     },
     {
       "id": "import-api:61:26956903",
@@ -2170,7 +4298,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_02.11.2026",
       "subject": "Документы для закупок, без которых нельзя работать во втором полугодии",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26956903/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26956903/summary",
+      "time": "7:02",
+      "sent": 107452,
+      "delivered": 106581,
+      "opened": 2062,
+      "openRate": 1.93,
+      "clicks": 85,
+      "clickRate": 0.07,
+      "ctor": 4.12
     },
     {
       "id": "import-api:61:26965194",
@@ -2178,7 +4314,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_02.11.2026",
       "subject": "Минпромторг уточнил, как учитывать реестровые записи и баллы локализации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26965194/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26965194/summary",
+      "time": "15:31",
+      "sent": 89982,
+      "delivered": 89226,
+      "opened": 2089,
+      "openRate": 2.34,
+      "clicks": 106,
+      "clickRate": 0.11,
+      "ctor": 5.07
     },
     {
       "id": "import-api:52:26968928",
@@ -2186,7 +4330,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_03.11.2026",
       "subject": "Как ошибка в дате сделала инвентаризацию недействительной",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26968928/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26968928/summary",
+      "time": "7:01",
+      "sent": 89338,
+      "delivered": 89028,
+      "opened": 941,
+      "openRate": 1.05,
+      "clicks": 52,
+      "clickRate": 0.05,
+      "ctor": 5.52
     },
     {
       "id": "import-api:52:26977358",
@@ -2194,7 +4346,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_03.11.2026",
       "subject": "Перепутали даты в решении - инвентаризацию признали недействительной",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26977358/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26977358/summary",
+      "time": "15:31",
+      "sent": 55113,
+      "delivered": 54948,
+      "opened": 898,
+      "openRate": 1.63,
+      "clicks": 34,
+      "clickRate": 0.06,
+      "ctor": 3.78
     },
     {
       "id": "import-api:61:26968927",
@@ -2202,7 +4362,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_03.11.2026",
       "subject": "Какие документы контрактной службы нужно срочно обновить",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26968927/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26968927/summary",
+      "time": "7:01",
+      "sent": 59408,
+      "delivered": 59085,
+      "opened": 1052,
+      "openRate": 1.78,
+      "clicks": 60,
+      "clickRate": 0.1,
+      "ctor": 5.7
     },
     {
       "id": "import-api:61:26977355",
@@ -2210,7 +4378,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_03.11.2026",
       "subject": "Минпромторг уточнил, как учитывать реестровые записи и баллы локализации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26977355/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26977355/summary",
+      "time": "15:31",
+      "sent": 49496,
+      "delivered": 49220,
+      "opened": 1000,
+      "openRate": 2.03,
+      "clicks": 56,
+      "clickRate": 0.11,
+      "ctor": 5.6
     },
     {
       "id": "import-api:52:26992439",
@@ -2218,7 +4394,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_05.11.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26992439/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26992439/summary",
+      "time": "7:01",
+      "sent": 46569,
+      "delivered": 46354,
+      "opened": 1123,
+      "openRate": 2.42,
+      "clicks": 131,
+      "clickRate": 0.28,
+      "ctor": 11.66
     },
     {
       "id": "import-api:61:26992481",
@@ -2226,7 +4410,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_05.11.2026",
       "subject": "Какие документы контрактной службы нужно срочно обновить",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/26992481/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/26992481/summary",
+      "time": "7:02",
+      "sent": 41538,
+      "delivered": 41206,
+      "opened": 484,
+      "openRate": 1.17,
+      "clicks": 37,
+      "clickRate": 0.08,
+      "ctor": 7.64
     },
     {
       "id": "import-api:52:27050786",
@@ -2234,7 +4426,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_10.11.2026",
       "subject": "Минфин обновил классификацию матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27050786/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27050786/summary",
+      "time": "7:03",
+      "sent": 84305,
+      "delivered": 83898,
+      "opened": 1035,
+      "openRate": 1.23,
+      "clicks": 83,
+      "clickRate": 0.09,
+      "ctor": 8.01
     },
     {
       "id": "import-api:52:27059283",
@@ -2242,7 +4442,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_10.11.2026",
       "subject": "Новый алгоритм учета автошин",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27059283/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27059283/summary",
+      "time": "15:31",
+      "sent": 57357,
+      "delivered": 57185,
+      "opened": 893,
+      "openRate": 1.56,
+      "clicks": 80,
+      "clickRate": 0.13,
+      "ctor": 8.95
     },
     {
       "id": "import-api:61:27050708",
@@ -2250,7 +4458,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_10.11.2026",
       "subject": "Cтарые лицензии на охрану больше не работают",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27050708/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27050708/summary",
+      "time": "7:01",
+      "sent": 63969,
+      "delivered": 63534,
+      "opened": 1237,
+      "openRate": 1.94,
+      "clicks": 64,
+      "clickRate": 0.1,
+      "ctor": 5.17
     },
     {
       "id": "import-api:61:27059270",
@@ -2258,7 +4474,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_10.11.2026",
       "subject": "Приняли более 50 поправок в план-график 2027",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27059270/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27059270/summary",
+      "time": "15:31",
+      "sent": 50304,
+      "delivered": 50060,
+      "opened": 979,
+      "openRate": 1.95,
+      "clicks": 50,
+      "clickRate": 0.09,
+      "ctor": 5.1
     },
     {
       "id": "import-api:52:27062920",
@@ -2266,7 +4490,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_11.11.2026",
       "subject": "Минфин требует инвентаризацию по новым правилам",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27062920/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27062920/summary",
+      "time": "7:02",
+      "sent": 45300,
+      "delivered": 44965,
+      "opened": 397,
+      "openRate": 0.88,
+      "clicks": 48,
+      "clickRate": 0.1,
+      "ctor": 12.09
     },
     {
       "id": "import-api:52:27071477",
@@ -2274,7 +4506,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_11.11.2026",
       "subject": "Минфин: фиксируйте в описи метод инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27071477/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27071477/summary",
+      "time": "15:31",
+      "sent": 31073,
+      "delivered": 0,
+      "opened": 242,
+      "openRate": 0,
+      "clicks": 24,
+      "clickRate": 0,
+      "ctor": 9.91
     },
     {
       "id": "import-api:61:27062921",
@@ -2282,7 +4522,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_11.11.2026",
       "subject": "В вашем личном кабинете уже появилась форма нового отчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27062921/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27062921/summary",
+      "time": "7:02",
+      "sent": 42636,
+      "delivered": 42284,
+      "opened": 1599,
+      "openRate": 3.78,
+      "clicks": 118,
+      "clickRate": 0.27,
+      "ctor": 7.37
     },
     {
       "id": "import-api:61:27071465",
@@ -2290,7 +4538,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_11.11.2026",
       "subject": "Минпромторг уточнил, как учитывать реестровые записи и баллы локализации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27071465/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27071465/summary",
+      "time": "15:31",
+      "sent": 23046,
+      "delivered": 0,
+      "opened": 418,
+      "openRate": 0,
+      "clicks": 30,
+      "clickRate": 0,
+      "ctor": 7.17
     },
     {
       "id": "import-api:52:27075154",
@@ -2298,7 +4554,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_12.11.2026",
       "subject": "Минфин обновил классификацию матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27075154/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27075154/summary",
+      "time": "7:01",
+      "sent": 24601,
+      "delivered": 24516,
+      "opened": 244,
+      "openRate": 0.99,
+      "clicks": 26,
+      "clickRate": 0.1,
+      "ctor": 10.65
     },
     {
       "id": "import-api:52:27083729",
@@ -2306,7 +4570,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_12.11.2026",
       "subject": "Минфин по-новому разграничил ОС и матзапасы",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27083729/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27083729/summary",
+      "time": "15:31",
+      "sent": 16572,
+      "delivered": 16516,
+      "opened": 232,
+      "openRate": 1.4,
+      "clicks": 36,
+      "clickRate": 0.21,
+      "ctor": 15.51
     },
     {
       "id": "import-api:61:27075237",
@@ -2314,7 +4586,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_12.11.2026",
       "subject": "Правила закупок по 44-ФЗ упростили",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27075237/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27075237/summary",
+      "time": "7:03",
+      "sent": 22981,
+      "delivered": 22812,
+      "opened": 397,
+      "openRate": 1.74,
+      "clicks": 40,
+      "clickRate": 0.17,
+      "ctor": 10.07
     },
     {
       "id": "import-api:61:27083732",
@@ -2322,7 +4602,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_12.11.2026",
       "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27083732/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27083732/summary",
+      "time": "15:31",
+      "sent": 16469,
+      "delivered": 16385,
+      "opened": 357,
+      "openRate": 2.17,
+      "clicks": 47,
+      "clickRate": 0.28,
+      "ctor": 13.16
     },
     {
       "id": "import-api:52:27087348",
@@ -2330,7 +4618,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_13.11.2026",
       "subject": "Новый план ФХД на 2027 год",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27087348/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27087348/summary",
+      "time": "7:02",
+      "sent": 16725,
+      "delivered": 16564,
+      "opened": 187,
+      "openRate": 1.12,
+      "clicks": 38,
+      "clickRate": 0.22,
+      "ctor": 20.32
     },
     {
       "id": "import-api:52:27095909",
@@ -2338,7 +4634,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_13.11.2026",
       "subject": "Минфин установил новые сроки инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27095909/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27095909/summary",
+      "time": "15:31",
+      "sent": 14757,
+      "delivered": 14715,
+      "opened": 119,
+      "openRate": 0.8,
+      "clicks": 21,
+      "clickRate": 0.14,
+      "ctor": 17.64
     },
     {
       "id": "import-api:61:27087357",
@@ -2346,7 +4650,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_13.11.2026",
       "subject": "Новый порядок Росгвардии для расчета НМЦК на охрану",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27087357/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27087357/summary",
+      "time": "7:02",
+      "sent": 13928,
+      "delivered": 13735,
+      "opened": 210,
+      "openRate": 1.52,
+      "clicks": 19,
+      "clickRate": 0.13,
+      "ctor": 9.04
     },
     {
       "id": "import-api:61:27095900",
@@ -2354,7 +4666,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_13.11.2026",
       "subject": "Минпромторг уточнил, как учитывать реестровые записи и баллы локализации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27095900/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27095900/summary",
+      "time": "15:31",
+      "sent": 8434,
+      "delivered": 8385,
+      "opened": 129,
+      "openRate": 1.53,
+      "clicks": 8,
+      "clickRate": 0.09,
+      "ctor": 6.2
     },
     {
       "id": "import-api:52:27121825",
@@ -2362,7 +4682,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_16.11.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27121825/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27121825/summary",
+      "time": "7:03",
+      "sent": 122592,
+      "delivered": 122028,
+      "opened": 4281,
+      "openRate": 3.5,
+      "clicks": 458,
+      "clickRate": 0.37,
+      "ctor": 10.69
     },
     {
       "id": "import-api:52:27130370",
@@ -2370,7 +4698,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_16.11.2026",
       "subject": "Минфин требует цифровые методы инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27130370/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27130370/summary",
+      "time": "15:31",
+      "sent": 93599,
+      "delivered": 93262,
+      "opened": 1580,
+      "openRate": 1.69,
+      "clicks": 97,
+      "clickRate": 0.1,
+      "ctor": 6.13
     },
     {
       "id": "import-api:61:27121814",
@@ -2378,7 +4714,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_16.11.2026",
       "subject": "Росгвардия разъяснила правила работы по старым лицензиям на услуги охраны",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27121814/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27121814/summary",
+      "time": "7:02",
+      "sent": 108349,
+      "delivered": 107612,
+      "opened": 2381,
+      "openRate": 2.21,
+      "clicks": 152,
+      "clickRate": 0.14,
+      "ctor": 6.38
     },
     {
       "id": "import-api:61:27130621",
@@ -2386,7 +4730,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_16.11.2026",
       "subject": "Утвердили более 50 изменений в плане-графике 2027",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27130621/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27130621/summary",
+      "time": "16:02",
+      "sent": 108155,
+      "delivered": 107551,
+      "opened": 3158,
+      "openRate": 2.93,
+      "clicks": 144,
+      "clickRate": 0.13,
+      "ctor": 4.55
     },
     {
       "id": "import-api:52:27134108",
@@ -2394,7 +4746,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_17.11.2026",
       "subject": "Минфин изменил правила для комиссий по инвентаризации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27134108/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27134108/summary",
+      "time": "7:02",
+      "sent": 94359,
+      "delivered": 93999,
+      "opened": 1092,
+      "openRate": 1.16,
+      "clicks": 137,
+      "clickRate": 0.14,
+      "ctor": 12.54
     },
     {
       "id": "import-api:52:27142737",
@@ -2402,7 +4762,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_17.11.2026",
       "subject": "Минфин определил даты в Решении 0510441",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27142737/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27142737/summary",
+      "time": "15:31",
+      "sent": 60006,
+      "delivered": 59800,
+      "opened": 1101,
+      "openRate": 1.84,
+      "clicks": 72,
+      "clickRate": 0.12,
+      "ctor": 6.53
     },
     {
       "id": "import-api:61:27134091",
@@ -2410,7 +4778,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_17.11.2026",
       "subject": "В личном кабинете заказчика появилась новая форма отчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27134091/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27134091/summary",
+      "time": "7:02",
+      "sent": 90633,
+      "delivered": 90104,
+      "opened": 3414,
+      "openRate": 3.78,
+      "clicks": 195,
+      "clickRate": 0.21,
+      "ctor": 5.71
     },
     {
       "id": "import-api:61:27142734",
@@ -2418,7 +4794,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_17.11.2026",
       "subject": "Вступили в силу изменения в лицензировании охранных услуг",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27142734/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27142734/summary",
+      "time": "15:31",
+      "sent": 55555,
+      "delivered": 55246,
+      "opened": 1365,
+      "openRate": 2.47,
+      "clicks": 98,
+      "clickRate": 0.17,
+      "ctor": 7.17
     },
     {
       "id": "import-api:52:27146350",
@@ -2426,7 +4810,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_18.11.2026",
       "subject": "Месяц до нового внутреннего контроля - все ли вы успели?",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27146350/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27146350/summary",
+      "time": "7:03",
+      "sent": 50066,
+      "delivered": 49860,
+      "opened": 397,
+      "openRate": 0.79,
+      "clicks": 46,
+      "clickRate": 0.09,
+      "ctor": 11.58
     },
     {
       "id": "import-api:52:27154878",
@@ -2434,7 +4826,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_18.11.2026",
       "subject": "250.000 рублей за нарушение на счете 02",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27154878/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27154878/summary",
+      "time": "15:31",
+      "sent": 32595,
+      "delivered": 32446,
+      "opened": 987,
+      "openRate": 3.04,
+      "clicks": 103,
+      "clickRate": 0.31,
+      "ctor": 10.43
     },
     {
       "id": "import-api:61:27146345",
@@ -2442,7 +4842,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_18.11.2026",
       "subject": "В личном кабинете заказчика появилась новая форма отчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27146345/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27146345/summary",
+      "time": "7:03",
+      "sent": 48679,
+      "delivered": 48335,
+      "opened": 1586,
+      "openRate": 3.28,
+      "clicks": 92,
+      "clickRate": 0.19,
+      "ctor": 5.8
     },
     {
       "id": "import-api:61:27154882",
@@ -2450,7 +4858,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_18.11.2026",
       "subject": "Минпромторг уточнил, как учитывать реестровые записи и баллы локализации",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27154882/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27154882/summary",
+      "time": "15:31",
+      "sent": 36231,
+      "delivered": 35977,
+      "opened": 646,
+      "openRate": 1.79,
+      "clicks": 37,
+      "clickRate": 0.1,
+      "ctor": 5.72
     },
     {
       "id": "import-api:52:27158545",
@@ -2458,7 +4874,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_19.11.2026",
       "subject": "Одна неверная дата сделает инвентаризацию недействительной",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27158545/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27158545/summary",
+      "time": "7:01",
+      "sent": 22975,
+      "delivered": 22874,
+      "opened": 176,
+      "openRate": 0.76,
+      "clicks": 26,
+      "clickRate": 0.11,
+      "ctor": 14.77
     },
     {
       "id": "import-api:61:27158541",
@@ -2466,7 +4890,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_19.11.2026",
       "subject": "Ваши локальные акты устарели",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27158541/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27158541/summary",
+      "time": "7:01",
+      "sent": 30432,
+      "delivered": 30185,
+      "opened": 289,
+      "openRate": 0.95,
+      "clicks": 11,
+      "clickRate": 0.03,
+      "ctor": 3.8
     },
     {
       "id": "import-api:61:27167513",
@@ -2474,7 +4906,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_19.11.2026",
       "subject": "В ноябре действуют новые правила на закупку охраны",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27167513/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27167513/summary",
+      "time": "16:02",
+      "sent": 106420,
+      "delivered": 105920,
+      "opened": 3041,
+      "openRate": 2.87,
+      "clicks": 159,
+      "clickRate": 0.15,
+      "ctor": 5.22
     },
     {
       "id": "import-api:52:27170850",
@@ -2482,7 +4922,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_20.11.2026",
       "subject": "Минфин обновил план ФХД на 2027 год",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27170850/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27170850/summary",
+      "time": "7:02",
+      "sent": 16964,
+      "delivered": 16892,
+      "opened": 159,
+      "openRate": 0.94,
+      "clicks": 38,
+      "clickRate": 0.22,
+      "ctor": 23.89
     },
     {
       "id": "import-api:52:27179363",
@@ -2490,7 +4938,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_v_20.11.2026",
       "subject": "Ревизоры забракуют акт о списании матзапасов",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27179363/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27179363/summary",
+      "time": "15:31",
+      "sent": 14745,
+      "delivered": 14682,
+      "opened": 95,
+      "openRate": 0.64,
+      "clicks": 8,
+      "clickRate": 0.05,
+      "ctor": 8.42
     },
     {
       "id": "import-api:61:27170851",
@@ -2498,7 +4954,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_20.11.2026",
       "subject": "Ваши локальные акты устарели",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27170851/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27170851/summary",
+      "time": "7:02",
+      "sent": 21335,
+      "delivered": 21183,
+      "opened": 200,
+      "openRate": 0.94,
+      "clicks": 13,
+      "clickRate": 0.06,
+      "ctor": 6.5
     },
     {
       "id": "import-api:61:27179362",
@@ -2506,7 +4970,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_v_20.11.2026",
       "subject": "Главное для закупщика в ноябре 2026",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27179362/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27179362/summary",
+      "time": "15:31",
+      "sent": 15152,
+      "delivered": 15038,
+      "opened": 113,
+      "openRate": 0.75,
+      "clicks": 6,
+      "clickRate": 0.03,
+      "ctor": 5.3
     },
     {
       "id": "import-api:52:27205336",
@@ -2514,7 +4986,15 @@
       "product": "ГФ Периодика",
       "campaign": "Gosfinansi_letter_news_GF_digest_u_23.11.2026",
       "subject": "Акт 0510460 больше не закрывает списание",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27205336/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27205336/summary",
+      "time": "7:02",
+      "sent": 117819,
+      "delivered": 111005,
+      "opened": 2206,
+      "openRate": 1.98,
+      "clicks": 276,
+      "clickRate": 0.24,
+      "ctor": 12.51
     },
     {
       "id": "import-api:61:27205356",
@@ -2522,7 +5002,15 @@
       "product": "ГЗ Периодика",
       "campaign": "letter_news_goszakaz_regular_news_digest_u_23.11.2026",
       "subject": "В личном кабинете заказчика уже появилась новая форма отчета",
-      "sendsay": "https://app.sendsay.ru/reports/campaigns/27205356/summary"
+      "sendsay": "https://app.sendsay.ru/reports/campaigns/27205356/summary",
+      "time": "7:04",
+      "sent": 105069,
+      "delivered": 104152,
+      "opened": 2272,
+      "openRate": 2.18,
+      "clicks": 112,
+      "clickRate": 0.1,
+      "ctor": 4.92
     }
   ]
 }
