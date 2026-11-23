@@ -112,6 +112,8 @@ function analyticsPublicReadCompat_(event) {
       result = getPulseDataFresh.apply(null, args);
     } else if (method === 'getDemandEvidenceUi') {
       result = getDemandEvidenceUi.apply(null, args);
+    } else if (method === 'getNewsDemoTermsUi' && typeof getNewsDemoTermsUi === 'function') {
+      result = getNewsDemoTermsUi.apply(null, args);
     } else if (method === 'getMailRegistryUi') {
       if (typeof getMailRegistryUi === 'function') {
         result = getMailRegistryUi.apply(null, args);
