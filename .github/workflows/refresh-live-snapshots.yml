@@ -6,6 +6,8 @@ on:
     paths:
       - '.github/workflows/refresh-live-snapshots.yml'
       - '.github/scripts/refresh-live-snapshots.mjs'
+      - '.github/scripts/news-archive.mjs'
+      - 'news-demo-inventory.json'
   schedule:
     - cron: '17 * * * *'
   workflow_dispatch:
