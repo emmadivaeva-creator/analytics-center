@@ -33,6 +33,16 @@ export function isoWeek(dateValue) {
 export function urlIdentity(raw) {
   return String(raw||'').trim().replace(/^https?:\/\/(?:www\.)?/i,'').split(/[?#]/)[0].replace(/\/$/,'');
 }
+/** CMS slugs and short addresses are aliases of one article/news ID.
+ * The full URL string is NOT a stable unique key.
+ */
+export function materialIdentity(raw) {
+  const url=String(raw||'').trim();
+  const match=url.match(/^https?:\/\/(?:www\.)?([^/?#]+)\/(news|art|article)\/(\d+)(?:[-/?#]|$)/i);
+  if(!match)return urlIdentity(url);
+  const type=/^article$/i.test(match[2])?'art':match[2].toLowerCase();
+  return match[1].toLowerCase()+'|'+type+'|'+match[3];
+}
 export function mergeIssues(existing, latest) {
   const merged=new Map();
   for(const entry of [...(existing||[]),...(latest||[])]) {
@@ -45,9 +55,25 @@ export function mergeIssues(existing, latest) {
   }
   return [...merged.values()].sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
 }
-function bestTitle(topic,title) {
-  const t=String(title||'').trim();
-  if(t.length>topic.title.length)topic.title=t;
+function bestTitle(topic,title,url,date) {
+  const t=String(title||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+  const u=String(url||'').trim();
+  // A full CMS slug is preferred over a short /news/ID or /art/ID link:
+  // the latter may carry a stale, unrelated call-to-action from a newsletter.
+  const fullCmsUrl=/\/\b(?:news|art|article)\/\d+-[^/?#]+/i.test(u);
+  const validTitle=Boolean(t&&!/^https?:\/\//i.test(t)&&!/^Материал\s+\d+$/i.test(t));
+  const editorialTitle=validTitle&&!/[→>]\s*$/.test(t);
+  const score=(fullCmsUrl?100:0)+(validTitle?10:0)+(editorialTitle?5:0);
+  const stamp=String(date||'').slice(0,10);
+  if(!topic._titleSource || score>topic._titleSource.score ||
+      (score===topic._titleSource.score&&stamp>topic._titleSource.date) ||
+      (score===topic._titleSource.score&&stamp===topic._titleSource.date&&t.length>topic.title.length)) {
+    topic._titleSource={score,date:stamp};
+    topic.url=u||topic.url;
+    if(validTitle)topic.title=t;
+  }
+  if(u)topic._urlVariants.add(urlIdentity(u));
+  if(validTitle)topic._titleVariants.add(t.replace(/[→>]\s*$/,'').trim());
 }
 export function buildNewsSummary(inventory, archive, generatedAt=new Date().toISOString()) {
   const issues=mergeIssues(inventory?.emails||[],[]);
@@ -67,26 +93,26 @@ export function buildNewsSummary(inventory, archive, generatedAt=new Date().toIS
     if(w>=27&&w<=53)processedWeeks[w]++;
     for(const m of record.materials) {
       const url=String(m.url||'');
-      const key=urlIdentity(url);
+      const key=materialIdentity(url);
       if(!key)continue;
       let topic=topics.get(key);
       if(!topic){
-        topic={title:String(m.title||('Материал '+String(m.id||''))),url,term:String(m.id||''),kind:String(m.kind||'')==='news'?'news':'art',group:mail.product.split(' ')[0]||String(m.group||''),red:0,yellow:0,green:0,byWeek:{},letters:[],seenKeys:new Set()};
+        topic={title:String(m.title||('Материал '+String(m.id||''))),url,term:String(m.id||''),kind:String(m.kind||'')==='news'?'news':'art',group:mail.product.split(' ')[0]||String(m.group||''),red:0,yellow:0,green:0,byWeek:{},letters:[],seenKeys:new Set(),_urlVariants:new Set(),_titleVariants:new Set()};
         topics.set(key,topic);
       }
-      bestTitle(topic,m.title);
+      bestTitle(topic,m.title,url,mail.date);
       if(!topic.letters.some(x=>x.id===id))topic.letters.push({id,subject:mail.subject,url:mail.sendsay,date:mail.date});
     }
     for(const row of record.rows) {
       const url=String(row.url||'');
-      const key=urlIdentity(url);
+      const key=materialIdentity(url);
       if(!key)continue;
       let topic=topics.get(key);
       if(!topic){
-        topic={title:String(row.title||('Материал '+String(row.term||''))),url,term:String(row.term||''),kind:/^news$/i.test(String(row.content||''))?'news':'art',group:mail.product.split(' ')[0]||String(row.product||'').split(' ')[0],red:0,yellow:0,green:0,byWeek:{},letters:[],seenKeys:new Set()};
+        topic={title:String(row.title||('Материал '+String(row.term||''))),url,term:String(row.term||''),kind:/^news$/i.test(String(row.content||''))?'news':'art',group:mail.product.split(' ')[0]||String(row.product||'').split(' ')[0],red:0,yellow:0,green:0,byWeek:{},letters:[],seenKeys:new Set(),_urlVariants:new Set(),_titleVariants:new Set()};
         topics.set(key,topic);
       }
-      bestTitle(topic,row.title);
+      bestTitle(topic,row.title,url,mail.date);
       if(!topic.letters.some(x=>x.id===id))topic.letters.push({id,subject:mail.subject,url:mail.sendsay,date:mail.date});
       const evidenceKey=String(row.product||'')+'|'+String(row.sourceUrl||'');
       if(topic.seenKeys.has(evidenceKey))continue;
@@ -104,9 +130,14 @@ export function buildNewsSummary(inventory, archive, generatedAt=new Date().toIS
     }
   }
   const allTopics=[...topics.values()].map(topic=>{
+    const urlAliases=topic._urlVariants.size;
+    const titleVariants=topic._titleVariants.size;
     delete topic.seenKeys;
+    delete topic._urlVariants;
+    delete topic._titleVariants;
+    delete topic._titleSource;
     topic.letters.sort((a,b)=>b.date.localeCompare(a.date));
-    return {...topic,total:topic.red+topic.yellow+topic.green};
+    return {...topic,urlAliases,titleVariants,total:topic.red+topic.yellow+topic.green};
   }).sort((a,b)=>b.green-a.green||b.total-a.total||a.title.localeCompare(b.title,'ru'));
   const lastDate=issues.reduce((a,m)=>m.date>a?m.date:a,'');
   const weeks=Array.from({length:Math.max(1,Math.min(53,isoWeek(lastDate)||27)-26)},(_,i)=>i+27);
