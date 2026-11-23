@@ -1169,6 +1169,12 @@ function newsMaterialTopics(emails,week){
  return [...topics.values()].map(t=>({...t,total:t.red+t.yellow+t.green}));
 }
 let newsMaterialSnapshot=null,newsMaterialSnapshotLoading=false,newsMaterialSnapshotStale_=false;
+(function installNewsArchiveProgress_(){
+ const status=document.getElementById('newsMaterialStatus');
+ if(!status||document.getElementById('newsArchiveCoverage'))return;
+ const box=document.createElement('div');box.id='newsArchiveCoverage';
+ status.after(box);
+})();
 async function loadNewsMaterialSnapshot_(force=false){
  if(newsMaterialSnapshotLoading)return;
  if(newsMaterialSnapshot&&!force){renderNewsMaterials();return;}
@@ -1185,10 +1191,47 @@ async function loadNewsMaterialSnapshot_(force=false){
  }catch(_){}
  finally{newsMaterialSnapshotLoading=false;renderNewsMaterials();}
 }
+function newsArchiveCoverageHtml_(data){
+ if(!data||Number(data.schemaVersion)<2)return '';
+ const coverage=Array.isArray(data.weeklyCoverage)?data.weeklyCoverage:[];
+ const processed=n(data.mailsChecked),total=n(data.mailsTotal);
+ const percent=total?Math.round(processed/total*100):0;
+ return '<section class="news-archive-coverage">'+
+  '<div class="news-archive-header"><b>История новостных писем с W27</b>'+
+  '<span>Проверено '+fmt(processed)+' из '+fmt(total)+' выпусков · '+percent+'%'+
+  (data.archiveComplete?' · архив обработан':' · исторические письма ещё обрабатываются')+'</span></div>'+
+  '<div class="news-archive-progress"><i style="width:'+Math.min(100,Math.max(0,percent))+'%"></i></div>'+
+  '<div class="news-archive-weeks">'+coverage.map(entry=>
+   '<span class="'+(entry.complete?'complete':'pending')+'" title="Отправки за W'+entry.week+
+   ': проверено '+fmt(entry.processed)+' из '+fmt(entry.expected)+'">'+
+   'W'+entry.week+' <b>'+(entry.expected?fmt(entry.processed)+'/'+fmt(entry.expected):'нет данных')+'</b></span>'
+  ).join('')+'</div>'+
+  (Array.isArray(data.sourceMissingWeeks)&&data.sourceMissingWeeks.length?
+   '<p>По неделям '+data.sourceMissingWeeks.map(w=>'W'+w).join(', ')+
+   ' в доступном реестре Sendsay выпусков не найдено. Это не подтверждение нулевого спроса.</p>':'')+
+  '</section>';
+}
+function newsArchiveDisplayStatus_(data,week){
+ const total=n(data.mailsTotal||data.mailsChecked),checked=n(data.mailsChecked);
+ const selected=(data.weeklyCoverage||[]).find(x=>String(x.week)===String(week));
+ let result='Архив новостных материалов с 27-й недели · проверено '+fmt(checked)+
+  ' из '+fmt(total)+' выпусков · '+fmt((data.topics||[]).length)+' материалов'+
+  ' · обновлено '+dateRu(data.generatedAt||'')+
+  (week?' · неделя DEMO '+week:' · все недели DEMO')+'.';
+ if(!data.archiveComplete)result+=' Историческая обработка ещё не завершена: данные неполные.';
+ if(selected)result+=' Отправки W'+week+': '+fmt(selected.processed)+' из '+fmt(selected.expected)+' проверено.';
+ if(Array.isArray(data.errors)&&data.errors.length)result+=' Ошибок обработки: '+data.errors.length+'.';
+ return result;
+}
 function renderNewsMaterialSnapshot_(){
  const data=newsMaterialSnapshot||{},select=document.getElementById('newsMaterialWeek'),previous=select.value;
  const weeks=(data.weeks||[]).slice().sort((a,b)=>b-a);
- select.innerHTML='<option value="">Все доступные недели</option>'+weeks.map(w=>`<option value="${w}">Неделя ${w}</option>`).join('');
+ const coverage=new Map((data.weeklyCoverage||[]).map(x=>[Number(x.week),x]));
+ select.innerHTML='<option value="">Все недели с 27-й</option>'+weeks.map(w=>{
+  const progress=coverage.get(Number(w));
+  const desc=progress?' · писем обработано '+progress.processed+'/'+progress.expected:'';
+  return '<option value="'+w+'">Неделя '+w+esc(desc)+'</option>';
+ }).join('');
  select.value=weeks.some(w=>String(w)===previous)?previous:'';
  const query=document.getElementById('newsMaterialSearch').value.trim().toLowerCase(),group=document.getElementById('newsMaterialGroup').value,filter=document.getElementById('newsMaterialFilter').value,sort=document.getElementById('newsMaterialSort').value;
  const week=select.value;
@@ -1197,7 +1240,14 @@ function renderNewsMaterialSnapshot_(){
    return {...t,...values,total:n(values.red)+n(values.yellow)+n(values.green)};
  }).filter(t=>(!group||t.group===group)&&(!query||[t.title,t.url,t.term].join(' ').toLowerCase().includes(query)));
  const rows=all.filter(t=>filter==='zero'?t.total===0:filter==='green'?t.green>0:true).sort((a,b)=>sort==='total'?b.total-a.total||b.green-a.green:b.green-a.green||b.total-a.total);
- document.getElementById('newsMaterialStatus').textContent=(newsMaterialSnapshotStale_?'АРХИВНЫЙ СРЕЗ — НЕ ТЕКУЩАЯ АНАЛИТИКА. Новые материалы требуют обновления серверного DashboardTabs.gs. ':'')+'Готовый срез: '+fmt(data.mailsChecked||0)+' новостных писем'+(data.errors?.length?' · ошибок '+data.errors.length:'')+' · обновлено '+dateRu(data.generatedAt||'')+' · период '+(week?'неделя '+week:(data.periodLabel||'последние дни'))+'.';
+ const complete=Number(data.schemaVersion)>=2;
+ document.getElementById('newsMaterialStatus').textContent=complete
+  ?newsArchiveDisplayStatus_(data,week)
+  :(newsMaterialSnapshotStale_?'АРХИВНЫЙ СРЕЗ — НЕ ТЕКУЩАЯ АНАЛИТИКА. ':'')+
+   'Только недельный срез: '+fmt(data.mailsChecked||0)+' писем · '+(data.periodLabel||'последние дни')+
+   '. Полный архив с 27-й недели ещё не рассчитан.';
+ const coverageBox=document.getElementById('newsArchiveCoverage');
+ if(coverageBox)coverageBox.innerHTML=newsArchiveCoverageHtml_(data);
  document.getElementById('newsMaterialSummary').innerHTML=`<div><b>${fmt(all.length)}</b><span>материалов</span></div><div><b>${fmt(all.filter(t=>t.total>0).length)}</b><span>приносят демо</span></div><div><b>${fmt(all.filter(t=>!t.total).length)}</b><span>без демо</span></div><div><b>${fmt(all.reduce((s,t)=>s+t.green,0))}</b><span>зелёных демо</span></div>`;
  document.getElementById('newsMaterialRows').innerHTML=rows.length?`<table><thead><tr><th>Новость / статья</th><th>Всего демо</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Письма</th></tr></thead><tbody>${rows.map(t=>`<tr><td><b>${safeLink(t.url,t.title)||esc(t.title||t.term||'Материал')}</b><small>${esc(t.group||'')} · ${t.kind==='news'?'Новость':'Статья'}</small></td><td>${fmt(t.total)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>${fmt((t.letters||[]).length)}</summary>${(t.letters||[]).map(m=>`<p>${safeLink(m.url,m.subject)||esc(m.subject||'Письмо')}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>`:'<p>Материалов по выбранным условиям пока нет.</p>';
 }
