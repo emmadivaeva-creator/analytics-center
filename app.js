@@ -1267,7 +1267,74 @@ function newsArchiveDisplayStatus_(data,demoWeek,sendWeek){
  if(Array.isArray(data.errors)&&data.errors.length)result+=' Ошибок обработки: '+data.errors.length+'.';
  return result;
 }
+function renderNewsTermSnapshot_(){
+  const data=newsMaterialSnapshot||{};
+  const weekSelect=document.getElementById('newsMaterialWeek');
+  const previous=weekSelect.value;
+  const weeks=(data.weeks||[]).slice().sort((a,b)=>b-a);
+  weekSelect.innerHTML='<option value="">Все недели DEMO с 27-й</option>'+
+    weeks.map(w=>'<option value="'+w+'">Неделя '+w+'</option>').join('');
+  weekSelect.value=weeks.some(w=>String(w)===String(previous))?previous:'';
+  const sendSelect=document.getElementById('newsMailSendWeek');
+  if(sendSelect){const label=sendSelect.closest('.news-send-week-filter');if(label)label.classList.add('hidden');}
+  const query=document.getElementById('newsMaterialSearch').value.trim().toLowerCase();
+  const group=document.getElementById('newsMaterialGroup').value;
+  const filter=document.getElementById('newsMaterialFilter').value;
+  const sort=document.getElementById('newsMaterialSort').value;
+  const selected=weekSelect.value;
+  const all=(data.topics||[]).map(t=>{
+    const values=selected?(t.byWeek?.[selected]||{red:0,yellow:0,green:0}):t;
+    const red=n(values.red),yellow=n(values.yellow),green=n(values.green);
+    return {...t,red,yellow,green,total:red+yellow+green};
+  }).filter(t=>(!group||t.group===group)&&
+    (!query||[t.title,t.term,t.url].join(' ').toLowerCase().includes(query)));
+  const rows=all.filter(t=>filter==='zero'?t.total===0:filter==='green'?t.green>0:true)
+    .sort((a,b)=>sort==='total'?b.total-a.total||b.green-a.green:b.green-a.green||b.total-a.total||String(a.term).localeCompare(String(b.term)));
+  const source=document.getElementById('newsMaterialStatus');
+  const checkedAt=String(data.generatedAt||'');
+  source.textContent='Проверенный источник: лист «Новостные ДЕМО пер» · UTM Content = news, UTM Term = ID материала. '+
+    'Статистика рассчитана непосредственно по строкам таблицы, без анализа рассылок. '+
+    fmt(data.termsTotal||0)+' новостей (ГЗ '+fmt(data.groups?.['ГЗ']?.count||0)+
+    ', ГФ '+fmt(data.groups?.['ГФ']?.count||0)+
+    ') · DEMO '+(selected?'за неделю '+selected:'за все недели 27–47')+
+    ' · данные считаны '+dateRu(checkedAt)+
+    (newsMaterialSnapshotStale_?' · источник требует нового считывания':'')+
+    '. Заголовки без подтверждения показываются по номеру Term.';
+  const coverage=document.getElementById('newsArchiveCoverage');
+  if(coverage){
+    const totals=(data.weekTotals||[]);
+    coverage.innerHTML='<section class="news-archive-coverage"><div class="news-archive-header">'+
+      '<b>Динамика DEMO по новостным Term, с 27-й недели</b>'+
+      '<span>Источник: '+esc(data.sourceSheet||'Новостные ДЕМО пер')+
+      ' · '+fmt(data.termsTotal||0)+' Term</span></div>'+
+      '<div class="news-archive-weeks">'+totals.map(x=>
+        '<span class="complete" title="Демо за W'+x.week+
+        '"><b>W'+x.week+'</b> '+fmt(n(x.red)+n(x.yellow)+n(x.green))+
+        ' · G '+fmt(x.green)+'</span>').join('')+'</div>'+
+      '<p>Показатели R/Y/G принадлежат конкретному Term и неделе исходного листа. '+
+      'Рассылки Sendsay не участвуют в расчёте. '+(data.invalidTerms?.length?
+      fmt(data.invalidTerms.length)+' строки без числового Term не приписаны новостям.':'')+
+      '</p></section>';
+  }
+  document.getElementById('newsMaterialSummary').innerHTML=
+    '<div><b>'+fmt(all.length)+'</b><span>новостей по Term</span></div>'+
+    '<div><b>'+fmt(all.filter(t=>t.total>0).length)+'</b><span>с DEMO</span></div>'+
+    '<div><b>'+fmt(all.filter(t=>!t.total).length)+'</b><span>без DEMO в источнике</span></div>'+
+    '<div><b>'+fmt(all.reduce((sum,t)=>sum+t.green,0))+'</b><span>зелёных DEMO</span></div>';
+  document.getElementById('newsMaterialRows').innerHTML=rows.length?
+    '<table><thead><tr><th>Новость по UTM Term</th><th>Всего DEMO</th><th>Зелёные</th>'+
+    '<th>Жёлтые</th><th>Красные</th><th>Исходная строка</th></tr></thead><tbody>'+
+    rows.map(t=>'<tr><td><b>'+safeLink(t.url,t.title||('Новость № '+t.term))+'</b>'+
+      '<small>'+esc(t.group||'')+' · Term '+esc(t.term||'')+
+      (t.titleStatus==='id-only'?' · заголовок страницы не проверен':'')+
+      '</small></td><td>'+fmt(t.total)+'</td><td><b>'+fmt(t.green)+
+      '</b></td><td>'+fmt(t.yellow)+'</td><td>'+fmt(t.red)+
+      '</td><td>'+safeLink(t.sourceUrl,'Строка '+t.sourceRow)+
+      '</td></tr>').join('')+'</tbody></table>':
+    '<p>Новостей по выбранным фильтрам не найдено.</p>';
+}
 function renderNewsMaterialSnapshot_(){
+ if(Number(newsMaterialSnapshot?.schemaVersion)>=3&&newsMaterialSnapshot?.sourceType==='pivot-term')return renderNewsTermSnapshot_();
  const data=newsMaterialSnapshot||{},select=document.getElementById('newsMaterialWeek'),previous=select.value;
  const weeks=(data.weeks||[]).slice().sort((a,b)=>b-a);
  const coverage=new Map((data.weeklyCoverage||[]).map(x=>[Number(x.week),x]));
@@ -1308,21 +1375,14 @@ function renderNewsMaterialSnapshot_(){
  document.getElementById('newsMaterialRows').innerHTML=rows.length?`<table><thead><tr><th>Новость / статья</th><th>Всего демо</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Письма</th></tr></thead><tbody>${rows.map(t=>`<tr><td><b>${safeLink(t.url,t.title)||esc(t.title||t.term||'Материал')}</b><small>${esc(t.group||'')} · ${t.kind==='news'?'Новость':'Статья'}</small></td><td>${fmt(t.total)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>${fmt((t.letters||[]).length)}</summary>${(t.letters||[]).map(m=>`<p>${safeLink(m.url,m.subject)||esc(m.subject||'Письмо')}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>`:'<p>Материалов по выбранным условиям пока нет.</p>';
 }
 function renderNewsMaterials(){
- const latestProcessed=(registryData||[]).some(m=>isNewsMail(m)&&m.materialData&&
-   String(m.date||'')>=new Date(Date.now()-14*86400000).toISOString().slice(0,10));
- if(newsMaterialSnapshot&&(!newsMaterialSnapshotStale_||!latestProcessed)){
-   renderNewsMaterialSnapshot_();return;
- }
- const mails=newsRowsCurrent_(),done=mails.filter(m=>m.materialData).length,errors=mails.filter(m=>m.materialError).length;
- const select=document.getElementById('newsMaterialWeek'),previous=select.value;
- const weeks=[...new Set(mails.flatMap(m=>(m.materialData?.rows||[]).flatMap(r=>(r.weeks||[]).map(w=>w.week))))].sort((a,b)=>b-a);
- select.innerHTML='<option value="">Все доступные недели</option>'+weeks.map(w=>`<option value="${w}">Неделя ${w}</option>`).join('');select.value=weeks.some(w=>String(w)===previous)?previous:'';
- const query=document.getElementById('newsMaterialSearch').value.trim().toLowerCase(),group=document.getElementById('newsMaterialGroup').value,filter=document.getElementById('newsMaterialFilter').value,sort=document.getElementById('newsMaterialSort').value;
- const all=newsMaterialTopics(mails,select.value).filter(t=>(!group||t.group===group)&&(!query||[t.title,t.url].join(' ').toLowerCase().includes(query)));
- const rows=all.filter(t=>filter==='zero'?t.total===0:filter==='green'?t.green>0:true).sort((a,b)=>sort==='total'?b.total-a.total||b.green-a.green:b.green-a.green||b.total-a.total);
- document.getElementById('newsMaterialStatus').textContent=`Живые данные · проверено писем: ${done} из ${mails.length}${errors?' · Ошибок: '+errors+' · '+mails.find(m=>m.materialError).materialError:''}. ${done<mails.length?'Результат пока неполный, новые письма обрабатываются первыми. ':''}Период: ${select.value?'неделя '+select.value:'все обработанные недели'}. Без демо — нет результата в доступном факте за этот период; переходы на отдельные материалы здесь не учитываются.`;
- document.getElementById('newsMaterialSummary').innerHTML=`<div><b>${fmt(all.length)}</b><span>материалов</span></div><div><b>${fmt(all.filter(t=>t.total>0).length)}</b><span>приносят демо</span></div><div><b>${fmt(all.filter(t=>!t.total).length)}</b><span>без демо</span></div><div><b>${fmt(all.reduce((s,t)=>s+t.green,0))}</b><span>зелёных демо</span></div>`;
- document.getElementById('newsMaterialRows').innerHTML=rows.length?`<table><thead><tr><th>Новость / статья</th><th>Всего демо</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Письма</th></tr></thead><tbody>${rows.map(t=>`<tr><td><b>${safeLink(t.url,t.title)||esc(t.title)}</b><small>${esc(t.group)} · ${t.kind==='news'?'Новость':'Статья'}</small></td><td>${fmt(t.total)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>${t.letters.size}</summary>${[...t.letters.values()].map(m=>`<p>${safeLink(m.url,m.subject)||esc(m.subject)}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>`:'<p>Материалов по выбранным условиям пока нет.</p>';
+  if(newsMaterialSnapshot){renderNewsMaterialSnapshot_();return;}
+  document.getElementById('newsMaterialStatus').textContent=
+    'Ожидаю аналитический срез новостей по UTM Term из листа «Новостные ДЕМО пер». '+
+    'Тексты и ссылки из рассылок не используются для подсчёта DEMO.';
+  document.getElementById('newsMaterialRows').innerHTML=
+    '<p>Текущая аналитика не загружена. Проверьте новостной источник.</p>';
+  document.getElementById('newsMaterialSummary').innerHTML='';
+  document.getElementById('newsArchiveCoverage').innerHTML='';
 }
 for(const mode of ['Letters','Materials'])document.getElementById('news'+mode+'Tab').onclick=()=>{for(const name of ['Letters','Materials']){document.getElementById('news'+name+'Panel').classList.toggle('hidden',name!==mode);document.getElementById('news'+name+'Tab').setAttribute('aria-pressed',String(name===mode));}if(mode==='Materials')loadNewsMaterialSnapshot_();};
 for(const name of ['Search','Group','Week','Filter','Sort'])document.getElementById('newsMaterial'+name).addEventListener(name==='Search'?'input':'change',renderNewsMaterials);
