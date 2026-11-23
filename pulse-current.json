@@ -1,52 +1,52 @@
 {
-  "generatedAt": "2026-10-30T09:52:37.992Z",
+  "generatedAt": "2026-11-23T13:01:41.023Z",
   "sourceName": "Статистика по ДЕМО",
   "sourceUrl": "https://docs.google.com/spreadsheets/d/1d8l_kvvBWB2oVhU3cYtZF_Lx9iBI6kKn2fNVd_QZ0m0/edit",
   "year": 2026,
-  "week": 44,
+  "week": 47,
   "note": "Автоматический резервный снимок живого DEMO-факта. Основной источник сайта — getPulseDataFresh.",
   "products": [
     {
       "product": "ГЗ Периодика",
-      "red": 23,
-      "yellow": 22,
-      "green": 19,
-      "plan": 28
+      "red": 24,
+      "yellow": 9,
+      "green": 7,
+      "plan": 24
     },
     {
       "product": "ГЗ Система",
-      "red": 120,
-      "yellow": 59,
-      "green": 67,
-      "plan": 92
+      "red": 70,
+      "yellow": 29,
+      "green": 36,
+      "plan": 80
     },
     {
       "product": "ГЗ Школа",
-      "red": 102,
-      "yellow": 64,
-      "green": 44,
-      "plan": 27
+      "red": 52,
+      "yellow": 25,
+      "green": 17,
+      "plan": 20
     },
     {
       "product": "ГФ Периодика",
-      "red": 61,
-      "yellow": 73,
-      "green": 40,
-      "plan": 57
+      "red": 87,
+      "yellow": 81,
+      "green": 39,
+      "plan": 59
     },
     {
       "product": "ГФ Система",
-      "red": 237,
-      "yellow": 130,
-      "green": 176,
-      "plan": 220
+      "red": 165,
+      "yellow": 76,
+      "green": 113,
+      "plan": 250
     },
     {
       "product": "ГФ Школа",
-      "red": 66,
-      "yellow": 25,
-      "green": 21,
-      "plan": 53
+      "red": 37,
+      "yellow": 14,
+      "green": 12,
+      "plan": 60
     }
   ]
 }
