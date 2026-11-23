@@ -7,6 +7,7 @@ window.ANALYTICS_DOMAIN_CONFIG = Object.freeze({
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/script.external_request'
+    'https://www.googleapis.com/auth/script.external_request',
+    'https://www.googleapis.com/auth/script.scriptapp'
   ]
 });
