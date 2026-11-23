@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-23T15:39:41.140Z",
+  "generatedAt": "2026-11-23T15:44:45.252Z",
   "from": "2026-06-29",
   "through": "2026-11-23",
   "source": "Analytics Center _Sendsay v2: canonical NEWS Sendsay API issues, unique by LBAC policy + issue ID",
@@ -271,9 +271,9 @@
       "sent": 11276,
       "delivered": 11237,
       "opened": 394,
-      "openRate": 3.5,
+      "openRate": 3.51,
       "clicks": 29,
-      "clickRate": 0.25,
+      "clickRate": 0.26,
       "ctor": 7.36
     },
     {
@@ -321,8 +321,8 @@
       "opened": 275,
       "openRate": 3.13,
       "clicks": 21,
-      "clickRate": 0.23,
-      "ctor": 7.63
+      "clickRate": 0.24,
+      "ctor": 7.64
     },
     {
       "id": "import-api:61:25814799",
@@ -335,7 +335,7 @@
       "sent": 6383,
       "delivered": 6354,
       "opened": 219,
-      "openRate": 3.44,
+      "openRate": 3.45,
       "clicks": 14,
       "clickRate": 0.22,
       "ctor": 6.39
@@ -351,10 +351,10 @@
       "sent": 87298,
       "delivered": 87022,
       "opened": 1451,
-      "openRate": 1.66,
+      "openRate": 1.67,
       "clicks": 97,
       "clickRate": 0.11,
-      "ctor": 6.68
+      "ctor": 6.69
     },
     {
       "id": "import-api:52:25850763",
@@ -369,8 +369,8 @@
       "opened": 1340,
       "openRate": 1.97,
       "clicks": 127,
-      "clickRate": 0.18,
-      "ctor": 9.47
+      "clickRate": 0.19,
+      "ctor": 9.48
     },
     {
       "id": "import-api:61:25842106",
@@ -415,10 +415,10 @@
       "sent": 42503,
       "delivered": 42371,
       "opened": 3045,
-      "openRate": 7.18,
+      "openRate": 7.19,
       "clicks": 380,
-      "clickRate": 0.89,
-      "ctor": 12.47
+      "clickRate": 0.9,
+      "ctor": 12.48
     },
     {
       "id": "import-api:52:25863758",
@@ -434,7 +434,7 @@
       "openRate": 1.8,
       "clicks": 125,
       "clickRate": 0.09,
-      "ctor": 5.1
+      "ctor": 5.11
     },
     {
       "id": "import-api:61:25854464",
@@ -479,9 +479,9 @@
       "sent": 100003,
       "delivered": 99552,
       "opened": 1867,
-      "openRate": 1.87,
+      "openRate": 1.88,
       "clicks": 177,
-      "clickRate": 0.17,
+      "clickRate": 0.18,
       "ctor": 9.48
     },
     {
@@ -5013,6 +5013,6 @@
       "ctor": 4.93
     }
   ],
-  "scanOffset": 8000,
-  "scanCheckedAt": "2026-11-23T15:39:41.140Z"
+  "scanOffset": 10000,
+  "scanCheckedAt": "2026-11-23T15:44:45.252Z"
 }
