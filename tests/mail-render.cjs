@@ -43,6 +43,7 @@ async function fixture(browser,label,emails,before=false,exercise=false){
    else return route.fulfill({contentType:'text/javascript',body:u.searchParams.get('callback')+'('+JSON.stringify({ok:false,error:'Unexpected test RPC: '+method})+');'});
    return route.fulfill({contentType:'text/javascript',body:u.searchParams.get('callback')+'('+JSON.stringify({ok:true,result})+');'});
   }
+  if(u.pathname==='/analytics-center/news-demo-inventory.json')return route.fulfill({contentType:'application/json',body:JSON.stringify({schemaVersion:1,emails:[],weeks:{}})});
   if(!u.href.startsWith(base))return route.abort();
   const rel=u.pathname.slice('/analytics-center/'.length)||'index.html';
   const file=path.resolve(root,rel);
