@@ -49,6 +49,7 @@ async function test(browser,engine,before){
    }else envelope={ok:false,error:'Unexpected fixture method: '+method};
    return route.fulfill({contentType:'text/javascript',body:u.searchParams.get('callback')+'('+JSON.stringify(envelope||{ok:true,result})+');'});
   }
+  if(u.pathname==='/analytics-center/news-demo-inventory.json')return route.fulfill({contentType:'application/json',body:JSON.stringify({schemaVersion:1,emails:[],weeks:{}})});
   if(!u.href.startsWith(base))return route.abort();
   const rel=u.pathname.slice('/analytics-center/'.length)||'index.html',file=path.resolve(root,rel);
   if(!file.startsWith(root+path.sep)||!fs.existsSync(file))return route.fulfill({status:404,body:'Not found'});
