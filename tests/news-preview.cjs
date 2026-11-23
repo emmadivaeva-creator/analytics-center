@@ -38,6 +38,7 @@ async function test(browser,engine,before){
    let result,envelope;
    if(method==='v2HealthCheck')result={ok:true,backendBuild:'test'};
    else if(method==='getMailRegistryPageUi')result={emails,offset:0,nextOffset:emails.length,done:true,totalRows:emails.length,readAt:'2026-10-16T13:00:00Z'};
+   else if(method==='getMailRegistryRecentUi')result={emails,from:'2026-10-09',to:'2026-10-16',readAt:'2026-10-16T13:00:00Z'};
    else if(method==='getPulseDataStoredUi'||method==='getPulseDataFresh')result={meta:{year:2026,currentWeek:42},weekDetails:[{week:42,products:[],summary:{}}],weeks:[],products:[],summary:{}};
    else if(method==='getDemandEvidenceUi')result={ok:true,evidence:[],readAt:'2026-10-16T13:00:00Z'};
    else if(method==='getMailDemoDetailsUi')result={materials:[],rows:[]};
@@ -61,7 +62,9 @@ async function test(browser,engine,before){
  try{
   await page.goto(base+'#news',{waitUntil:'domcontentloaded'});
   await page.locator('#newsRows tbody tr').first().waitFor();
-  await page.waitForFunction(()=>/DEMO проверены/.test(document.querySelector('#mailDemoStatus')?.textContent||''));
+  await page.waitForFunction(()=>before
+    ? /DEMO проверены/.test(document.querySelector('#mailDemoStatus')?.textContent||'')
+    : /Новостных писем:/.test(document.querySelector('#newsStatus')?.textContent||''));
   if(before){
    assert.equal(await page.locator('#newsRows .mail-body-preview').count(),0);
    assert.equal(await page.locator('#mailRows .mail-body-preview').count(),1);
@@ -134,7 +137,9 @@ async function test(browser,engine,before){
   await page.waitForTimeout(1600);
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('#newsRows tbody tr').first().waitFor();
-  await page.waitForFunction(()=>/DEMO проверены/.test(document.querySelector('#mailDemoStatus')?.textContent||''));
+  await page.waitForFunction(()=>before
+    ? /DEMO проверены/.test(document.querySelector('#mailDemoStatus')?.textContent||'')
+    : /Новостных писем:/.test(document.querySelector('#newsStatus')?.textContent||''));
   await page.locator('#newsSearch').fill('Дайджест 90000');
   await page.locator('#newsRows .mail-body-preview summary').click();
   await page.locator('#newsRows .mail-body-text').waitFor();
