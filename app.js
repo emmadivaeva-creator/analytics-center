@@ -2417,6 +2417,12 @@ function prepareTradeMailLayout_(){
  if(!page||page.dataset.mailLayout==='1')return;
  const filter=page.querySelector('.trade-filters'),actions=page.querySelector('.trade-actions');
  page.insertBefore(filter,actions);
+ // Separate daily schedules for DEMO and Trade. Installation runs only after an owner click.
+ const schedule=document.createElement('button');
+ schedule.id='tradeEnableDaily';schedule.type='button';
+ schedule.textContent='Включить ежедневное обновление';
+ schedule.title='Настроить ежедневный запуск DEMO и торговых писем без открытия сайта';
+ if(actions)actions.appendChild(schedule);
  filter.classList.add('trade-mail-filters');
  const summary=document.createElement('div');
  summary.id='tradeWeekSummary';summary.className='mail-week-summary';
@@ -2697,6 +2703,27 @@ async function syncTradeRecent_(){
 document.getElementById('tradeReload').onclick=()=>loadTrade(true);
 document.getElementById('tradeSyncHistory').onclick=syncTradeHistory_;
 document.getElementById('tradeSyncRecent').onclick=syncTradeRecent_;
+document.getElementById('tradeEnableDaily').onclick=async()=>{
+ if(!window.analyticsOwnerMode){
+  tradeStatus_('Расписание может установить только владелец. Войдите через Google.');
+  if(window.analyticsRequestOwnerLogin)window.analyticsRequestOwnerLogin();
+  return;
+ }
+ const button=document.getElementById('tradeEnableDaily');
+ button.disabled=true;
+ tradeStatus_('Настраиваю ежедневное обновление DEMO и торговых писем…');
+ try{
+  const demo=await rpc('installDailySendsayApiTrigger');
+  if(!demo?.ok)throw new Error('DEMO-триггер не подтвердил установку.');
+  const trade=await rpc('installTradeMailDailyTrigger');
+  if(!trade?.ok)throw new Error('Торговый триггер не подтвердил установку.');
+  tradeStatus_('Расписание подтверждено: DEMO около 09:00 МСК, торговые письма около 08:35 МСК. Сайт открывать не требуется.');
+  button.textContent='Ежедневное обновление включено';
+ }catch(e){
+  tradeStatus_('Не удалось подтвердить оба триггера: '+String(e&&e.message||e)+
+   '. Проверьте разрешение Google на управление триггерами и выполненные запуски Apps Script.');
+ }finally{button.disabled=false;}
+};
 ['tradeGroup','tradeTag','tradeWeek'].forEach(id=>
   document.getElementById(id).onchange=()=>{tradeRowsLimit_=100;renderTrade();}
 );
