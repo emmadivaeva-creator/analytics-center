@@ -6,7 +6,8 @@
     'syncSendsayApiLast3Days', 'syncDemoStats', 'refreshAppData',
     'getMailRegistryUi', 'getMailRegistryRecentUi', 'getMailRegistryPageUi', 'getMailDemoDetailsUi', 'getMailBodyUi', 'getDemandEvidenceUi',
     'getVikaPlanUi', 'getVikaEditorialUi', 'saveVikaActiveDemoUi', 'getVioTrendsUi',
-    'getTradeMailUi', 'syncTradeMailBatch', 'syncTradeMailLast3Days']);
+    'getTradeMailUi', 'syncTradeMailBatch', 'syncTradeMailLast3Days',
+    'installDailySendsayApiTrigger', 'installTradeMailDailyTrigger']);
   const gate = document.getElementById('authGate');
   const button = document.getElementById('signIn');
   const status = document.getElementById('authStatus');
