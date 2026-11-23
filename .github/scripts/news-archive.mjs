@@ -104,7 +104,7 @@ export function buildNewsSummary(inventory, archive, generatedAt=new Date().toIS
   const lastDate=issues.reduce((a,m)=>m.date>a?m.date:a,'');
   const weeks=Array.from({length:Math.max(1,Math.min(53,isoWeek(lastDate)||27)-26)},(_,i)=>i+27);
   const missing=issues.length-count;
-  const coverage=weeks.map(week=>({week,expected:weeklyExpected[week],processed:processedWeeks[week],complete:weeklyExpected[week]===processedWeeks[week]}));
+  const coverage=weeks.map(week=>({week,expected:weeklyExpected[week],processed:processedWeeks[week],complete:weeklyExpected[week]===processedWeeks[week] && !(inventory?.missingEarlyWeeks||[]).includes(week)}));
   const sourceStart=NEWS_START,through=lastDate||NEWS_START;
   return {
     schemaVersion:2,generatedAt,
