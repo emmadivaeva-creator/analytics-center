@@ -38,17 +38,16 @@ jobs:
         run: |
           node -e "const p=require('./pulse-current.json'); if(!Array.isArray(p.products)||!p.products.length)process.exit(1); console.log('pulse',p.week,p.products.reduce((s,x)=>s+Number(x.green||0),0))"
           node -e "const d=require('./demand-current.json'); if(!Array.isArray(d.evidence)||!d.evidence.length)process.exit(1); console.log('demand',d.evidence.length)"
-          node -e "const n=require('./news-demo-current.json'); if(!Array.isArray(n.topics)||n.schemaVersion!==2||n.mailsChecked>n.mailsTotal)process.exit(1); console.log('news',n.mailsChecked+'/'+n.mailsTotal,'topics',n.topics.length,'weeks',n.weeks[0]+'-'+n.weeks.at(-1))"
-          node -e "const a=require('./news-demo-letter-results.json'); const i=require('./news-demo-inventory.json'); if(!Array.isArray(i.emails)||!a.results)process.exit(1); console.log('news results',Object.keys(a.results).length,'known issues',i.emails.length)"
+          node -e "const n=require('./news-demo-current.json'); if(n.schemaVersion!==3||n.sourceType!=='pivot-term'||!Array.isArray(n.topics)||n.topics.length!==n.termsTotal||!n.topics.length||n.weeks[0]!==27||n.topics.some(t=>t.letters?.length||t.url!==(t.group==='ГЗ'?'https://www.pro-goszakaz.ru/news/':'https://www.budgetnik.ru/news/')+t.term))process.exit(1); console.log('news UTM Term',n.termsTotal,'weeks',n.weeks[0]+'-'+n.weeks.at(-1),'green',n.totals.green)"
       - name: Commit refreshed snapshots
         run: |
-          if git diff --quiet -- pulse-current.json demand-current.json news-demo-current.json news-demo-inventory.json news-demo-letter-results.json; then
+          if git diff --quiet -- pulse-current.json demand-current.json news-demo-current.json; then
             echo "Snapshots unchanged"
             exit 0
           fi
           git config user.name "analytics-snapshot-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add pulse-current.json demand-current.json news-demo-current.json news-demo-inventory.json news-demo-letter-results.json
+          git add pulse-current.json demand-current.json news-demo-current.json
           git commit -m "Refresh live analytics snapshots [skip ci]"
           # Other Analytics Center publishes may land between fetch and push.
           # Rebase onto the newest branch and retry without overwriting commits.
@@ -65,11 +64,3 @@ jobs:
           echo "::error::Unable to publish refreshed snapshots after 8 rebases"
           exit 1
 
-      - name: Continue historical NEWS backfill
-        if: steps.build.outputs.archive_pending != '0' && steps.build.outputs.archive_added != '0'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # workflow_dispatch from GITHUB_TOKEN is an allowed workflow trigger.
-          # Continue in a new serialized run; every completed batch is committed.
-          gh workflow run refresh-live-snapshots.yml --ref v2-rebuild
