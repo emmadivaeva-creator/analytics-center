@@ -725,6 +725,9 @@ function storeMailBodyPreview_(ref,data){
  (registryData||[]).forEach(item=>{
    if(mailBodyRef_(item)===ref)item.bodyPreview=normalized;
  });
+ (tradeData?.items||[]).forEach(item=>{
+   if((item.direction==='ГФ'?'52':'61')+':'+String(item.issueId||'')===ref)item.bodyPreview=normalized;
+ });
  scheduleRegistryCacheSave_();
  return normalized;
 }
@@ -2305,6 +2308,73 @@ document.getElementById('vioReload').onclick=()=>loadVio(true);
 document.getElementById('vioTrendSearch').oninput=renderVio;
 document.getElementById('vioTrendSort').onchange=renderVio;
 
+
+function prepareTradeMailLayout_(){
+ const page=document.getElementById('page-trade');
+ if(!page||page.dataset.mailLayout==='1')return;
+ const filter=page.querySelector('.trade-filters'),actions=page.querySelector('.trade-actions');
+ page.insertBefore(filter,actions);
+ filter.classList.add('trade-mail-filters');
+ const summary=document.createElement('div');
+ summary.id='tradeWeekSummary';summary.className='mail-week-summary';
+ filter.after(summary);
+ const table=page.querySelector('.trade-table');
+ const wrap=table&&table.parentElement;
+ if(wrap)wrap.classList.add('registry','trade-mail-registry');
+ if(table)table.querySelector('thead').innerHTML='<tr><th>Отправлено</th><th>Продукт / тип</th><th>Письмо</th><th>Доставлено</th><th>Открыли</th><th>Кликнули</th><th>CTOR</th></tr>';
+ const more=document.createElement('button');
+ more.id='tradeMore';more.type='button';more.className='hidden';
+ more.textContent='Показать ещё';
+ if(wrap)wrap.after(more);
+ const hint=page.querySelector('.trade-hint');
+ if(hint)hint.textContent='Факт рассылок Sendsay по меткам Market / Project / Event. Показатели R / Y / G здесь не рассчитываются и не смешиваются с DEMO.';
+ page.dataset.mailLayout='1';
+}
+prepareTradeMailLayout_();
+let tradeRowsLimit_=100;
+function tradeWeekSummaryHtml_(rows,selectedWeek){
+ if(!rows.length)return '<div class="mail-week-note">Писем по выбранным условиям нет.</div>';
+ const labels=['Market','Project','Event'],directions=['ГФ','ГЗ'],names={'ГФ':'Госфинансы','ГЗ':'Госзаказ'};
+ const by=(dir,week)=>rows.filter(x=>x.direction===dir&&(!week||tradeWeekKey_(x)===week));
+ const header=cols=>'<thead><tr>'+cols.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead>';
+ if(selectedWeek){
+  const cells=directions.map(dir=>{
+   const part=by(dir,selectedWeek),segments=labels.map(label=>part.filter(x=>(x.labels||[]).includes(label)));
+   return '<tr><td><b>'+esc(names[dir])+'</b></td>'+
+     segments.map(xs=>'<td><b>'+fmt(xs.length)+'</b><small>'+fmt(xs.reduce((sum,x)=>sum+n(x.delivered),0))+' доставлено</small></td>').join('')+
+     '<td><b>'+fmt(part.length)+'</b><small>'+fmt(part.reduce((sum,x)=>sum+n(x.delivered),0))+' доставлено</small></td></tr>';
+  }).join('');
+  return '<div class="mail-week-head"><div><b>Отправки за '+esc(selectedWeek)+'</b><span>По строкам направления, по столбцам метки. В итоге уникальные выпуски, даже если меток несколько.</span></div></div>'+
+   '<div class="registry mail-week-table trade-week-table"><table>'+header(['Направление',...labels,'Итого без повторов'])+'<tbody>'+cells+'</tbody></table></div>';
+ }
+ const weeks=[...new Set(rows.map(tradeWeekKey_).filter(Boolean))].sort();
+ const body=directions.map(dir=>{
+  const sums=weeks.map(week=>by(dir,week).reduce((total,x)=>total+n(x.delivered),0));
+  return '<tr><td><b>'+esc(names[dir])+'</b></td>'+sums.map(x=>'<td>'+fmt(x)+'</td>').join('')+
+    '<td><b>'+fmt(sums.reduce((a,b)=>a+b,0))+'</b></td></tr>';
+ }).join('');
+ const weekly=weeks.map(week=>rows.filter(x=>tradeWeekKey_(x)===week).reduce((sum,x)=>sum+n(x.delivered),0));
+ return '<div class="mail-week-head"><div><b>Доставлено по неделям</b>'+
+  '<span>По строкам направления, по столбцам недели, как в DEMO-рассылках.</span></div></div>'+
+  '<div class="registry mail-week-table trade-week-table"><table>'+
+  header(['Направление',...weeks.map(x=>'W'+x.split('-W').pop()),'Итого'])+
+  '<tbody>'+body+'</tbody><tfoot><tr><td><b>ГФ и ГЗ</b></td>'+
+  weekly.map(x=>'<td><b>'+fmt(x)+'</b></td>').join('')+
+  '<td><b>'+fmt(weekly.reduce((a,b)=>a+b,0))+'</b></td></tr></tfoot></table></div>';
+}
+function tradeLetterHtml_(mail){
+ const x={...mail,bodyRef:(mail.direction==='ГФ'?'52':'61')+':'+String(mail.issueId||'')};
+ return '<b class="mail-letter-subject">'+esc(mail.subject||'Без темы')+'</b>'+
+   '<div class="mail-letter-actions">'+mailBodyPreviewHtml_(x)+
+   (mail.sendsay?safeLink(mail.sendsay,'Открыть Sendsay'):'')+'</div>'+
+   '<details class="trade-letter-details"><summary>Подробности</summary>'+
+   '<p><b>Campaign:</b> '+esc(mail.campaign||'—')+'</p>'+
+   '<p><b>Метки Sendsay:</b> '+esc((mail.labels||[]).join(', '))+'</p>'+
+   '<p><b>Выпуск:</b> '+esc(mail.issueId||'—')+' · <b>Отправлено:</b> '+fmt(mail.sent)+'</p>'+
+   '<p><b>Отписались:</b> '+fmt(mail.unsubscribed)+'</p>'+
+   '</details>';
+}
+
 function tradeWeekKey_(mail){
   return String(mail.year||String(mail.date||'').slice(0,4))+'-W'+String(mail.week||'').padStart(2,'0');
 }
@@ -2330,33 +2400,31 @@ function tradeTotals_(rows){
     ctor:opened?clicked/opened*100:0};
 }
 function renderTrade(){
-  const rows=tradeFilteredRows_(),totals=tradeTotals_(rows);
-  const cards=[
-    ['Отправок',fmt(rows.length)],
-    ['Доставлено',fmt(totals.delivered)],
-    ['Открываемость',pct(totals.or)],
-    ['Кликабельность',pct(totals.ctr)],
-    ['Кликнули из открывших',pct(totals.ctor)]
-  ];
-  document.getElementById('tradeMetrics').innerHTML=cards.map(([title,value])=>
-    '<div class="trade-metric"><small>'+esc(title)+'</small><b>'+esc(value)+'</b></div>'
-  ).join('');
-  document.getElementById('tradeLabelTotals').innerHTML=['Market','Project','Event'].map(label=>
-    '<span>'+label+': <b>'+fmt(rows.filter(mail=>(mail.labels||[]).includes(label)).length)+'</b></span>'
-  ).join('');
-
-  const body=document.getElementById('tradeRows');
-  body.innerHTML=rows.length?rows.slice(0,1000).map(mail=>
-    '<tr><td>'+esc(mail.date||'')+'<br><small>'+esc(mail.time||'—')+'</small></td>'+
-    '<td>'+esc(mail.direction==='ГФ'?'Госфинансы':'Госзаказ')+'</td>'+
-    '<td>'+esc((mail.labels||[]).join(', '))+'</td>'+
-    '<td><b>'+esc(mail.subject||'Без темы')+'</b><br><small>'+esc(mail.campaign||'')+'</small>'+
-    (mail.sendsay?'<br>'+safeLink(mail.sendsay,'Отчёт Sendsay'):'')+'</td>'+
-    '<td class="num">'+fmt(mail.delivered)+'</td>'+
-    '<td class="num">'+pct(mail.openRate)+'</td>'+
-    '<td class="num">'+pct(mail.clickRate)+'</td>'+
-    '<td class="num">'+pct(mail.ctor)+'</td></tr>'
-  ).join(''):'<tr><td colspan="8" class="empty">Писем с такими условиями не найдено. Проверьте фильтры или синхронизацию Sendsay.</td></tr>';
+ const rows=tradeFilteredRows_(),totals=tradeTotals_(rows),selected=document.getElementById('tradeWeek').value;
+ const cards=[
+   ['Отправок',fmt(rows.length)],['Доставлено',fmt(totals.delivered)],
+   ['Открываемость',pct(totals.or)],['Кликабельность',pct(totals.ctr)],
+   ['Кликнули из открывших',pct(totals.ctor)]
+ ];
+ document.getElementById('tradeMetrics').innerHTML=cards.map(([title,value])=>
+  '<div class="trade-metric"><small>'+esc(title)+'</small><b>'+esc(value)+'</b></div>').join('');
+ document.getElementById('tradeLabelTotals').innerHTML=['Market','Project','Event'].map(label=>
+  '<span>'+label+': <b>'+fmt(rows.filter(mail=>(mail.labels||[]).includes(label)).length)+'</b></span>').join('');
+ document.getElementById('tradeWeekSummary').innerHTML=tradeWeekSummaryHtml_(rows,selected);
+ const visible=rows.slice(0,tradeRowsLimit_);
+ document.getElementById('tradeRows').innerHTML=visible.length?visible.map(mail=>
+  '<tr><td>'+esc(mail.date||'')+'<br><small>'+esc(mail.time||'—')+'</small></td>'+
+  '<td><b>'+esc(mail.direction==='ГФ'?'Госфинансы':'Госзаказ')+'</b>'+
+  '<small>'+esc((mail.labels||[]).join(', '))+'</small></td>'+
+  '<td class="mail-letter">'+tradeLetterHtml_(mail)+'</td>'+
+  '<td class="num">'+fmt(mail.delivered)+'</td>'+
+  '<td class="num"><b>'+fmt(mail.opened)+'</b><small>'+pct(mail.openRate)+'</small></td>'+
+  '<td class="num"><b>'+fmt(mail.clicked)+'</b><small>'+pct(mail.clickRate)+'</small></td>'+
+  '<td class="num">'+pct(mail.ctor)+'</td></tr>').join('')
+  :'<tr><td colspan="7" class="empty">Писем по выбранным условиям не найдено.</td></tr>';
+ const more=document.getElementById('tradeMore');
+ if(more){more.classList.toggle('hidden',rows.length<=tradeRowsLimit_);more.textContent='Показать ещё · '+fmt(Math.min(tradeRowsLimit_,rows.length))+' из '+fmt(rows.length);}
+ bindMailBodyPreviews_('#tradeRows');
 }
 function tradeWeeks_(){
   const control=document.getElementById('tradeWeek');
@@ -2364,6 +2432,7 @@ function tradeWeeks_(){
   const keys=[...new Set((tradeData?.items||[]).map(tradeWeekKey_).filter(x=>/^\d{4}-W\d{2}$/.test(x)))].sort().reverse();
   control.innerHTML='<option value="">Все недели</option>'+keys.map(key=>'<option value="'+esc(key)+'">'+esc(key)+'</option>').join('');
   if(keys.includes(previous))control.value=previous;
+  else if(keys.length)control.value=keys[0];
 }
 function tradeStatus_(text){
   const status=document.getElementById('tradeStatus');if(status)status.textContent=text;
@@ -2477,13 +2546,14 @@ document.getElementById('tradeReload').onclick=()=>{tradeData=null;loadTrade();}
 document.getElementById('tradeSyncHistory').onclick=syncTradeHistory_;
 document.getElementById('tradeSyncRecent').onclick=syncTradeRecent_;
 ['tradeGroup','tradeTag','tradeWeek'].forEach(id=>
-  document.getElementById(id).onchange=renderTrade
+  document.getElementById(id).onchange=()=>{tradeRowsLimit_=100;renderTrade();}
 );
-document.getElementById('tradeSearch').oninput=renderTrade;
+document.getElementById('tradeSearch').oninput=()=>{tradeRowsLimit_=100;renderTrade();};
+document.getElementById('tradeMore').onclick=()=>{tradeRowsLimit_+=100;renderTrade();};
 document.getElementById('tradeReset').onclick=()=>{
   ['tradeGroup','tradeTag','tradeWeek','tradeSearch'].forEach(id=>
     document.getElementById(id).value=''
-  );renderTrade();
+  );tradeRowsLimit_=100;renderTrade();
 };
 
 
