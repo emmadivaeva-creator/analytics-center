@@ -16,6 +16,7 @@ function publicDashboardRead_(event) {
       getMailDemoDetailsUi: getMailDemoDetailsUi,
       getMailBodyUi: getMailBodyUi,
       getDemandEvidenceUi: getDemandEvidenceUi,
+      getNewsDemoTermsUi: getNewsDemoTermsUi,
       getVikaPlanUi: getVikaPlanUi,
       getVikaEditorialUi: getVikaEditorialUi,
       getVioTrendsUi: getVioTrendsUi,
