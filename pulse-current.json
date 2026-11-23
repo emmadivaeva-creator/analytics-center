@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-23T13:13:36.448Z",
+  "generatedAt": "2026-11-23T13:34:10.580Z",
   "sourceName": "Статистика по ДЕМО",
   "sourceUrl": "https://docs.google.com/spreadsheets/d/1d8l_kvvBWB2oVhU3cYtZF_Lx9iBI6kKn2fNVd_QZ0m0/edit",
   "year": 2026,
@@ -8,16 +8,16 @@
   "products": [
     {
       "product": "ГЗ Периодика",
-      "red": 24,
-      "yellow": 9,
-      "green": 7,
+      "red": 36,
+      "yellow": 22,
+      "green": 24,
       "plan": 24
     },
     {
       "product": "ГЗ Система",
-      "red": 70,
-      "yellow": 29,
-      "green": 36,
+      "red": 119,
+      "yellow": 50,
+      "green": 88,
       "plan": 80
     },
     {
@@ -29,16 +29,16 @@
     },
     {
       "product": "ГФ Периодика",
-      "red": 87,
-      "yellow": 81,
-      "green": 39,
+      "red": 117,
+      "yellow": 100,
+      "green": 67,
       "plan": 59
     },
     {
       "product": "ГФ Система",
-      "red": 165,
-      "yellow": 76,
-      "green": 113,
+      "red": 240,
+      "yellow": 150,
+      "green": 239,
       "plan": 250
     },
     {
