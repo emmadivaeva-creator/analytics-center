@@ -73,7 +73,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261120-trade-retry-05';
+    const script=document.createElement('script');script.src='app.js?v=20261123-trade-filter-06';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
