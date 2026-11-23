@@ -108,18 +108,24 @@ async function liveAudit(browser) {
   await page.locator('.navbtn[data-page="pulse"]').click();
   await page.waitForTimeout(2500);
   const pulse = await page.evaluate(async()=>{
-    const cards=[...document.querySelectorAll('#products .product')].map(card=>({
-      product:card.querySelector('h3')?.textContent||'',
-      text:card.textContent.replace(/\\s+/g,' ').trim()
-    }));
     let snapshot=null,stored=null,fresh=null;
     try{snapshot=await fetch('pulse-current.json?audit='+Date.now(),{cache:'no-store'}).then(r=>r.json());}catch(e){snapshot={error:e.message};}
     try{stored=await window.analyticsRpc('getPulseDataStoredUi');}catch(e){stored={error:e.message};}
     try{fresh=await window.analyticsRpc('getPulseDataFresh');}catch(e){fresh={error:e.message};}
+    // Use the latest actual source week rather than a calendar-week placeholder.
+    const actualWeek=Number(fresh?.meta?.currentWeek)||Number(snapshot?.week)||0;
+    const select=document.querySelector('#weekSelect');
+    if(actualWeek&&select&&[...select.options].some(o=>Number(o.value)===actualWeek)){
+      select.value=String(actualWeek);
+      select.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    const cards=[...document.querySelectorAll('#products .product')].map(card=>({
+      product:card.querySelector('h3')?.textContent||'',
+      text:card.textContent.replace(/\s+/g,' ').trim()
+    }));
     return {
       weekSelect:document.querySelector('#weekSelect')?.value||'',
-      cards,
-      snapshot,
+      actualWeek,cards,snapshot,
       stored:{meta:stored?.meta,products:stored?.products},
       fresh:{meta:fresh?.meta,products:fresh?.products}
     };
@@ -133,7 +139,12 @@ async function liveAudit(browser) {
   assert.ok(demandView.rows>0,'Demand table must not be empty');
   assert.ok(newsMaterials.rows>0,'News DEMO materials must not be empty');
   const factGreens=pulse.cards.map(card=>Number((card.text.match(/Факт(\d+)зелёных демо/)||[])[1]||0));
-  assert.equal(factGreens.reduce((a,b)=>a+b,0),367,'Week 44 Green fact must match live source');
+  const sourceProducts=pulse.fresh?.products||[];
+  assert.ok(sourceProducts.length,'Live DEMO source must return current values');
+  assert.equal(Number(pulse.weekSelect),Number(pulse.actualWeek),'Must display latest actual source week');
+  assert.equal(factGreens.reduce((a,b)=>a+b,0),
+    sourceProducts.reduce((s,p)=>s+Number(p.green||0),0),
+    'Displayed DEMO greens must equal live source greens; do not hardcode week 44');
   await page.close();
 }
 (async()=>{
