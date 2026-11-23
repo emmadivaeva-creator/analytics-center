@@ -391,3 +391,8 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 .news-archive-weeks span.pending{background:#fff8ec;border-color:#f2e3c5;color:#84612c}
 .news-archive-weeks b{font-weight:800}
 .news-archive-coverage p{margin:11px 0 0;color:var(--muted);font-size:10px}
+
+/* Distinguish the newsletter's sending week from the DEMO event week. */
+#newsMaterialsPanel .news-send-week-filter{display:flex;flex-direction:column;gap:5px;flex:0 1 240px;color:var(--muted);font-size:11px;font-weight:700}
+#newsMaterialsPanel .news-send-week-filter select{width:100%;min-width:170px;font-size:12px;font-weight:600;color:var(--ink)}
+@media(max-width:680px){#newsMaterialsPanel .news-send-week-filter{flex:1 1 100%}}
