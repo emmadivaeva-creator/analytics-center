@@ -901,9 +901,37 @@ async function fetchFullRegistryPaged_(){
  await registryCacheWrite_(registryData);
  return registryData;
 }
+
+// Keep the DEMO/NEWS cache for immediate display, but reconcile the last seven
+// days with the server whenever the archive is opened. A cached view is not truth.
+let registryRecentSync_=null,registryRecentCheckedAt_=0;
+async function refreshRecentRegistry_(force=false){
+ if(registryRecentSync_)return registryRecentSync_;
+ if(!registryData||!registryData.length)return;
+ if(!force&&Date.now()-registryRecentCheckedAt_<15*60*1000)return;
+ registryRecentCheckedAt_=Date.now();
+ registryRecentSync_=(async()=>{
+  const last=await rpc('getMailRegistryRecentUi',7);
+  if(!last||!Array.isArray(last.emails))throw new Error('Сервер не вернул семидневный срез');
+  await mergeRegistryRecent_(last);
+  if(document.getElementById('page-news').classList.contains('active')){
+    loadNewsMaterialSnapshot_(true).catch(()=>{});
+    startMaterialMatching().catch(()=>{});
+  }
+  return last;
+ })().catch(e=>{
+  const node=document.getElementById('newsStatus');
+  if(node)node.textContent+=' · свежие письма не проверены: '+String(e.message||e);
+  // Do not suppress the retry after a temporary failure.
+  registryRecentCheckedAt_=0;
+  return null;
+ }).finally(()=>{registryRecentSync_=null;});
+ return registryRecentSync_;
+}
+
 async function loadRegistry(){
  if(registryPromise)return registryPromise;
- if(registryData){renderRegistries();return registryData;}
+ if(registryData){renderRegistries();refreshRecentRegistry_().catch(()=>{});return registryData;}
  ['mail','news'].forEach(k=>document.getElementById(k+'Status').textContent='Открываю сохранённые письма…');
 
  registryPromise=(async()=>{try{
@@ -914,6 +942,7 @@ async function loadRegistry(){
        if(cached._fallbackKey&&cached._fallbackKey!==REGISTRY_CACHE_KEY){
          registryCacheWrite_(registryData).catch(()=>{});
        }
+       refreshRecentRegistry_().catch(()=>{});
        return registryData;
      }
    }catch(cacheError){}
@@ -1011,7 +1040,11 @@ function renderNewsLetters(){
  const openPreviews=new Set([...document.querySelectorAll('#newsRows .mail-body-preview[open]')].map(d=>d.dataset.bodyRef));
  const query=document.getElementById('newsSearch').value.trim().toLowerCase(),product=document.getElementById('newsProduct').value;
  const rows=(registryData||[]).filter(isNewsMail).filter(x=>(!product||x.product===product)&&(!query||[x.subject,x.campaign].join(' ').toLowerCase().includes(query)));
- document.getElementById('newsStatus').textContent='Писем: '+fmt(rows.length)+' · свежие сверху'+registryCacheNote_()+'. Демо материалов — в разделе «Какие новости дают демо».';
+ const latest=rows.length?String(rows[0].date||''):'';
+ document.getElementById('newsStatus').textContent='Писем: '+fmt(rows.length)+' · последнее письмо '+(latest||'—')+
+   ' · свежие сверху'+registryCacheNote_()+
+   (latest&&latest<new Date(Date.now()-8*86400000).toISOString().slice(0,10)?' · архив может быть устаревшим, проверяю сервер…':'')+
+   '. Демо материалов — в разделе «Какие новости дают демо».';
  document.getElementById('newsRows').innerHTML=rows.length?`<table><thead><tr><th>Дата</th><th>Продукт</th><th>Письмо в Sendsay</th><th>Отправлено</th><th>Доставлено</th><th>Открытия, %</th><th>Клики</th><th>Клики, %</th><th>CTOR, %</th></tr></thead><tbody>${rows.slice(0,registryLimits.news).map(x=>`<tr><td>${esc(x.date)}<small>${esc(x.time||'')}</small></td><td>${esc(x.product)}</td><td><b>${safeLink(x.sendsay,x.subject)||esc(x.subject)}</b>${mailBodyPreviewHtml_(x)}</td><td>${x.sent==null?'—':fmt(x.sent)}</td><td>${fmt(x.delivered)}</td><td>${x.openRate==null?'—':pct(x.openRate)}</td><td>${x.clicks==null?'—':fmt(x.clicks)}</td><td>${x.clickRate==null?'—':pct(x.clickRate)}</td><td>${x.ctor==null?'—':pct(x.ctor)}</td></tr>`).join('')}</tbody></table><p>«—» — показатель не передан источником.</p>`:'<p>Нет писем по выбранным условиям.</p>';
  document.getElementById('newsMore').classList.toggle('hidden',rows.length<=registryLimits.news);
  bindMailBodyPreviews_('#newsRows');
@@ -1086,7 +1119,10 @@ function materialSummary(x){if(x.materialError)return 'Ошибка сопост
 function materialDetails(x){return x.materialData?`<p>Материалов: ${x.materialData.materials.length}; совпадений: ${x.materialData.rows.length}</p>`+x.materialData.rows.map(r=>`<p>${safeLink(r.url,r.title)} · Term ${esc(r.term)} · ${esc(r.product)}<br>${safeLink(r.sourceUrl,r.source)} · R ${fmt(r.values.red)} / Y ${fmt(r.values.yellow)} / G ${fmt(r.values.green)}</p>`).join(''):materialSummary(x);}
 async function startMaterialMatching(){
  const current=registryData;
- for(const mail of current.filter(isNewsMail)){
+ // Process the newest issues first; an old archive must not block November.
+ const recentNews=(current||[]).filter(isNewsMail)
+   .sort((a,b)=>mailDate(b).localeCompare(mailDate(a))).slice(0,45);
+ for(const mail of recentNews){
   if(current!==registryData)return;
   if(mail.materialData||mail.materialLoading)continue;
   mail.materialLoading=true;
