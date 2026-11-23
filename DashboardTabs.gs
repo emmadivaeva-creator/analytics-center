@@ -702,6 +702,115 @@ function dashboardMailPageRows_(header,rows,physicalOffset) {
   return output;
 }
 
+/**
+ * Canonical news DEMO facts. Never reads Sendsay or HTML of a newsletter.
+ * A row is one (publisher group, UTM Content = news, numeric UTM Term);
+ * R/Y/G come from that exact source row's W27+ columns.
+ *
+ * Article headlines are not stored in this source pivot. The visible
+ * fallback is "Новость № TERM" instead of an unverified email CTA.
+ */
+function getNewsDemoTermsUi() {
+  const book=demoStatsSpreadsheet_();
+  const sheet=book.getSheetByName('Новостные ДЕМО пер');
+  if(!sheet)throw new Error('Нет листа «Новостные ДЕМО пер»');
+  const grid=sheet.getDataRange().getDisplayValues();
+  let header=-1;
+  for(let i=0;i<grid.length;i++){
+    const row=grid[i];
+    if(norm_(row[0])==='издательская группа'&&
+       norm_(row[1])==='utm content'&&norm_(row[2])==='utm term'){
+      header=i;break;
+    }
+  }
+  if(header<1)throw new Error('Не найдены колонки UTM Content/Term в «Новостные ДЕМО пер»');
+  const cols=[],weekSet={},weeks={};
+  (grid[header]||[]).forEach(function(column,i) {
+    const metric=demoMetric_(column);
+    const week=Number(String((grid[header-1]||[])[i]||'').trim());
+    if(metric&&Number.isInteger(week)&&week>=27&&week<=53) {
+      const key=week+'|'+metric;
+      if(weekSet[key])return;
+      weekSet[key]=true;
+      cols.push({i:i,week:week,metric:metric});
+      weeks[week]=true;
+    }
+  });
+  const weekList=Object.keys(weeks).map(Number).sort(function(a,b){return a-b;});
+  if(!weekList.length)throw new Error('Не найдены недельные R/Y/G в «Новостные ДЕМО пер»');
+  const totals={red:0,yellow:0,green:0},topics=[],invalidTerms=[],seen={};
+  grid.slice(header+1).forEach(function(row,idx){
+    if(norm_(row[1])!=='news')return;
+    const group=demoGroup_(row[0]),term=String(row[2]||'').trim();
+    const sourceRow=header+idx+2;
+    if(!group||!/^\d{5,8}$/.test(term)){
+      invalidTerms.push({sourceRow:sourceRow,group:group,term:term});
+      return;
+    }
+    const key=group+'|'+term;
+    if(seen[key])throw new Error('Повторный UTM Term в новостной аналитике: '+key);
+    seen[key]=true;
+    const byWeek={};
+    weekList.forEach(function(week){byWeek[week]={red:0,yellow:0,green:0};});
+    const sum={red:0,yellow:0,green:0};
+    cols.forEach(function(c){
+      const count=Math.max(0,number_(row[c.i]));
+      byWeek[c.week][c.metric]+=count;
+      sum[c.metric]+=count;
+      totals[c.metric]+=count;
+    });
+    const url=(group==='ГЗ'
+      ?'https://www.pro-goszakaz.ru/news/'
+      :'https://www.budgetnik.ru/news/')+term;
+    const verified=group==='ГЗ'&&term==='119557';
+    topics.push({
+      term:term,kind:'news',group:group,url:url,
+      title:verified
+        ?'Приказ о назначении ответственных за формирование и размещение в ЕИС постотчета стал обязательным'
+        :'Новость № '+term,
+      titleStatus:verified?'user-verified':'id-only',
+      sourceRow:sourceRow,
+      sourceUrl:book.getUrl()+'#gid='+sheet.getSheetId()+'&range=A'+sourceRow+
+        ':'+'BM'+sourceRow,
+      red:sum.red,yellow:sum.yellow,green:sum.green,
+      total:sum.red+sum.yellow+sum.green,byWeek:byWeek,letters:[]
+    });
+  });
+  topics.sort(function(a,b){return b.green-a.green||b.total-a.total||
+    a.group.localeCompare(b.group)||a.term.localeCompare(b.term);});
+  const groupStats={};
+  ['ГЗ','ГФ'].forEach(function(group){
+    const subset=topics.filter(function(t){return t.group===group;});
+    groupStats[group]={count:subset.length,totals:subset.reduce(function(sum,t){
+      ['red','yellow','green'].forEach(function(m){sum[m]+=t[m];});
+      return sum;
+    },{red:0,yellow:0,green:0})};
+  });
+  const weekTotals=weekList.map(function(week){
+    return topics.reduce(function(sum,t){
+      ['red','yellow','green'].forEach(function(m){sum[m]+=t.byWeek[week][m];});
+      return sum;
+    },{week:week,red:0,yellow:0,green:0});
+  });
+  const last=weekList[weekList.length-1];
+  const monday=new Date(Date.UTC(2026,0,4));
+  monday.setUTCDate(monday.getUTCDate()-((monday.getUTCDay()+6)%7)+(last-1)*7);
+  const sunday=new Date(monday.getTime()+6*86400000).toISOString().slice(0,10);
+  return {
+    schemaVersion:3,
+    generatedAt:new Date().toISOString(),
+    sourceType:'pivot-term',
+    sourceSheet:'Новостные ДЕМО пер',
+    sourceUrl:book.getUrl()+'#gid='+sheet.getSheetId(),
+    attribution:'UTM Content=news + UTM Term, без ссылок и текста рассылок',
+    period:{from:'2026-06-29',to:sunday,weeks:weekList.length},
+    periodLabel:'Недели W27–W'+last+' 2026 года',
+    weeks:weekList,termsTotal:topics.length,invalidTerms:invalidTerms,
+    totals:totals,total:totals.red+totals.yellow+totals.green,
+    groups:groupStats,weekTotals:weekTotals,topics:topics
+  };
+}
+
 /** Read current source rows; keep campaign facts and referer material facts separate. */
 function dashboardDemoRows_(reference) {
   const book=demoStatsSpreadsheet_();
