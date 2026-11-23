@@ -8,6 +8,8 @@ on:
       - 'tests/mail-render.cjs'
       - 'tests/mail-demo-attribution.cjs'
       - 'tests/news-preview.cjs'
+      - 'tests/news-archive.cjs'
+      - '.github/scripts/news-archive.mjs'
       - 'domain-auth.js'
       - 'domain-config.js'
       - 'demo-sources.json'
@@ -32,6 +34,8 @@ jobs:
           node --check tests/startup-browser.cjs
       - name: Verify exact DEMO attribution with synthetic data
         run: node tests/mail-demo-attribution.cjs
+      - name: Verify cumulative news archive with synthetic data
+        run: node tests/news-archive.cjs
       - name: Prepare browser
         run: npm install --prefix "$RUNNER_TEMP/analytics-browser" --no-audit --no-fund playwright@1.56.1
       - name: Render nonempty mail tables
