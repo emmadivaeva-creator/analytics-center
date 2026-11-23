@@ -1201,6 +1201,21 @@ let newsMaterialSnapshot=null,newsMaterialSnapshotLoading=false,newsMaterialSnap
  if(!status||document.getElementById('newsArchiveCoverage'))return;
  const box=document.createElement('div');box.id='newsArchiveCoverage';
  status.after(box);
+ const controls=document.querySelector('#newsMaterialsPanel .tab-tools');
+ const demoWeek=document.getElementById('newsMaterialWeek');
+ if(controls&&demoWeek){
+  const label=document.createElement('label');
+  label.className='news-send-week-filter';
+  label.textContent='Неделя рассылки';
+  const select=document.createElement('select');
+  select.id='newsMailSendWeek';
+  select.setAttribute('aria-label','Неделя отправки новостных писем');
+  select.innerHTML='<option value="">Все недели отправки с W27</option>';
+  label.appendChild(select);
+  controls.insertBefore(label,demoWeek);
+  demoWeek.setAttribute('aria-label','Неделя полученного DEMO по материалам');
+  select.addEventListener('change',renderNewsMaterials);
+ }
 })();
 async function loadNewsMaterialSnapshot_(force=false){
  if(newsMaterialSnapshotLoading)return;
@@ -1238,15 +1253,17 @@ function newsArchiveCoverageHtml_(data){
    ' в доступном реестре Sendsay выпусков не найдено. Это не подтверждение нулевого спроса.</p>':'')+
   '</section>';
 }
-function newsArchiveDisplayStatus_(data,week){
+function newsArchiveDisplayStatus_(data,demoWeek,sendWeek){
  const total=n(data.mailsTotal||data.mailsChecked),checked=n(data.mailsChecked);
- const selected=(data.weeklyCoverage||[]).find(x=>String(x.week)===String(week));
- let result='Архив новостных материалов с 27-й недели · проверено '+fmt(checked)+
+ const selected=(data.weeklyCoverage||[]).find(x=>String(x.week)===String(sendWeek));
+ let result='История новостных рассылок с W27 · обработано '+fmt(checked)+
   ' из '+fmt(total)+' выпусков · '+fmt((data.topics||[]).length)+' материалов'+
   ' · обновлено '+dateRu(data.generatedAt||'')+
-  (week?' · неделя DEMO '+week:' · все недели DEMO')+'.';
- if(!data.archiveComplete)result+=' Историческая обработка ещё не завершена: данные неполные.';
- if(selected)result+=' Отправки W'+week+': '+fmt(selected.processed)+' из '+fmt(selected.expected)+' проверено.';
+  (sendWeek?' · отправки W'+sendWeek:' · все недели отправок')+
+  (demoWeek?' · DEMO за W'+demoWeek:' · DEMO за доступный период')+'.';
+ result+=' DEMO по материалам учтены из всех источников, не приписываются конкретному письму.';
+ if(!data.archiveComplete)result+=' Исторический архив пока неполный.';
+ if(selected)result+=' Отправки W'+sendWeek+': обработано '+fmt(selected.processed)+' из '+fmt(selected.expected)+'.';
  if(Array.isArray(data.errors)&&data.errors.length)result+=' Ошибок обработки: '+data.errors.length+'.';
  return result;
 }
@@ -1254,22 +1271,34 @@ function renderNewsMaterialSnapshot_(){
  const data=newsMaterialSnapshot||{},select=document.getElementById('newsMaterialWeek'),previous=select.value;
  const weeks=(data.weeks||[]).slice().sort((a,b)=>b-a);
  const coverage=new Map((data.weeklyCoverage||[]).map(x=>[Number(x.week),x]));
- select.innerHTML='<option value="">Все недели с 27-й</option>'+weeks.map(w=>{
+ const sendSelect=document.getElementById('newsMailSendWeek');
+ if(sendSelect){
+  const prior=sendSelect.value;
+  const options=[...coverage.values()].sort((a,b)=>b.week-a.week);
+  sendSelect.innerHTML='<option value="">Все недели рассылок с W27</option>'+
+   options.map(e=>'<option value="'+e.week+'">W'+e.week+' · '+(e.expected
+    ?fmt(e.processed)+'/'+fmt(e.expected)+' выпусков'
+    :'нет данных об отправках')+'</option>').join('');
+  sendSelect.value=options.some(x=>String(x.week)===prior)?prior:'';
+ }
+ select.innerHTML='<option value="">Все недели DEMO с 27-й</option>'+weeks.map(w=>{
   const progress=coverage.get(Number(w));
   const desc=progress?' · писем обработано '+progress.processed+'/'+progress.expected:'';
   return '<option value="'+w+'">Неделя '+w+esc(desc)+'</option>';
  }).join('');
  select.value=weeks.some(w=>String(w)===previous)?previous:'';
  const query=document.getElementById('newsMaterialSearch').value.trim().toLowerCase(),group=document.getElementById('newsMaterialGroup').value,filter=document.getElementById('newsMaterialFilter').value,sort=document.getElementById('newsMaterialSort').value;
- const week=select.value;
+ const week=select.value,sendWeek=sendSelect?.value||'';
  const all=(data.topics||[]).map(t=>{
+   const letters=sendWeek?(t.letters||[]).filter(m=>String(mailWeek_(m))===sendWeek):(t.letters||[]);
    const values=week?(t.byWeek&&t.byWeek[week]||{red:0,yellow:0,green:0}):{red:n(t.red),yellow:n(t.yellow),green:n(t.green)};
-   return {...t,...values,total:n(values.red)+n(values.yellow)+n(values.green)};
- }).filter(t=>(!group||t.group===group)&&(!query||[t.title,t.url,t.term].join(' ').toLowerCase().includes(query)));
+   return {...t,letters,...values,total:n(values.red)+n(values.yellow)+n(values.green)};
+ }).filter(t=>(!sendWeek||t.letters.length>0)&&(!group||t.group===group)&&
+   (!query||[t.title,t.url,t.term].join(' ').toLowerCase().includes(query)));
  const rows=all.filter(t=>filter==='zero'?t.total===0:filter==='green'?t.green>0:true).sort((a,b)=>sort==='total'?b.total-a.total||b.green-a.green:b.green-a.green||b.total-a.total);
  const complete=Number(data.schemaVersion)>=2;
  document.getElementById('newsMaterialStatus').textContent=complete
-  ?newsArchiveDisplayStatus_(data,week)
+  ?newsArchiveDisplayStatus_(data,week,sendWeek)
   :(newsMaterialSnapshotStale_?'АРХИВНЫЙ СРЕЗ — НЕ ТЕКУЩАЯ АНАЛИТИКА. ':'')+
    'Только недельный срез: '+fmt(data.mailsChecked||0)+' писем · '+(data.periodLabel||'последние дни')+
    '. Полный архив с 27-й недели ещё не рассчитан.';
