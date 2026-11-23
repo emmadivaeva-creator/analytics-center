@@ -2104,7 +2104,8 @@ function renderSources(){
  document.getElementById('sourcesGz').setAttribute('aria-pressed',String(sourceGroup==='ГЗ'));
  document.getElementById('sourcesPeriod').textContent=sourceWeek==='all'?'Полные недели '+String(meta.fullWeeks||('27–'+Math.max(27,currentIsoWeekClient_()-1))):'Неделя '+sourceWeek+(Number(sourceWeek)===Number(meta.currentWeek)?' · текущая':'');
  const status=document.getElementById('sourcesStatus');
- status.textContent=scope+' · '+(sourceWeek==='all'?'полные недели '+String(meta.fullWeeks||''): 'неделя '+sourceWeek+(Number(sourceWeek)===Number(meta.calendarWeek)?' · неполная':''))+' · последнее подтверждённое наблюдение W'+String(meta.latestWeek||'?')+' · снимок '+dateRu(meta.updatedAt||'')+(Number(meta.latestWeek)<Number(meta.calendarWeek)?' · текущая неделя ещё не поступила в исходные таблицы':'');
+ status.textContent=scope+' · '+(sourceWeek==='all'?'полные недели '+String(meta.fullWeeks||''): 'неделя '+sourceWeek+(Number(sourceWeek)===Number(meta.calendarWeek)?' · неполная':''))+' · последнее подтверждённое наблюдение W'+String(meta.latestWeek||'?')+' · снимок '+dateRu(meta.updatedAt||'')+(Number(meta.latestWeek)<Number(meta.calendarWeek)?' · текущая неделя ещё не поступила в исходные таблицы':'')+
+  (sourceWeek==='47'&&meta.week47Audit?' · W47 проверена: G '+fmt(meta.week47Audit.green)+' / Y '+fmt(meta.week47Audit.yellow)+' / R '+fmt(meta.week47Audit.red)+' · детали Refer классифицированы по UTM Campaign':'');
  const total=n(group.total),green=n(group.green),refer=sourceById(group,'refer');
  const leader=(group.sources||[]).slice().sort((a,b)=>n(b.green)-n(a.green))[0]||{};
  document.getElementById('sourcesSummary').innerHTML=
@@ -2578,8 +2579,12 @@ function tradeApplyData_(result,source){
  document.getElementById('tradeSyncRecent').disabled=!meta.historyReady;
  document.getElementById('tradeSyncHistory').textContent=meta.syncing
   ? 'Продолжить загрузку с места остановки' : 'Загрузить историю с 27-й недели';
+ const newest=String(meta.latestDate||result.items.reduce((max,x)=>String(x.date||'')>max?String(x.date||''):max,''));
+ const gapDays=newest?Math.floor((Date.now()-Date.parse(newest+'T12:00:00Z'))/86400000):0;
  tradeStatus_('Период: с 29.06.2026 (неделя 27) · сохранено '+fmt(result.items.length)+
   ' отправок · последнее обновление Sendsay '+(meta.lastSync?dateRu(meta.lastSync):'не выполнялось')+
+  ' · последняя сохранённая отправка '+(newest||'не указана')+
+  (gapDays>3?' · архив отстаёт от текущей даты, проверьте пропущенные дни':'')+
   (source==='cache'?' · мгновенно открыт кеш браузера от '+dateRu(tradeCacheSavedAt_)+
    ' · для последних обновлений нажмите «Перечитать данные»':'')+
   (!meta.historyReady?' · сначала загрузите полную историю':'')+
