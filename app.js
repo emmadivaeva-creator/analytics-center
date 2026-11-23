@@ -421,7 +421,7 @@ function scheduleNewsBodyPreload_(){
  newsBodyPreloadTimer=setTimeout(()=>preloadLatestNewsBodies_(),100);
 }
 async function preloadLatestNewsBodies_(){
- if(newsBodyPreloadPromise||!registryData)return newsBodyPreloadPromise;
+ if(newsBodyPreloadPromise||(!registryData&&!newsRecentData_))return newsBodyPreloadPromise;
  const news=newsRowsCurrent_();
  const latestWeek=Math.max(0,...news.map(mailWeek_).filter(Boolean));
  const rows=latestWeek?news.filter(item=>mailWeek_(item)===latestWeek):news.slice(0,80);
@@ -803,7 +803,8 @@ async function preloadMailBodyPreviews_(rows,onProgress,maxCount,includeNews=fal
  }
  const concurrency=Math.min(4,total);
  await Promise.all(Array.from({length:concurrency},()=>worker()));
- try{await registryCacheWrite_(registryData);}catch(e){}
+ if(registryData){try{await registryCacheWrite_(registryData);}catch(e){}}
+ if(newsRecentData_)newsRecentScheduleCache_();
  renderRegistries();
  return {total,loaded,failed};
 }
