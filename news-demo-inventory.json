@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-23T15:34:28.932Z",
+  "generatedAt": "2026-11-23T15:39:41.140Z",
   "from": "2026-06-29",
   "through": "2026-11-23",
   "source": "Analytics Center _Sendsay v2: canonical NEWS Sendsay API issues, unique by LBAC policy + issue ID",
@@ -63,7 +63,7 @@
       "sent": 125718,
       "delivered": 124814,
       "opened": 2870,
-      "openRate": 2.29,
+      "openRate": 2.3,
       "clicks": 166,
       "clickRate": 0.13,
       "ctor": 5.78
@@ -81,8 +81,8 @@
       "opened": 1545,
       "openRate": 3.41,
       "clicks": 207,
-      "clickRate": 0.45,
-      "ctor": 13.39
+      "clickRate": 0.46,
+      "ctor": 13.4
     },
     {
       "id": "import-api:52:25765951",
@@ -130,7 +130,7 @@
       "openRate": 2.18,
       "clicks": 188,
       "clickRate": 0.15,
-      "ctor": 6.89
+      "ctor": 6.9
     },
     {
       "id": "import-api:61:25776691",
@@ -143,10 +143,10 @@
       "sent": 22059,
       "delivered": 21919,
       "opened": 734,
-      "openRate": 3.34,
+      "openRate": 3.35,
       "clicks": 65,
-      "clickRate": 0.29,
-      "ctor": 8.85
+      "clickRate": 0.3,
+      "ctor": 8.86
     },
     {
       "id": "import-api:52:25780221",
@@ -194,7 +194,7 @@
       "openRate": 2.84,
       "clicks": 347,
       "clickRate": 0.28,
-      "ctor": 9.85
+      "ctor": 9.86
     },
     {
       "id": "import-api:61:25789198",
@@ -209,8 +209,8 @@
       "opened": 3437,
       "openRate": 2.81,
       "clicks": 325,
-      "clickRate": 0.26,
-      "ctor": 9.45
+      "clickRate": 0.27,
+      "ctor": 9.46
     },
     {
       "id": "import-api:52:25792932",
@@ -255,10 +255,10 @@
       "sent": 12745,
       "delivered": 12698,
       "opened": 360,
-      "openRate": 2.83,
+      "openRate": 2.84,
       "clicks": 32,
       "clickRate": 0.25,
-      "ctor": 8.88
+      "ctor": 8.89
     },
     {
       "id": "import-api:61:25802128",
@@ -5013,6 +5013,6 @@
       "ctor": 4.93
     }
   ],
-  "scanOffset": 6000,
-  "scanCheckedAt": "2026-11-23T15:34:28.932Z"
+  "scanOffset": 8000,
+  "scanCheckedAt": "2026-11-23T15:39:41.140Z"
 }
