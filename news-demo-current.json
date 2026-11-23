@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-23T16:10:48.418Z",
+  "generatedAt": "2026-11-23T16:12:22.305Z",
   "period": {
     "from": "2026-06-29",
     "to": "2026-11-23",
@@ -598,7 +598,7 @@
       "total": 63
     },
     {
-      "title": "Акт 0510460 больше не закрывает списание",
+      "title": "Один Акт 0510460 больше не закрывает списание матзапасов",
       "url": "https://www.budgetnik.ru/news/124482-akt-0510460-bolshe-ne-zakryvaet-spisanie",
       "term": "124482",
       "kind": "news",
@@ -1027,7 +1027,7 @@
       "total": 81
     },
     {
-      "title": "Что поменялось в учетной политике бюджетного учреждения: разбор",
+      "title": "Учетная политика бюджетного учреждения: как составить и утвердить на 2026 год",
       "url": "https://www.budgetnik.ru/art/105385-uchetnaya-politika-byudjetnogo-uchrejdeniya-na-2026-god-chto-pomenyat-i-kak-utverdit",
       "term": "105385",
       "kind": "art",
@@ -1801,7 +1801,7 @@
       "total": 32
     },
     {
-      "title": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
+      "title": "Приказ о назначении ответственных за формирование и размещение в ЕИС постотчета стал обязательным",
       "url": "https://www.pro-goszakaz.ru/news/119557-postotchet-po-malym-zakupkam-prikaz-o-naznachenii-otvetstvennyh-obyazatelen",
       "term": "119557",
       "kind": "news",
@@ -4027,7 +4027,7 @@
       "total": 6
     },
     {
-      "title": "Списание моющих средств в учреждениях: акт, нормы и приказ",
+      "title": "Списание моющих средств: акты, нормы и приказы для учреждений",
       "url": "https://www.budgetnik.ru/art/102676-normy-spisaniya-moyushchih-sredstv-v-byudjetnyh-uchrejdeniyah",
       "term": "102676",
       "kind": "art",
@@ -6271,7 +6271,7 @@
       "total": 9
     },
     {
-      "title": "Документы для закупок, без которых нельзя работать во втором полугодии",
+      "title": "Документы для закупок, без которых нельзя работать во втором полугодии 2026 года",
       "url": "https://www.pro-goszakaz.ru/article/104116-dokumenty-dlya-zakupok-bez-kotoryh-nelzya-rabotat-vo-vtorom-polugodii",
       "term": "104116",
       "kind": "art",
@@ -7945,7 +7945,7 @@
       "total": 5
     },
     {
-      "title": "Акт приема-передачи нефинансовых активов: форма 0510448",
+      "title": "Акт приема-передачи нефинансовых активов: форма 0510448 и правила заполнения",
       "url": "https://www.budgetnik.ru/art/104528-forma-0510448",
       "term": "104528",
       "kind": "art",
@@ -9427,7 +9427,7 @@
       "total": 5
     },
     {
-      "title": "Акт об утилизации материальных ценностей: форма 0510435",
+      "title": "Акт об утилизации (уничтожении) матценностей: форма 0510435",
       "url": "https://www.budgetnik.ru/art/104396-f-0510435",
       "term": "104396",
       "kind": "art",
@@ -11929,7 +11929,7 @@
       "total": 3
     },
     {
-      "title": "Акт 0510461: образец и пошаговая инструкция по списанию БСО",
+      "title": "Акт 0510461: образец и пошаговая инструкция по списанию бланков строгой отчетности",
       "url": "https://www.budgetnik.ru/art/104656-f-0510461",
       "term": "104656",
       "kind": "art",
@@ -17467,7 +17467,7 @@
       "total": 1
     },
     {
-      "title": "Дополнительное соглашение об изменении ставки НДС",
+      "title": "Дополнительное соглашение об изменении ставки НДС с 2026 года",
       "url": "https://www.pro-goszakaz.ru/article/103325-dopolnitelnoe-soglashenie-ob-izmenenii-stavki-nds",
       "term": "103325",
       "kind": "art",
@@ -19921,165 +19921,6 @@
       "total": 1
     },
     {
-      "title": "Как заключить контракт с едпоставщиком на основании акта Правительства →",
-      "url": "https://www.pro-goszakaz.ru/article/103817-kak-zaklyuchit-kontrakt-s-edpostavshchikom-na-osnovanii-akta-pravitelstva",
-      "term": "103817",
-      "kind": "art",
-      "group": "ГЗ",
-      "red": 0,
-      "yellow": 0,
-      "green": 1,
-      "byWeek": {
-        "27": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "28": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "29": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "30": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "31": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "32": {
-          "red": 0,
-          "yellow": 0,
-          "green": 1
-        },
-        "33": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "34": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "35": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "36": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "37": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "38": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "39": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "40": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "41": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "42": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "43": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "44": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "45": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "46": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "47": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        }
-      },
-      "letters": [
-        {
-          "id": "import-api:61:27205356",
-          "subject": "В личном кабинете заказчика уже появилась новая форма отчета",
-          "url": "https://app.sendsay.ru/reports/campaigns/27205356/summary",
-          "date": "2026-11-23"
-        },
-        {
-          "id": "import-api:61:27170851",
-          "subject": "Ваши локальные акты устарели",
-          "url": "https://app.sendsay.ru/reports/campaigns/27170851/summary",
-          "date": "2026-11-20"
-        },
-        {
-          "id": "import-api:61:27158541",
-          "subject": "Ваши локальные акты устарели",
-          "url": "https://app.sendsay.ru/reports/campaigns/27158541/summary",
-          "date": "2026-11-19"
-        },
-        {
-          "id": "import-api:61:26199814",
-          "subject": "Новые правила закупок со второго полугодия 2026 года",
-          "url": "https://app.sendsay.ru/reports/campaigns/26199814/summary",
-          "date": "2026-09-01"
-        },
-        {
-          "id": "import-api:61:25928062",
-          "subject": "Новые правила закупок со второго полугодия 2026 года",
-          "url": "https://app.sendsay.ru/reports/campaigns/25928062/summary",
-          "date": "2026-08-10"
-        },
-        {
-          "id": "import-api:61:25892193",
-          "subject": "Что изменилось в приемке маркированного товара",
-          "url": "https://app.sendsay.ru/reports/campaigns/25892193/summary",
-          "date": "2026-08-07"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 2,
-      "titleUnverified": false,
-      "total": 1
-    },
-    {
       "title": "Как закупить услуги ОСАГО по 44-ФЗ в 2026 году",
       "url": "https://www.pro-goszakaz.ru/article/101800-kak-zakupit-uslugi-osago-po-44-fz",
       "term": "101800",
@@ -20215,7 +20056,7 @@
       "total": 1
     },
     {
-      "title": "Как заполнить ЕФС-1 на совместителя: образцы",
+      "title": "Как заполнить ЕФС-1 на совместителя: пошаговая инструкция и образцы",
       "url": "https://www.budgetnik.ru/art/104658-efs-1-na-sovmestitelya",
       "term": "104658",
       "kind": "art",
@@ -22090,7 +21931,7 @@
       "total": 1
     },
     {
-      "title": "Минфин требует пересмотреть систему контроля",
+      "title": "Минфин требует пересмотреть систему внутреннего контроля",
       "url": "https://www.budgetnik.ru/news/124925-uchrezhdeniyam-pridetsya-peresmotret-sistemu-kontrolya-iz-za-novyh-trebovaniy-minfina",
       "term": "124925",
       "kind": "news",
@@ -22239,6 +22080,165 @@
       ],
       "urlAliases": 1,
       "titleVariants": 4,
+      "titleUnverified": false,
+      "total": 1
+    },
+    {
+      "title": "НКак заключить контракт с едпоставщиком на основании акта Правительства →",
+      "url": "https://www.pro-goszakaz.ru/article/103817-kak-zaklyuchit-kontrakt-s-edpostavshchikom-na-osnovanii-akta-pravitelstva",
+      "term": "103817",
+      "kind": "art",
+      "group": "ГЗ",
+      "red": 0,
+      "yellow": 0,
+      "green": 1,
+      "byWeek": {
+        "27": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "28": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "29": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "30": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "31": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "32": {
+          "red": 0,
+          "yellow": 0,
+          "green": 1
+        },
+        "33": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "34": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "35": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "36": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "37": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "38": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "39": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "40": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "41": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "42": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "43": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "44": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "45": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "46": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "47": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        }
+      },
+      "letters": [
+        {
+          "id": "import-api:61:27205356",
+          "subject": "В личном кабинете заказчика уже появилась новая форма отчета",
+          "url": "https://app.sendsay.ru/reports/campaigns/27205356/summary",
+          "date": "2026-11-23"
+        },
+        {
+          "id": "import-api:61:27170851",
+          "subject": "Ваши локальные акты устарели",
+          "url": "https://app.sendsay.ru/reports/campaigns/27170851/summary",
+          "date": "2026-11-20"
+        },
+        {
+          "id": "import-api:61:27158541",
+          "subject": "Ваши локальные акты устарели",
+          "url": "https://app.sendsay.ru/reports/campaigns/27158541/summary",
+          "date": "2026-11-19"
+        },
+        {
+          "id": "import-api:61:26199814",
+          "subject": "Новые правила закупок со второго полугодия 2026 года",
+          "url": "https://app.sendsay.ru/reports/campaigns/26199814/summary",
+          "date": "2026-09-01"
+        },
+        {
+          "id": "import-api:61:25928062",
+          "subject": "Новые правила закупок со второго полугодия 2026 года",
+          "url": "https://app.sendsay.ru/reports/campaigns/25928062/summary",
+          "date": "2026-08-10"
+        },
+        {
+          "id": "import-api:61:25892193",
+          "subject": "Что изменилось в приемке маркированного товара",
+          "url": "https://app.sendsay.ru/reports/campaigns/25892193/summary",
+          "date": "2026-08-07"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 2,
       "titleUnverified": false,
       "total": 1
     },
@@ -23113,7 +23113,7 @@
       "total": 1
     },
     {
-      "title": "Правила закупки канцелярских товаров с учетом нацрежима",
+      "title": "Правила закупки канцелярских товаров по 44-ФЗ с учетом нацрежима",
       "url": "https://www.pro-goszakaz.ru/article/104311-zakupka-kantselyarskih-tovarov",
       "term": "104311",
       "kind": "art",
@@ -25522,7 +25522,7 @@
       "total": 6
     },
     {
-      "title": "Расчёт начальной цены контракта на охранные услуги: пошаговое руководство",
+      "title": "Расчёт начальной цены контракта на охранные услуги в 2026 году: пошаговое руководство",
       "url": "https://www.pro-goszakaz.ru/article/104808-rascht-nachalnoy-tseny-kontrakta-na-ohrannye-uslugi-poshagovoe-rukovodstvo",
       "term": "104808",
       "kind": "art",
@@ -26167,7 +26167,7 @@
       "total": 5
     },
     {
-      "title": "Приемка маркированного товара по 44-ФЗ: новые правила",
+      "title": "Приемка маркированного товара по 44-ФЗ: новые правила 2026 года",
       "url": "https://www.pro-goszakaz.ru/article/104488-priemka-markirovannogo-tovara-po-44-fz-novye-pravila",
       "term": "104488",
       "kind": "art",
@@ -26587,153 +26587,6 @@
       "total": 4
     },
     {
-      "title": "Минфин запретил применять акт 0504143 для списания мягкого инвентаря",
-      "url": "https://www.budgetnik.ru/news/122472-minfin-akt-f-0504143-dlya-spisaniya-myagkogo-inventarya-bolshe-ne-primenyaem-tolko-f-0510460",
-      "term": "122472",
-      "kind": "news",
-      "group": "ГФ",
-      "red": 0,
-      "yellow": 4,
-      "green": 0,
-      "byWeek": {
-        "27": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "28": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "29": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "30": {
-          "red": 0,
-          "yellow": 1,
-          "green": 0
-        },
-        "31": {
-          "red": 0,
-          "yellow": 2,
-          "green": 0
-        },
-        "32": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "33": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "34": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "35": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "36": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "37": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "38": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "39": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "40": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "41": {
-          "red": 0,
-          "yellow": 1,
-          "green": 0
-        },
-        "42": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "43": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "44": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "45": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "46": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "47": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        }
-      },
-      "letters": [
-        {
-          "id": "import-api:52:26665805",
-          "subject": "Ревизоры ужесточили контроль за списанием имущества",
-          "url": "https://app.sendsay.ru/reports/campaigns/26665805/summary",
-          "date": "2026-10-08"
-        },
-        {
-          "id": "import-api:52:25814798",
-          "subject": "Новый подход к классификации хозинвентаря",
-          "url": "https://app.sendsay.ru/reports/campaigns/25814798/summary",
-          "date": "2026-07-31"
-        },
-        {
-          "id": "import-api:52:25789126",
-          "subject": "Списание матзапасов - теперь в три этапа",
-          "url": "https://app.sendsay.ru/reports/campaigns/25789126/summary",
-          "date": "2026-07-29"
-        },
-        {
-          "id": "import-api:52:25764018",
-          "subject": "Изменения в КБК и КВР",
-          "url": "https://app.sendsay.ru/reports/campaigns/25764018/summary",
-          "date": "2026-07-27"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 4,
-      "titleUnverified": false,
-      "total": 4
-    },
-    {
       "title": "Минфин разъяснил порядок указания ставки НДС в контракте с победителем-упрощенцем",
       "url": "https://www.pro-goszakaz.ru/news/119785-minfin-razyasnil-poryadok-ukazaniya-stavki-nds-v-kontrakte-s-pobeditelem-uproshchencem",
       "term": "119785",
@@ -26913,6 +26766,153 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
+      "titleUnverified": false,
+      "total": 4
+    },
+    {
+      "title": "Минфин: акт ф. 0504143 для списания мягкого инвентаря больше не применяем - только ф. 0510460",
+      "url": "https://www.budgetnik.ru/news/122472-minfin-akt-f-0504143-dlya-spisaniya-myagkogo-inventarya-bolshe-ne-primenyaem-tolko-f-0510460",
+      "term": "122472",
+      "kind": "news",
+      "group": "ГФ",
+      "red": 0,
+      "yellow": 4,
+      "green": 0,
+      "byWeek": {
+        "27": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "28": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "29": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "30": {
+          "red": 0,
+          "yellow": 1,
+          "green": 0
+        },
+        "31": {
+          "red": 0,
+          "yellow": 2,
+          "green": 0
+        },
+        "32": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "33": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "34": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "35": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "36": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "37": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "38": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "39": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "40": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "41": {
+          "red": 0,
+          "yellow": 1,
+          "green": 0
+        },
+        "42": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "43": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "44": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "45": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "46": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "47": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        }
+      },
+      "letters": [
+        {
+          "id": "import-api:52:26665805",
+          "subject": "Ревизоры ужесточили контроль за списанием имущества",
+          "url": "https://app.sendsay.ru/reports/campaigns/26665805/summary",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "import-api:52:25814798",
+          "subject": "Новый подход к классификации хозинвентаря",
+          "url": "https://app.sendsay.ru/reports/campaigns/25814798/summary",
+          "date": "2026-07-31"
+        },
+        {
+          "id": "import-api:52:25789126",
+          "subject": "Списание матзапасов - теперь в три этапа",
+          "url": "https://app.sendsay.ru/reports/campaigns/25789126/summary",
+          "date": "2026-07-29"
+        },
+        {
+          "id": "import-api:52:25764018",
+          "subject": "Изменения в КБК и КВР",
+          "url": "https://app.sendsay.ru/reports/campaigns/25764018/summary",
+          "date": "2026-07-27"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 4,
       "titleUnverified": false,
       "total": 4
     },
@@ -28486,7 +28486,7 @@
       "total": 3
     },
     {
-      "title": "Положение о премировании работников: инструкция и образец",
+      "title": "Положение о премировании работников учреждения: образец и порядок утверждения",
       "url": "https://www.budgetnik.ru/art/105408-polojenie-o-premirovanii-kak-vnesti-izmeneniya-po-novomu-zakonu",
       "term": "105408",
       "kind": "art",
@@ -29955,6 +29955,237 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
+      "titleUnverified": false,
+      "total": 2
+    },
+    {
+      "title": "Бухгалтеров обязали проводить инвентаризацию перед списанием запасов: готовое решение",
+      "url": "https://www.budgetnik.ru/art/104349-f-0510439",
+      "term": "104349",
+      "kind": "art",
+      "group": "ГФ",
+      "red": 2,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {
+        "27": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "28": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "29": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "30": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "31": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "32": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "33": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "34": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "35": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "36": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "37": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "38": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "39": {
+          "red": 1,
+          "yellow": 0,
+          "green": 0
+        },
+        "40": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "41": {
+          "red": 1,
+          "yellow": 0,
+          "green": 0
+        },
+        "42": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "43": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "44": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "45": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "46": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "47": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        }
+      },
+      "letters": [
+        {
+          "id": "import-api:52:27205336",
+          "subject": "Акт 0510460 больше не закрывает списание",
+          "url": "https://app.sendsay.ru/reports/campaigns/27205336/summary",
+          "date": "2026-11-23"
+        },
+        {
+          "id": "import-api:52:27158545",
+          "subject": "Одна неверная дата сделает инвентаризацию недействительной",
+          "url": "https://app.sendsay.ru/reports/campaigns/27158545/summary",
+          "date": "2026-11-19"
+        },
+        {
+          "id": "import-api:52:27146350",
+          "subject": "Месяц до нового внутреннего контроля - все ли вы успели?",
+          "url": "https://app.sendsay.ru/reports/campaigns/27146350/summary",
+          "date": "2026-11-18"
+        },
+        {
+          "id": "import-api:52:27134108",
+          "subject": "Минфин изменил правила для комиссий по инвентаризации",
+          "url": "https://app.sendsay.ru/reports/campaigns/27134108/summary",
+          "date": "2026-11-17"
+        },
+        {
+          "id": "import-api:52:27121825",
+          "subject": "Акт 0510460 больше не закрывает списание",
+          "url": "https://app.sendsay.ru/reports/campaigns/27121825/summary",
+          "date": "2026-11-16"
+        },
+        {
+          "id": "import-api:52:27087348",
+          "subject": "Новый план ФХД на 2027 год",
+          "url": "https://app.sendsay.ru/reports/campaigns/27087348/summary",
+          "date": "2026-11-13"
+        },
+        {
+          "id": "import-api:52:27075154",
+          "subject": "Минфин обновил классификацию матзапасов",
+          "url": "https://app.sendsay.ru/reports/campaigns/27075154/summary",
+          "date": "2026-11-12"
+        },
+        {
+          "id": "import-api:52:27050786",
+          "subject": "Минфин обновил классификацию матзапасов",
+          "url": "https://app.sendsay.ru/reports/campaigns/27050786/summary",
+          "date": "2026-11-10"
+        },
+        {
+          "id": "import-api:52:26968928",
+          "subject": "Как ошибка в дате сделала инвентаризацию недействительной",
+          "url": "https://app.sendsay.ru/reports/campaigns/26968928/summary",
+          "date": "2026-11-03"
+        },
+        {
+          "id": "import-api:52:26922573",
+          "subject": "Новый порядок инвентаризации уже вступил в силу",
+          "url": "https://app.sendsay.ru/reports/campaigns/26922573/summary",
+          "date": "2026-10-30"
+        },
+        {
+          "id": "import-api:52:26803036",
+          "subject": "Минфин утвердил шесть новых инвентаризационных описей",
+          "url": "https://app.sendsay.ru/reports/campaigns/26803036/summary",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "import-api:52:26790593",
+          "subject": "Минфин потребовал внедрить новую систему внутреннего контроля",
+          "url": "https://app.sendsay.ru/reports/campaigns/26790593/summary",
+          "date": "2026-10-19"
+        },
+        {
+          "id": "import-api:52:26669489",
+          "subject": "Минфин объяснил, как отличить ОС от матзапасов",
+          "url": "https://app.sendsay.ru/reports/campaigns/26669489/summary",
+          "date": "2026-10-09"
+        },
+        {
+          "id": "import-api:52:26656946",
+          "subject": "Новый внутренний контроль вступил в силу",
+          "url": "https://app.sendsay.ru/reports/campaigns/26656946/summary",
+          "date": "2026-10-08"
+        },
+        {
+          "id": "import-api:52:26644370",
+          "subject": "Оклады госслужащих выросли с 1 октября",
+          "url": "https://app.sendsay.ru/reports/campaigns/26644370/summary",
+          "date": "2026-10-07"
+        },
+        {
+          "id": "import-api:52:26583700",
+          "subject": "Минфин разъяснил, как сдать отчетность за 9 месяцев",
+          "url": "https://app.sendsay.ru/reports/campaigns/26583700/summary",
+          "date": "2026-10-02"
+        },
+        {
+          "id": "import-api:52:26484914",
+          "subject": "Минфин утвердил перечень имущества для счета 105",
+          "url": "https://app.sendsay.ru/reports/campaigns/26484914/summary",
+          "date": "2026-09-24"
+        },
+        {
+          "id": "import-api:52:26472210",
+          "subject": "Инвентаризация перед списанием стала обязательной",
+          "url": "https://app.sendsay.ru/reports/campaigns/26472210/summary",
+          "date": "2026-09-23"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 9,
       "titleUnverified": false,
       "total": 2
     },
@@ -32080,237 +32311,6 @@
       "total": 2
     },
     {
-      "title": "Как заполнить решение об инвентаризации по форме 0510439",
-      "url": "https://www.budgetnik.ru/art/104349-f-0510439",
-      "term": "104349",
-      "kind": "art",
-      "group": "ГФ",
-      "red": 2,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {
-        "27": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "28": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "29": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "30": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "31": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "32": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "33": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "34": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "35": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "36": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "37": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "38": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "39": {
-          "red": 1,
-          "yellow": 0,
-          "green": 0
-        },
-        "40": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "41": {
-          "red": 1,
-          "yellow": 0,
-          "green": 0
-        },
-        "42": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "43": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "44": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "45": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "46": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "47": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        }
-      },
-      "letters": [
-        {
-          "id": "import-api:52:27205336",
-          "subject": "Акт 0510460 больше не закрывает списание",
-          "url": "https://app.sendsay.ru/reports/campaigns/27205336/summary",
-          "date": "2026-11-23"
-        },
-        {
-          "id": "import-api:52:27158545",
-          "subject": "Одна неверная дата сделает инвентаризацию недействительной",
-          "url": "https://app.sendsay.ru/reports/campaigns/27158545/summary",
-          "date": "2026-11-19"
-        },
-        {
-          "id": "import-api:52:27146350",
-          "subject": "Месяц до нового внутреннего контроля - все ли вы успели?",
-          "url": "https://app.sendsay.ru/reports/campaigns/27146350/summary",
-          "date": "2026-11-18"
-        },
-        {
-          "id": "import-api:52:27134108",
-          "subject": "Минфин изменил правила для комиссий по инвентаризации",
-          "url": "https://app.sendsay.ru/reports/campaigns/27134108/summary",
-          "date": "2026-11-17"
-        },
-        {
-          "id": "import-api:52:27121825",
-          "subject": "Акт 0510460 больше не закрывает списание",
-          "url": "https://app.sendsay.ru/reports/campaigns/27121825/summary",
-          "date": "2026-11-16"
-        },
-        {
-          "id": "import-api:52:27087348",
-          "subject": "Новый план ФХД на 2027 год",
-          "url": "https://app.sendsay.ru/reports/campaigns/27087348/summary",
-          "date": "2026-11-13"
-        },
-        {
-          "id": "import-api:52:27075154",
-          "subject": "Минфин обновил классификацию матзапасов",
-          "url": "https://app.sendsay.ru/reports/campaigns/27075154/summary",
-          "date": "2026-11-12"
-        },
-        {
-          "id": "import-api:52:27050786",
-          "subject": "Минфин обновил классификацию матзапасов",
-          "url": "https://app.sendsay.ru/reports/campaigns/27050786/summary",
-          "date": "2026-11-10"
-        },
-        {
-          "id": "import-api:52:26968928",
-          "subject": "Как ошибка в дате сделала инвентаризацию недействительной",
-          "url": "https://app.sendsay.ru/reports/campaigns/26968928/summary",
-          "date": "2026-11-03"
-        },
-        {
-          "id": "import-api:52:26922573",
-          "subject": "Новый порядок инвентаризации уже вступил в силу",
-          "url": "https://app.sendsay.ru/reports/campaigns/26922573/summary",
-          "date": "2026-10-30"
-        },
-        {
-          "id": "import-api:52:26803036",
-          "subject": "Минфин утвердил шесть новых инвентаризационных описей",
-          "url": "https://app.sendsay.ru/reports/campaigns/26803036/summary",
-          "date": "2026-10-20"
-        },
-        {
-          "id": "import-api:52:26790593",
-          "subject": "Минфин потребовал внедрить новую систему внутреннего контроля",
-          "url": "https://app.sendsay.ru/reports/campaigns/26790593/summary",
-          "date": "2026-10-19"
-        },
-        {
-          "id": "import-api:52:26669489",
-          "subject": "Минфин объяснил, как отличить ОС от матзапасов",
-          "url": "https://app.sendsay.ru/reports/campaigns/26669489/summary",
-          "date": "2026-10-09"
-        },
-        {
-          "id": "import-api:52:26656946",
-          "subject": "Новый внутренний контроль вступил в силу",
-          "url": "https://app.sendsay.ru/reports/campaigns/26656946/summary",
-          "date": "2026-10-08"
-        },
-        {
-          "id": "import-api:52:26644370",
-          "subject": "Оклады госслужащих выросли с 1 октября",
-          "url": "https://app.sendsay.ru/reports/campaigns/26644370/summary",
-          "date": "2026-10-07"
-        },
-        {
-          "id": "import-api:52:26583700",
-          "subject": "Минфин разъяснил, как сдать отчетность за 9 месяцев",
-          "url": "https://app.sendsay.ru/reports/campaigns/26583700/summary",
-          "date": "2026-10-02"
-        },
-        {
-          "id": "import-api:52:26484914",
-          "subject": "Минфин утвердил перечень имущества для счета 105",
-          "url": "https://app.sendsay.ru/reports/campaigns/26484914/summary",
-          "date": "2026-09-24"
-        },
-        {
-          "id": "import-api:52:26472210",
-          "subject": "Инвентаризация перед списанием стала обязательной",
-          "url": "https://app.sendsay.ru/reports/campaigns/26472210/summary",
-          "date": "2026-09-23"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 9,
-      "titleUnverified": false,
-      "total": 2
-    },
-    {
       "title": "Как составить ответ на протокола разногласий: образец",
       "url": "https://www.pro-goszakaz.ru/article/104377-kak-sostavit-otvet-na-protokola-raznoglasiy-obrazets",
       "term": "104377",
@@ -33169,7 +33169,7 @@
       "total": 2
     },
     {
-      "title": "Перевод на 0,5 ставки: пошаговая инструкция",
+      "title": "Оформляем перевод на 0.5 ставки без ошибок: пошаговая инструкция для бухгалтера",
       "url": "https://www.budgetnik.ru/art/103361-instruktsiya-po-perevodu-sotrudnika-na-05-stavki",
       "term": "103361",
       "kind": "art",
@@ -33487,7 +33487,7 @@
       "total": 2
     },
     {
-      "title": "Размещение информации на сайте bus.gov.ru: инструкция для учреждений",
+      "title": "Размещение информации на сайте bus.gov.ru: полная инструкция для учреждений",
       "url": "https://www.budgetnik.ru/art/105179-kak-razmestit-dannye-ob-uchrejdenii-na-sayte-busgovru-polnoe-rukovodstvo",
       "term": "105179",
       "kind": "art",
@@ -34204,7 +34204,7 @@
       "total": 2
     },
     {
-      "title": "Что изменилось в закупке топлива по 44-ФЗ летом 2026 года →",
+      "title": "Что изменилось в закупке топлива по 44-ФЗ в июле 2026 года →",
       "url": "https://www.pro-goszakaz.ru/article/105047-chto-izmenilos-v-zakupke-topliva-po-44-fz",
       "term": "105047",
       "kind": "art",
@@ -34905,6 +34905,159 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
+      "titleUnverified": false,
+      "total": 1
+    },
+    {
+      "title": "Акт о списании объектов нефинансовых активов, кроме транспортных средств (ф. 0510454)",
+      "url": "https://www.budgetnik.ru/art/104615-forma-0510454",
+      "term": "104615",
+      "kind": "art",
+      "group": "ГФ",
+      "red": 1,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {
+        "27": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "28": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "29": {
+          "red": 1,
+          "yellow": 0,
+          "green": 0
+        },
+        "30": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "31": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "32": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "33": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "34": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "35": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "36": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "37": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "38": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "39": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "40": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "41": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "42": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "43": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "44": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "45": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "46": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "47": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        }
+      },
+      "letters": [
+        {
+          "id": "import-api:52:27170850",
+          "subject": "Минфин обновил план ФХД на 2027 год",
+          "url": "https://app.sendsay.ru/reports/campaigns/27170850/summary",
+          "date": "2026-11-20"
+        },
+        {
+          "id": "import-api:52:26803036",
+          "subject": "Минфин утвердил шесть новых инвентаризационных описей",
+          "url": "https://app.sendsay.ru/reports/campaigns/26803036/summary",
+          "date": "2026-10-20"
+        },
+        {
+          "id": "import-api:52:26187184",
+          "subject": "Минфин пересмотрел учет матзапасов",
+          "url": "https://app.sendsay.ru/reports/campaigns/26187184/summary",
+          "date": "2026-08-31"
+        },
+        {
+          "id": "import-api:52:26151204",
+          "subject": "Контроль за канцтоварами усилился",
+          "url": "https://app.sendsay.ru/reports/campaigns/26151204/summary",
+          "date": "2026-08-28"
+        },
+        {
+          "id": "import-api:52:26125826",
+          "subject": "Минфин меняет учет матзапасов",
+          "url": "https://app.sendsay.ru/reports/campaigns/26125826/summary",
+          "date": "2026-08-26"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 2,
       "titleUnverified": false,
       "total": 1
     },
@@ -38536,6 +38689,159 @@
       "total": 1
     },
     {
+      "title": "Изменения КОСГУ с 2026 года и таблица соответствия КВР и КОСГУ для закупок",
+      "url": "https://www.pro-goszakaz.ru/article/104192-chto-takoe-kosgu-tablitsa-kvr-i-kosgu-dlya-zakupok",
+      "term": "104192",
+      "kind": "art",
+      "group": "ГЗ",
+      "red": 1,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {
+        "27": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "28": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "29": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "30": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "31": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "32": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "33": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "34": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "35": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "36": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "37": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "38": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "39": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "40": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "41": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "42": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "43": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "44": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "45": {
+          "red": 1,
+          "yellow": 0,
+          "green": 0
+        },
+        "46": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "47": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        }
+      },
+      "letters": [
+        {
+          "id": "import-api:61:26398205",
+          "subject": "Появились новые основания для изменения условий контракта",
+          "url": "https://app.sendsay.ru/reports/campaigns/26398205/summary",
+          "date": "2026-09-17"
+        },
+        {
+          "id": "import-api:61:25842106",
+          "subject": "Расчёт начальной цены контракта на охранные услуги по-новому",
+          "url": "https://app.sendsay.ru/reports/campaigns/25842106/summary",
+          "date": "2026-08-03"
+        },
+        {
+          "id": "import-api:61:25805612",
+          "subject": "Минфин ввел новую отчетность по закупкам малого объема",
+          "url": "https://app.sendsay.ru/reports/campaigns/25805612/summary",
+          "date": "2026-07-31"
+        },
+        {
+          "id": "import-api:61:25787272",
+          "subject": "Заказчиков обязали сдавать новый отчет по малым закупкам",
+          "url": "https://app.sendsay.ru/reports/campaigns/25787272/summary",
+          "date": "2026-07-29"
+        },
+        {
+          "id": "import-api:61:25765984",
+          "subject": "Свежая подборка образцов допсоглашений по всем основаниям",
+          "url": "https://app.sendsay.ru/reports/campaigns/25765984/summary",
+          "date": "2026-07-28"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 3,
+      "titleUnverified": false,
+      "total": 1
+    },
+    {
       "title": "Изменились правила расчета зарплаты и пособий",
       "url": "https://www.budgetnik.ru/news/125006-v-silu-vstupili-novye-pravila-rascheta-zarplaty-i-posobiy-vse-izmeneniya-v-odnoy-tablice",
       "term": "125006",
@@ -39280,7 +39586,7 @@
       "total": 1
     },
     {
-      "title": "Как заполнить акт о результатах инвентаризации 0510463",
+      "title": "Как заполнить акт о результатах инвентаризации 0510463: разделы, приложения и образец",
       "url": "https://www.budgetnik.ru/art/104632-akt-o-rezultatah-inventarizatsii-f-0510463",
       "term": "104632",
       "kind": "art",
@@ -39453,159 +39759,6 @@
       ],
       "urlAliases": 1,
       "titleVariants": 7,
-      "titleUnverified": false,
-      "total": 1
-    },
-    {
-      "title": "Как заполнить акт о списании 0510454: основания, порядок заполнения",
-      "url": "https://www.budgetnik.ru/art/104615-forma-0510454",
-      "term": "104615",
-      "kind": "art",
-      "group": "ГФ",
-      "red": 1,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {
-        "27": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "28": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "29": {
-          "red": 1,
-          "yellow": 0,
-          "green": 0
-        },
-        "30": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "31": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "32": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "33": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "34": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "35": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "36": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "37": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "38": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "39": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "40": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "41": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "42": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "43": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "44": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "45": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "46": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "47": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        }
-      },
-      "letters": [
-        {
-          "id": "import-api:52:27170850",
-          "subject": "Минфин обновил план ФХД на 2027 год",
-          "url": "https://app.sendsay.ru/reports/campaigns/27170850/summary",
-          "date": "2026-11-20"
-        },
-        {
-          "id": "import-api:52:26803036",
-          "subject": "Минфин утвердил шесть новых инвентаризационных описей",
-          "url": "https://app.sendsay.ru/reports/campaigns/26803036/summary",
-          "date": "2026-10-20"
-        },
-        {
-          "id": "import-api:52:26187184",
-          "subject": "Минфин пересмотрел учет матзапасов",
-          "url": "https://app.sendsay.ru/reports/campaigns/26187184/summary",
-          "date": "2026-08-31"
-        },
-        {
-          "id": "import-api:52:26151204",
-          "subject": "Контроль за канцтоварами усилился",
-          "url": "https://app.sendsay.ru/reports/campaigns/26151204/summary",
-          "date": "2026-08-28"
-        },
-        {
-          "id": "import-api:52:26125826",
-          "subject": "Минфин меняет учет матзапасов",
-          "url": "https://app.sendsay.ru/reports/campaigns/26125826/summary",
-          "date": "2026-08-26"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 2,
       "titleUnverified": false,
       "total": 1
     },
@@ -40305,141 +40458,6 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
-      "titleUnverified": false,
-      "total": 1
-    },
-    {
-      "title": "Как работать с типовым контрактом на ремонт автомобиля по 44-ФЗ",
-      "url": "https://www.pro-goszakaz.ru/article/103729-tipovy-kontrakt-na-remont-avtomobilya-po-44-fz",
-      "term": "103729",
-      "kind": "art",
-      "group": "ГЗ",
-      "red": 1,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {
-        "27": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "28": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "29": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "30": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "31": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "32": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "33": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "34": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "35": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "36": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "37": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "38": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "39": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "40": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "41": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "42": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "43": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "44": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "45": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "46": {
-          "red": 1,
-          "yellow": 0,
-          "green": 0
-        },
-        "47": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        }
-      },
-      "letters": [
-        {
-          "id": "import-api:61:27075237",
-          "subject": "Правила закупок по 44-ФЗ упростили",
-          "url": "https://app.sendsay.ru/reports/campaigns/27075237/summary",
-          "date": "2026-11-12"
-        },
-        {
-          "id": "import-api:61:27062921",
-          "subject": "В вашем личном кабинете уже появилась форма нового отчета",
-          "url": "https://app.sendsay.ru/reports/campaigns/27062921/summary",
-          "date": "2026-11-11"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 2,
       "titleUnverified": false,
       "total": 1
     },
@@ -43971,159 +43989,6 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
-      "titleUnverified": false,
-      "total": 1
-    },
-    {
-      "title": "Новая таблица соответствия КВР и КОСГУ для закупок",
-      "url": "https://www.pro-goszakaz.ru/article/104192-chto-takoe-kosgu-tablitsa-kvr-i-kosgu-dlya-zakupok",
-      "term": "104192",
-      "kind": "art",
-      "group": "ГЗ",
-      "red": 1,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {
-        "27": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "28": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "29": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "30": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "31": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "32": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "33": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "34": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "35": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "36": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "37": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "38": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "39": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "40": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "41": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "42": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "43": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "44": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "45": {
-          "red": 1,
-          "yellow": 0,
-          "green": 0
-        },
-        "46": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        },
-        "47": {
-          "red": 0,
-          "yellow": 0,
-          "green": 0
-        }
-      },
-      "letters": [
-        {
-          "id": "import-api:61:26398205",
-          "subject": "Появились новые основания для изменения условий контракта",
-          "url": "https://app.sendsay.ru/reports/campaigns/26398205/summary",
-          "date": "2026-09-17"
-        },
-        {
-          "id": "import-api:61:25842106",
-          "subject": "Расчёт начальной цены контракта на охранные услуги по-новому",
-          "url": "https://app.sendsay.ru/reports/campaigns/25842106/summary",
-          "date": "2026-08-03"
-        },
-        {
-          "id": "import-api:61:25805612",
-          "subject": "Минфин ввел новую отчетность по закупкам малого объема",
-          "url": "https://app.sendsay.ru/reports/campaigns/25805612/summary",
-          "date": "2026-07-31"
-        },
-        {
-          "id": "import-api:61:25787272",
-          "subject": "Заказчиков обязали сдавать новый отчет по малым закупкам",
-          "url": "https://app.sendsay.ru/reports/campaigns/25787272/summary",
-          "date": "2026-07-29"
-        },
-        {
-          "id": "import-api:61:25765984",
-          "subject": "Свежая подборка образцов допсоглашений по всем основаниям",
-          "url": "https://app.sendsay.ru/reports/campaigns/25765984/summary",
-          "date": "2026-07-28"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 3,
       "titleUnverified": false,
       "total": 1
     },
@@ -51409,6 +51274,141 @@
       "total": 1
     },
     {
+      "title": "Типовой контракт на техническое обслуживание и ремонт автомобилей",
+      "url": "https://www.pro-goszakaz.ru/article/103729-tipovy-kontrakt-na-remont-avtomobilya-po-44-fz",
+      "term": "103729",
+      "kind": "art",
+      "group": "ГЗ",
+      "red": 1,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {
+        "27": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "28": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "29": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "30": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "31": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "32": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "33": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "34": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "35": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "36": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "37": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "38": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "39": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "40": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "41": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "42": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "43": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "44": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "45": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        },
+        "46": {
+          "red": 1,
+          "yellow": 0,
+          "green": 0
+        },
+        "47": {
+          "red": 0,
+          "yellow": 0,
+          "green": 0
+        }
+      },
+      "letters": [
+        {
+          "id": "import-api:61:27075237",
+          "subject": "Правила закупок по 44-ФЗ упростили",
+          "url": "https://app.sendsay.ru/reports/campaigns/27075237/summary",
+          "date": "2026-11-12"
+        },
+        {
+          "id": "import-api:61:27062921",
+          "subject": "В вашем личном кабинете уже появилась форма нового отчета",
+          "url": "https://app.sendsay.ru/reports/campaigns/27062921/summary",
+          "date": "2026-11-11"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 2,
+      "titleUnverified": false,
+      "total": 1
+    },
+    {
       "title": "Утверждены новые обязательные формы для инвентаризации-2026",
       "url": "https://www.budgetnik.ru/news/120854-inventarizaciya-2026-novye-obyazatelnye-formy",
       "term": "120854",
@@ -52807,41 +52807,6 @@
       "total": 0
     },
     {
-      "title": "⭐ Пени: КОСГУ и КВР",
-      "url": "https://www.budgetnik.ru/art/105660-peni-kosgu-i-kvr-2026-polnyy-spravochnik-po-kodam-byudzhetnoy-klassifikacii",
-      "term": "105660",
-      "kind": "art",
-      "group": "ГФ",
-      "red": 0,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {},
-      "letters": [
-        {
-          "id": "import-api:52:26052070",
-          "subject": "Срочно обновите внутренний контроль",
-          "url": "https://app.sendsay.ru/reports/campaigns/26052070/summary",
-          "date": "2026-08-20"
-        },
-        {
-          "id": "import-api:52:25901500",
-          "subject": "Учетную политику предложили разделить на отдельные документы",
-          "url": "https://app.sendsay.ru/reports/campaigns/25901500/summary",
-          "date": "2026-08-07"
-        },
-        {
-          "id": "import-api:52:25792932",
-          "subject": "Обновите положение об учете матзапасов!",
-          "url": "https://app.sendsay.ru/reports/campaigns/25792932/summary",
-          "date": "2026-07-30"
-        }
-      ],
-      "urlAliases": 2,
-      "titleVariants": 2,
-      "titleUnverified": false,
-      "total": 0
-    },
-    {
       "title": "100 000 рублей за знания бухгалтера: регистрация на конкурс еще открыта",
       "url": "https://www.budgetnik.ru/news/125616-100-000-rubley-za-znaniya-buhgaltera-registraciya-na-konkurs-eshche-otkryta",
       "term": "125616",
@@ -53393,7 +53358,7 @@
       "total": 0
     },
     {
-      "title": "Акт приемки 0510452: инструкция по заполнению и образец",
+      "title": "Акт приемки товаров, работ, услуг по форме 0510452: обновленная форма и образцы",
       "url": "https://www.budgetnik.ru/art/104561-f-0510452",
       "term": "104561",
       "kind": "art",
@@ -55215,6 +55180,41 @@
       "total": 0
     },
     {
+      "title": "Возмещение коммунальных услуг: особенности и порядок заключения договора",
+      "url": "https://www.pro-goszakaz.ru/article/103260-zakupka-i-vozmeshchenie-kommunalnyh-uslug-po-44-fz",
+      "term": "103260",
+      "kind": "art",
+      "group": "ГЗ",
+      "red": 0,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {},
+      "letters": [
+        {
+          "id": "import-api:61:26410890",
+          "subject": "Восемь правил, которые следует соблюдать при формировании постотчета",
+          "url": "https://app.sendsay.ru/reports/campaigns/26410890/summary",
+          "date": "2026-09-18"
+        },
+        {
+          "id": "import-api:61:26298968",
+          "subject": "С 1 сентября старые лицензии на охрану больше не работают",
+          "url": "https://app.sendsay.ru/reports/campaigns/26298968/summary",
+          "date": "2026-09-09"
+        },
+        {
+          "id": "import-api:61:26286356",
+          "subject": "С 1 сентября старые лицензии на охрану больше не работают",
+          "url": "https://app.sendsay.ru/reports/campaigns/26286356/summary",
+          "date": "2026-09-08"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 2,
+      "titleUnverified": false,
+      "total": 0
+    },
+    {
       "title": "Возможность увеличить максимальную цену проверьте до заключения контракта",
       "url": "https://www.pro-goszakaz.ru/news/121291-gzru-1215974-nov26-05",
       "term": "121291",
@@ -56211,41 +56211,6 @@
       "total": 0
     },
     {
-      "title": "Договор о возмещении коммунальных услуг",
-      "url": "https://www.pro-goszakaz.ru/article/103260-zakupka-i-vozmeshchenie-kommunalnyh-uslug-po-44-fz",
-      "term": "103260",
-      "kind": "art",
-      "group": "ГЗ",
-      "red": 0,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {},
-      "letters": [
-        {
-          "id": "import-api:61:26410890",
-          "subject": "Восемь правил, которые следует соблюдать при формировании постотчета",
-          "url": "https://app.sendsay.ru/reports/campaigns/26410890/summary",
-          "date": "2026-09-18"
-        },
-        {
-          "id": "import-api:61:26298968",
-          "subject": "С 1 сентября старые лицензии на охрану больше не работают",
-          "url": "https://app.sendsay.ru/reports/campaigns/26298968/summary",
-          "date": "2026-09-09"
-        },
-        {
-          "id": "import-api:61:26286356",
-          "subject": "С 1 сентября старые лицензии на охрану больше не работают",
-          "url": "https://app.sendsay.ru/reports/campaigns/26286356/summary",
-          "date": "2026-09-08"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 2,
-      "titleUnverified": false,
-      "total": 0
-    },
-    {
       "title": "Договор о коллективной материальной ответственности: гайд по оформлению и образец",
       "url": "https://www.budgetnik.ru/art/105495-dogovor-o-kollektivnoy-materialnoy-otvetstvennosti-polnyy-gayd-po-oformleniyu-i-obrazets-2026",
       "term": "105495",
@@ -56479,7 +56444,7 @@
       "total": 0
     },
     {
-      "title": "Доплата за классное руководство: школы, техникумы и колледжи",
+      "title": "Доплата за классное руководство в 2026 году: школы, техникумы и колледжи",
       "url": "https://www.budgetnik.ru/art/104148-doplata-za-klassnoe-rukovodstvo-po-postanovleniyu-pravitelstva",
       "term": "104148",
       "kind": "art",
@@ -58091,7 +58056,7 @@
       "total": 0
     },
     {
-      "title": "Закрытие контракта в ЕИС по 44-ФЗ: порядок, документы и сроки",
+      "title": "Закрытие контракта в ЕИС по 44-ФЗ в 2026 году: порядок, документы и сроки",
       "url": "https://www.pro-goszakaz.ru/article/103701-zakrytie-kontrakta-v-eis-po-44-fz-poryadok-dokumenty-i-sroki",
       "term": "103701",
       "kind": "art",
@@ -58191,7 +58156,7 @@
       "total": 0
     },
     {
-      "title": "Закупка охранных услуг по 44-ФЗ по-новому",
+      "title": "Закупка охранных услуг по 44-ФЗ: пошаговый порядок и изменения с 1 сентября",
       "url": "https://www.pro-goszakaz.ru/article/106334-zakupka-ohrannyh-uslug-po-44-fz",
       "term": "106334",
       "kind": "art",
@@ -65768,6 +65733,65 @@
       "total": 0
     },
     {
+      "title": "Независимая гарантия по 223-ФЗ: требования, срок и проверка",
+      "url": "https://www.pro-goszakaz.ru/article/107362-nezavisimaya-garantiya-po-223-fz",
+      "term": "107362",
+      "kind": "art",
+      "group": "ГЗ",
+      "red": 0,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {},
+      "letters": [
+        {
+          "id": "import-api:61:27170851",
+          "subject": "Ваши локальные акты устарели",
+          "url": "https://app.sendsay.ru/reports/campaigns/27170851/summary",
+          "date": "2026-11-20"
+        },
+        {
+          "id": "import-api:61:27158541",
+          "subject": "Ваши локальные акты устарели",
+          "url": "https://app.sendsay.ru/reports/campaigns/27158541/summary",
+          "date": "2026-11-19"
+        },
+        {
+          "id": "import-api:61:27146345",
+          "subject": "В личном кабинете заказчика появилась новая форма отчета",
+          "url": "https://app.sendsay.ru/reports/campaigns/27146345/summary",
+          "date": "2026-11-18"
+        },
+        {
+          "id": "import-api:61:27134091",
+          "subject": "В личном кабинете заказчика появилась новая форма отчета",
+          "url": "https://app.sendsay.ru/reports/campaigns/27134091/summary",
+          "date": "2026-11-17"
+        },
+        {
+          "id": "import-api:61:27121814",
+          "subject": "Росгвардия разъяснила правила работы по старым лицензиям на услуги охраны",
+          "url": "https://app.sendsay.ru/reports/campaigns/27121814/summary",
+          "date": "2026-11-16"
+        },
+        {
+          "id": "import-api:61:27087357",
+          "subject": "Новый порядок Росгвардии для расчета НМЦК на охрану",
+          "url": "https://app.sendsay.ru/reports/campaigns/27087357/summary",
+          "date": "2026-11-13"
+        },
+        {
+          "id": "import-api:61:27075237",
+          "subject": "Правила закупок по 44-ФЗ упростили",
+          "url": "https://app.sendsay.ru/reports/campaigns/27075237/summary",
+          "date": "2026-11-12"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 2,
+      "titleUnverified": false,
+      "total": 0
+    },
+    {
       "title": "Нейра Николаевна никогда не выдумывает: в Системе Госфинансы запустили новый тариф с встроенным искусственным интеллектом",
       "url": "https://www.budgetnik.ru/news/125322-neyra-nikolaevna-nikogda-ne-vydumyvaet-v-sisteme-gosfinansy-zapustili-novyy-tarif-s-vstroennym-iskusstvennym-intellektom",
       "term": "125322",
@@ -66182,6 +66206,77 @@
       "total": 0
     },
     {
+      "title": "Новые основания для изменения условий контракта: срочный алгоритм",
+      "url": "https://www.pro-goszakaz.ru/news/120264-pravitelstvo-rasshirilo-osnovaniya-dlya-izmeneniya-kontraktov",
+      "term": "120264",
+      "kind": "news",
+      "group": "ГЗ",
+      "red": 0,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {},
+      "letters": [
+        {
+          "id": "import-api:61:26468474",
+          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
+          "url": "https://app.sendsay.ru/reports/campaigns/26468474/summary",
+          "date": "2026-09-22"
+        },
+        {
+          "id": "import-api:61:26407200",
+          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
+          "url": "https://app.sendsay.ru/reports/campaigns/26407200/summary",
+          "date": "2026-09-17"
+        },
+        {
+          "id": "import-api:61:26381774",
+          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
+          "url": "https://app.sendsay.ru/reports/campaigns/26381774/summary",
+          "date": "2026-09-15"
+        },
+        {
+          "id": "import-api:61:26369047",
+          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
+          "url": "https://app.sendsay.ru/reports/campaigns/26369047/summary",
+          "date": "2026-09-14"
+        },
+        {
+          "id": "import-api:61:26307915",
+          "subject": "Изменение страны происхождения впервые закрепили в 44-ФЗ",
+          "url": "https://app.sendsay.ru/reports/campaigns/26307915/summary",
+          "date": "2026-09-09"
+        },
+        {
+          "id": "import-api:61:26295226",
+          "subject": "Изменение страны происхождения впервые закрепили в 44-ФЗ",
+          "url": "https://app.sendsay.ru/reports/campaigns/26295226/summary",
+          "date": "2026-09-08"
+        },
+        {
+          "id": "import-api:61:26282515",
+          "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
+          "url": "https://app.sendsay.ru/reports/campaigns/26282515/summary",
+          "date": "2026-09-07"
+        },
+        {
+          "id": "import-api:61:26246642",
+          "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
+          "url": "https://app.sendsay.ru/reports/campaigns/26246642/summary",
+          "date": "2026-09-04"
+        },
+        {
+          "id": "import-api:61:26234085",
+          "subject": "Пять новых оснований для изменения условий контракта с 1 октября",
+          "url": "https://app.sendsay.ru/reports/campaigns/26234085/summary",
+          "date": "2026-09-03"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 2,
+      "titleUnverified": false,
+      "total": 0
+    },
+    {
       "title": "Новые правила КЭП с 2027: отмена множества доверенностей и отказов банкротам",
       "url": "https://www.budgetnik.ru/news/124711-novye-pravila-kep-s-2027-otmena-mnozhestva-doverennostey-i-otkazov-bankrotam",
       "term": "124711",
@@ -66537,65 +66632,6 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
-      "titleUnverified": false,
-      "total": 0
-    },
-    {
-      "title": "Образец независимой гарантии",
-      "url": "https://www.pro-goszakaz.ru/article/107362-nezavisimaya-garantiya-po-223-fz",
-      "term": "107362",
-      "kind": "art",
-      "group": "ГЗ",
-      "red": 0,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {},
-      "letters": [
-        {
-          "id": "import-api:61:27170851",
-          "subject": "Ваши локальные акты устарели",
-          "url": "https://app.sendsay.ru/reports/campaigns/27170851/summary",
-          "date": "2026-11-20"
-        },
-        {
-          "id": "import-api:61:27158541",
-          "subject": "Ваши локальные акты устарели",
-          "url": "https://app.sendsay.ru/reports/campaigns/27158541/summary",
-          "date": "2026-11-19"
-        },
-        {
-          "id": "import-api:61:27146345",
-          "subject": "В личном кабинете заказчика появилась новая форма отчета",
-          "url": "https://app.sendsay.ru/reports/campaigns/27146345/summary",
-          "date": "2026-11-18"
-        },
-        {
-          "id": "import-api:61:27134091",
-          "subject": "В личном кабинете заказчика появилась новая форма отчета",
-          "url": "https://app.sendsay.ru/reports/campaigns/27134091/summary",
-          "date": "2026-11-17"
-        },
-        {
-          "id": "import-api:61:27121814",
-          "subject": "Росгвардия разъяснила правила работы по старым лицензиям на услуги охраны",
-          "url": "https://app.sendsay.ru/reports/campaigns/27121814/summary",
-          "date": "2026-11-16"
-        },
-        {
-          "id": "import-api:61:27087357",
-          "subject": "Новый порядок Росгвардии для расчета НМЦК на охрану",
-          "url": "https://app.sendsay.ru/reports/campaigns/27087357/summary",
-          "date": "2026-11-13"
-        },
-        {
-          "id": "import-api:61:27075237",
-          "subject": "Правила закупок по 44-ФЗ упростили",
-          "url": "https://app.sendsay.ru/reports/campaigns/27075237/summary",
-          "date": "2026-11-12"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 2,
       "titleUnverified": false,
       "total": 0
     },
@@ -67794,7 +67830,7 @@
       "total": 0
     },
     {
-      "title": "П. 4 ст. 93 44-ФЗ и ч. 12 ст. 93 44-ФЗ: закупки малого объема у единственного поставщика",
+      "title": "П. 4 ст. 93 44-ФЗ и ч. 12 ст. 93 44-ФЗ: закупки малого объема у единственного поставщика 2026",
       "url": "https://www.pro-goszakaz.ru/article/104734-p-4-st-93-44-fz-i-ch-12-st-93-44-fz-zakupki-malogo-obema-u-edinstvennogo-postavshchika",
       "term": "104734",
       "kind": "art",
@@ -67878,6 +67914,41 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
+      "titleUnverified": false,
+      "total": 0
+    },
+    {
+      "title": "Пени: КОСГУ и КВР в 2026 году",
+      "url": "https://www.budgetnik.ru/art/105660-peni-kosgu-i-kvr-2026-polnyy-spravochnik-po-kodam-byudzhetnoy-klassifikatsii",
+      "term": "105660",
+      "kind": "art",
+      "group": "ГФ",
+      "red": 0,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {},
+      "letters": [
+        {
+          "id": "import-api:52:26052070",
+          "subject": "Срочно обновите внутренний контроль",
+          "url": "https://app.sendsay.ru/reports/campaigns/26052070/summary",
+          "date": "2026-08-20"
+        },
+        {
+          "id": "import-api:52:25901500",
+          "subject": "Учетную политику предложили разделить на отдельные документы",
+          "url": "https://app.sendsay.ru/reports/campaigns/25901500/summary",
+          "date": "2026-08-07"
+        },
+        {
+          "id": "import-api:52:25792932",
+          "subject": "Обновите положение об учете матзапасов!",
+          "url": "https://app.sendsay.ru/reports/campaigns/25792932/summary",
+          "date": "2026-07-30"
+        }
+      ],
+      "urlAliases": 2,
+      "titleVariants": 2,
       "titleUnverified": false,
       "total": 0
     },
@@ -68113,7 +68184,7 @@
       "total": 0
     },
     {
-      "title": "План счетов бюджетного учета по приказу № 132н: как работать",
+      "title": "План счетов бюджетного учета по приказу № 132н: как работать в 2026 году",
       "url": "https://www.budgetnik.ru/art/105381-prikaz-minfina-132n-primenenie-plana-schetov-byudjetnogo-ucheta",
       "term": "105381",
       "kind": "art",
@@ -68272,35 +68343,6 @@
       ],
       "urlAliases": 2,
       "titleVariants": 5,
-      "titleUnverified": false,
-      "total": 0
-    },
-    {
-      "title": "Подробнее",
-      "url": "https://www.budgetnik.ru/news/124615-s-1-sentyabrya-otchetnost-v-sfr-primut-tolko-s-obnovlennoy-podpisyu",
-      "term": "124615",
-      "kind": "news",
-      "group": "ГФ",
-      "red": 0,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {},
-      "letters": [
-        {
-          "id": "import-api:52:26060941",
-          "subject": "СФР не примет отчетность со старой подписью",
-          "url": "https://app.sendsay.ru/reports/campaigns/26060941/summary",
-          "date": "2026-08-20"
-        },
-        {
-          "id": "import-api:52:25978403",
-          "subject": "С 1 сентября СФР не примет отчетность без обновленной подписи",
-          "url": "https://app.sendsay.ru/reports/campaigns/25978403/summary",
-          "date": "2026-08-14"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 2,
       "titleUnverified": false,
       "total": 0
     },
@@ -68901,7 +68943,7 @@
       "total": 0
     },
     {
-      "title": "Положение об оплате труда работников: полное руководство по разработке и утверждению",
+      "title": "Положение об оплате труда работников: полное руководство по разработке, утверждению и изменению",
       "url": "https://www.budgetnik.ru/art/104355-polojenie-ob-oplate-truda-rabotnikov-uchrejdeniya",
       "term": "104355",
       "kind": "art",
@@ -70349,6 +70391,35 @@
       "total": 0
     },
     {
+      "title": "ПРОВЕРИТЬ, ЧТО ИЗМЕНИЛОСЬ",
+      "url": "https://www.budgetnik.ru/news/124615-s-1-sentyabrya-otchetnost-v-sfr-primut-tolko-s-obnovlennoy-podpisyu",
+      "term": "124615",
+      "kind": "news",
+      "group": "ГФ",
+      "red": 0,
+      "yellow": 0,
+      "green": 0,
+      "byWeek": {},
+      "letters": [
+        {
+          "id": "import-api:52:26060941",
+          "subject": "СФР не примет отчетность со старой подписью",
+          "url": "https://app.sendsay.ru/reports/campaigns/26060941/summary",
+          "date": "2026-08-20"
+        },
+        {
+          "id": "import-api:52:25978403",
+          "subject": "С 1 сентября СФР не примет отчетность без обновленной подписи",
+          "url": "https://app.sendsay.ru/reports/campaigns/25978403/summary",
+          "date": "2026-08-14"
+        }
+      ],
+      "urlAliases": 1,
+      "titleVariants": 2,
+      "titleUnverified": false,
+      "total": 0
+    },
+    {
       "title": "Проверку баллов локализации нужно начинать с требований к конкретному виду товара",
       "url": "https://www.pro-goszakaz.ru/news/121292-gzru-1215479-nov26-03",
       "term": "121292",
@@ -70790,77 +70861,6 @@
       ],
       "urlAliases": 1,
       "titleVariants": 1,
-      "titleUnverified": false,
-      "total": 0
-    },
-    {
-      "title": "Пять новых оснований для изменения условий контракта с 1 октября",
-      "url": "https://www.pro-goszakaz.ru/news/120264-pravitelstvo-rasshirilo-osnovaniya-dlya-izmeneniya-kontraktov",
-      "term": "120264",
-      "kind": "news",
-      "group": "ГЗ",
-      "red": 0,
-      "yellow": 0,
-      "green": 0,
-      "byWeek": {},
-      "letters": [
-        {
-          "id": "import-api:61:26468474",
-          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-          "url": "https://app.sendsay.ru/reports/campaigns/26468474/summary",
-          "date": "2026-09-22"
-        },
-        {
-          "id": "import-api:61:26407200",
-          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-          "url": "https://app.sendsay.ru/reports/campaigns/26407200/summary",
-          "date": "2026-09-17"
-        },
-        {
-          "id": "import-api:61:26381774",
-          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-          "url": "https://app.sendsay.ru/reports/campaigns/26381774/summary",
-          "date": "2026-09-15"
-        },
-        {
-          "id": "import-api:61:26369047",
-          "subject": "Ввели мораторий на спецправила расчета НМЦК на топливо",
-          "url": "https://app.sendsay.ru/reports/campaigns/26369047/summary",
-          "date": "2026-09-14"
-        },
-        {
-          "id": "import-api:61:26307915",
-          "subject": "Изменение страны происхождения впервые закрепили в 44-ФЗ",
-          "url": "https://app.sendsay.ru/reports/campaigns/26307915/summary",
-          "date": "2026-09-09"
-        },
-        {
-          "id": "import-api:61:26295226",
-          "subject": "Изменение страны происхождения впервые закрепили в 44-ФЗ",
-          "url": "https://app.sendsay.ru/reports/campaigns/26295226/summary",
-          "date": "2026-09-08"
-        },
-        {
-          "id": "import-api:61:26282515",
-          "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-          "url": "https://app.sendsay.ru/reports/campaigns/26282515/summary",
-          "date": "2026-09-07"
-        },
-        {
-          "id": "import-api:61:26246642",
-          "subject": "Минфин обязал издавать приказ о назначении ответственных для постотчета",
-          "url": "https://app.sendsay.ru/reports/campaigns/26246642/summary",
-          "date": "2026-09-04"
-        },
-        {
-          "id": "import-api:61:26234085",
-          "subject": "Пять новых оснований для изменения условий контракта с 1 октября",
-          "url": "https://app.sendsay.ru/reports/campaigns/26234085/summary",
-          "date": "2026-09-03"
-        }
-      ],
-      "urlAliases": 1,
-      "titleVariants": 2,
       "titleUnverified": false,
       "total": 0
     },
@@ -72701,7 +72701,7 @@
       "total": 0
     },
     {
-      "title": "Сроки размещения информации на bus.gov.ru: дедлайны и штрафы",
+      "title": "Сроки размещения информации на bus.gov.ru: полный гид по дедлайнам и штрафам",
       "url": "https://www.budgetnik.ru/art/105178-razmeshchenie-svedeniy-o-deyatelnosti-uchrejdeniya-na-busgovru-sroki-sostav-poryadok",
       "term": "105178",
       "kind": "art",
@@ -73483,7 +73483,7 @@
       "total": 0
     },
     {
-      "title": "Табель учета рабочего времени в учреждении: ведение, заполнение и бланк",
+      "title": "Табель учета рабочего времени (форма 0504421): инструкция, образцы, коды",
       "url": "https://www.budgetnik.ru/art/102875-tabel-ucheta-ispolzovaniya-rabochego-vremeni-f-0504421",
       "term": "102875",
       "kind": "art",
@@ -75568,7 +75568,7 @@
       "total": 0
     },
     {
-      "title": "Форма 0510467 для инвентаризации наличных денежных средств: инструкция и образец",
+      "title": "Форма 0510467 для инвентаризации наличных денежных средств: инструкция и образец заполнения",
       "url": "https://www.budgetnik.ru/art/105185-forma-0510467-dlya-inventarizatsii-nalichnyh-denejnyh-sredstv-instruktsiya-i-obrazets",
       "term": "105185",
       "kind": "art",

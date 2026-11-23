@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-23T16:10:48.418Z",
+  "generatedAt": "2026-11-23T16:12:22.305Z",
   "from": "2026-06-29",
   "through": "2026-11-23",
   "source": "Analytics Center _Sendsay v2: canonical NEWS Sendsay API issues, unique by LBAC policy + issue ID",
@@ -2129,7 +2129,7 @@
       "opened": 326,
       "openRate": 0.94,
       "clicks": 33,
-      "clickRate": 0.09,
+      "clickRate": 0.1,
       "ctor": 10.12
     },
     {
@@ -5013,6 +5013,6 @@
       "ctor": 4.93
     }
   ],
-  "scanOffset": 16000,
-  "scanCheckedAt": "2026-11-23T16:10:48.418Z"
+  "scanOffset": 18000,
+  "scanCheckedAt": "2026-11-23T16:12:22.305Z"
 }
