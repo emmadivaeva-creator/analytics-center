@@ -2269,7 +2269,7 @@ function tradeFilteredRows_(){
   const query=document.getElementById('tradeSearch').value.trim().toLowerCase();
   return tradeData.items.filter(mail=>
     (!group||mail.direction===group)&&
-    (!label&&(mail.labels||[]).includes(label))&&
+    (!label||(mail.labels||[]).includes(label))&&
     (!week||tradeWeekKey_(mail)===week)&&
     (!query||String(mail.subject||'').toLowerCase().includes(query)||String(mail.campaign||'').toLowerCase().includes(query))
   ).sort((a,b)=>String(b.date+' '+b.time).localeCompare(String(a.date+' '+a.time)));
