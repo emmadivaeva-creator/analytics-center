@@ -1070,7 +1070,7 @@ function newsMaterialTopics(emails,week){
  }
  return [...topics.values()].map(t=>({...t,total:t.red+t.yellow+t.green}));
 }
-let newsMaterialSnapshot=null,newsMaterialSnapshotLoading=false;
+let newsMaterialSnapshot=null,newsMaterialSnapshotLoading=false,newsMaterialSnapshotStale_=false;
 async function loadNewsMaterialSnapshot_(force=false){
  if(newsMaterialSnapshotLoading)return;
  if(newsMaterialSnapshot&&!force){renderNewsMaterials();return;}
@@ -1079,7 +1079,10 @@ async function loadNewsMaterialSnapshot_(force=false){
    const response=await fetch('news-demo-current.json?ts='+Date.now(),{cache:'no-store'});
    if(response.ok){
      const data=await response.json();
-     if(data&&Array.isArray(data.topics))newsMaterialSnapshot=data;
+     if(data&&Array.isArray(data.topics)){
+     newsMaterialSnapshot=data;
+     newsMaterialSnapshotStale_=!data.generatedAt||Date.now()-Date.parse(data.generatedAt)>7*86400000;
+   }
    }
  }catch(_){}
  finally{newsMaterialSnapshotLoading=false;renderNewsMaterials();}
@@ -1096,12 +1099,16 @@ function renderNewsMaterialSnapshot_(){
    return {...t,...values,total:n(values.red)+n(values.yellow)+n(values.green)};
  }).filter(t=>(!group||t.group===group)&&(!query||[t.title,t.url,t.term].join(' ').toLowerCase().includes(query)));
  const rows=all.filter(t=>filter==='zero'?t.total===0:filter==='green'?t.green>0:true).sort((a,b)=>sort==='total'?b.total-a.total||b.green-a.green:b.green-a.green||b.total-a.total);
- document.getElementById('newsMaterialStatus').textContent='Готовый срез: '+fmt(data.mailsChecked||0)+' новостных писем'+(data.errors?.length?' · ошибок '+data.errors.length:'')+' · обновлено '+dateRu(data.generatedAt||'')+' · период '+(week?'неделя '+week:(data.periodLabel||'последние дни'))+'.';
+ document.getElementById('newsMaterialStatus').textContent=(newsMaterialSnapshotStale_?'АРХИВНЫЙ СРЕЗ — НЕ ТЕКУЩАЯ АНАЛИТИКА. ':'')+'Готовый срез: '+fmt(data.mailsChecked||0)+' новостных писем'+(data.errors?.length?' · ошибок '+data.errors.length:'')+' · обновлено '+dateRu(data.generatedAt||'')+' · период '+(week?'неделя '+week:(data.periodLabel||'последние дни'))+'.';
  document.getElementById('newsMaterialSummary').innerHTML=`<div><b>${fmt(all.length)}</b><span>материалов</span></div><div><b>${fmt(all.filter(t=>t.total>0).length)}</b><span>приносят демо</span></div><div><b>${fmt(all.filter(t=>!t.total).length)}</b><span>без демо</span></div><div><b>${fmt(all.reduce((s,t)=>s+t.green,0))}</b><span>зелёных демо</span></div>`;
  document.getElementById('newsMaterialRows').innerHTML=rows.length?`<table><thead><tr><th>Новость / статья</th><th>Всего демо</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Письма</th></tr></thead><tbody>${rows.map(t=>`<tr><td><b>${safeLink(t.url,t.title)||esc(t.title||t.term||'Материал')}</b><small>${esc(t.group||'')} · ${t.kind==='news'?'Новость':'Статья'}</small></td><td>${fmt(t.total)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>${fmt((t.letters||[]).length)}</summary>${(t.letters||[]).map(m=>`<p>${safeLink(m.url,m.subject)||esc(m.subject||'Письмо')}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>`:'<p>Материалов по выбранным условиям пока нет.</p>';
 }
 function renderNewsMaterials(){
- if(newsMaterialSnapshot){renderNewsMaterialSnapshot_();return;}
+ const latestProcessed=(registryData||[]).some(m=>isNewsMail(m)&&m.materialData&&
+   String(m.date||'')>=new Date(Date.now()-14*86400000).toISOString().slice(0,10));
+ if(newsMaterialSnapshot&&(!newsMaterialSnapshotStale_||!latestProcessed)){
+   renderNewsMaterialSnapshot_();return;
+ }
  const mails=(registryData||[]).filter(isNewsMail),done=mails.filter(m=>m.materialData).length,errors=mails.filter(m=>m.materialError).length;
  const select=document.getElementById('newsMaterialWeek'),previous=select.value;
  const weeks=[...new Set(mails.flatMap(m=>(m.materialData?.rows||[]).flatMap(r=>(r.weeks||[]).map(w=>w.week))))].sort((a,b)=>b-a);
@@ -1109,7 +1116,7 @@ function renderNewsMaterials(){
  const query=document.getElementById('newsMaterialSearch').value.trim().toLowerCase(),group=document.getElementById('newsMaterialGroup').value,filter=document.getElementById('newsMaterialFilter').value,sort=document.getElementById('newsMaterialSort').value;
  const all=newsMaterialTopics(mails,select.value).filter(t=>(!group||t.group===group)&&(!query||[t.title,t.url].join(' ').toLowerCase().includes(query)));
  const rows=all.filter(t=>filter==='zero'?t.total===0:filter==='green'?t.green>0:true).sort((a,b)=>sort==='total'?b.total-a.total||b.green-a.green:b.green-a.green||b.total-a.total);
- document.getElementById('newsMaterialStatus').textContent=`Проверено писем: ${done} из ${mails.length}${errors?' · Ошибок: '+errors+' · '+mails.find(m=>m.materialError).materialError:''}. ${done<mails.length?'Результат пока неполный. ':''}Период: ${select.value?'неделя '+select.value:'все доступные недели'}. Без демо — нет результата в доступном факте за этот период; переходы на отдельные материалы здесь не учитываются.`;
+ document.getElementById('newsMaterialStatus').textContent=`Живые данные · проверено писем: ${done} из ${mails.length}${errors?' · Ошибок: '+errors+' · '+mails.find(m=>m.materialError).materialError:''}. ${done<mails.length?'Результат пока неполный, новые письма обрабатываются первыми. ':''}Период: ${select.value?'неделя '+select.value:'все обработанные недели'}. Без демо — нет результата в доступном факте за этот период; переходы на отдельные материалы здесь не учитываются.`;
  document.getElementById('newsMaterialSummary').innerHTML=`<div><b>${fmt(all.length)}</b><span>материалов</span></div><div><b>${fmt(all.filter(t=>t.total>0).length)}</b><span>приносят демо</span></div><div><b>${fmt(all.filter(t=>!t.total).length)}</b><span>без демо</span></div><div><b>${fmt(all.reduce((s,t)=>s+t.green,0))}</b><span>зелёных демо</span></div>`;
  document.getElementById('newsMaterialRows').innerHTML=rows.length?`<table><thead><tr><th>Новость / статья</th><th>Всего демо</th><th>Зелёные</th><th>Жёлтые</th><th>Красные</th><th>Письма</th></tr></thead><tbody>${rows.map(t=>`<tr><td><b>${safeLink(t.url,t.title)||esc(t.title)}</b><small>${esc(t.group)} · ${t.kind==='news'?'Новость':'Статья'}</small></td><td>${fmt(t.total)}</td><td><b>${fmt(t.green)}</b></td><td>${fmt(t.yellow)}</td><td>${fmt(t.red)}</td><td><details><summary>${t.letters.size}</summary>${[...t.letters.values()].map(m=>`<p>${safeLink(m.url,m.subject)||esc(m.subject)}</p>`).join('')}</details></td></tr>`).join('')}</tbody></table>`:'<p>Материалов по выбранным условиям пока нет.</p>';
 }
@@ -1522,25 +1529,30 @@ async function loadDemand(force=false){
  demandBusy=true;
  const button=document.getElementById('demandReload');
  button.disabled=true;
- document.getElementById('demandStatus').textContent='Читаю фактические письма Sendsay и DEMO-метки…';
+ const status=document.getElementById('demandStatus');
+ status.textContent='Проверяю свежий DEMO-факт и письма Sendsay…';
  try{
-  if(!force){
+  if(!demandData){
     const snapshot=await loadDemandSnapshot_();
     if(snapshot){
       demandData=snapshot;
       renderDemand();
-      document.getElementById('demandStatus').textContent+=' · быстрый снимок';
-      // Refresh silently. A slow live calculation must not leave the page empty.
-      rpc('getDemandEvidenceUi',null).then(fresh=>{
-        if(fresh&&Array.isArray(fresh.evidence)){demandData=fresh;renderDemand();}
-      }).catch(()=>{});
-      return;
+      const stamp=snapshot.generatedAt||snapshot.readAt||'';
+      if(stamp&&Date.now()-Date.parse(stamp)>7*86400000)
+        status.textContent+=' · сохранённый срез старше недели, обновляю с сервера…';
     }
   }
-  demandData=await rpc('getDemandEvidenceUi',force?1:null);
+  // A failed live calculation must never empty or overwrite the saved results.
+  const fresh=await rpc('getDemandEvidenceUi',force?1:null);
+  if(!fresh||!Array.isArray(fresh.evidence))throw new Error('Сервер вернул неполный срез DEMO');
+  demandData=fresh;
   renderDemand();
  }catch(e){
-  document.getElementById('demandStatus').textContent='Не удалось загрузить спрос: '+(e&&e.message?e.message:String(e));
+  const error='Обновление спроса не завершено: '+String(e&&e.message||e);
+  if(demandData){
+    renderDemand();
+    status.textContent+=' · '+error+' · сохранённые данные оставлены';
+  }else status.textContent=error;
  }finally{
   demandBusy=false;
   button.disabled=false;
@@ -1584,7 +1596,7 @@ function renderDemand(){
  const more=document.getElementById('demandMore');
  if(more)more.onclick=()=>{demandShowAll=!demandShowAll;renderDemand();};
 }
-document.getElementById('demandReload').onclick=async()=>{demandData=null;await loadDemand(true);};
+document.getElementById('demandReload').onclick=()=>loadDemand(true);
 document.getElementById('demandSearch').oninput=renderDemand;
 document.getElementById('demandGroup').onchange=()=>{demandShowAll=false;renderDemand();};
 
