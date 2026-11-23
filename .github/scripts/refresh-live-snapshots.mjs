@@ -127,13 +127,14 @@ const newsSnapshot={
   period:{from:recent.from||'',to:recent.to||'',days:recent.days||7},
   periodLabel:recent.from&&recent.to?recent.from+' — '+recent.to:'последние 7 дней',
   mailsChecked:news.length,
+  latestNewsletterDate:news.reduce((max,item)=>String(item.date||'')>max?String(item.date||''):max,''),
   successfulDetails:details.filter(x=>x&&!x.error).length,
   errors:[...new Set(errors)],
   weeks,
   topics:cleanTopics
 };
-if(newsSnapshot.mailsChecked>0&&newsSnapshot.successfulDetails===0&&newsSnapshot.errors.length){
-  console.warn('NEWS_SNAPSHOT_PRESERVED: all recent material reads failed:',newsSnapshot.errors.join(' | '));
+if(newsSnapshot.mailsChecked===0||(newsSnapshot.successfulDetails===0&&newsSnapshot.errors.length)){
+  console.warn('NEWS_SNAPSHOT_PRESERVED:',newsSnapshot.mailsChecked===0?'No news letters in recent archive':newsSnapshot.errors.join(' | '));
   // Do not replace the last valid material report with an empty success-shaped JSON.
 }else{
   await fs.writeFile('news-demo-current.json',JSON.stringify(newsSnapshot,null,2)+'\n','utf8');
