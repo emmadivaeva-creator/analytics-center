@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import {buildNewsSummary, mergeIssues, normalizeIssue, issueId, isoWeek} from './news-archive.mjs';
 
 const endpoint='https://script.google.com/macros/s/AKfycbzseFMx8oDQPQ0BtUu6rvZiGAdZRFX6-uR2q9bqFF69olKK2pgvl_dGLJ6bC3MPLVcn7g/exec';
 
@@ -54,99 +55,114 @@ await fs.writeFile('pulse-current.json',JSON.stringify({
 const demand=await call('getDemandEvidenceUi',[],180000);
 await fs.writeFile('demand-current.json',JSON.stringify({...demand,generatedAt},null,2)+'\n','utf8');
 
-const recent=await call('getMailRegistryRecentUi',[7],180000);
-const news=(recent.emails||[]).filter(mail=>{
-  const type=String(mail.type||'').toLowerCase(),campaign=String(mail.campaign||'');
-  return type==='news'||/letter_news|news_digest/i.test(campaign);
-});
-const details=await mapLimit(news,4,async mail=>({mail,details:await call('getMailDemoDetailsUi',[mail.id],150000)}));
-const topics=new Map(),errors=[];
-
-for(const entry of details){
-  if(!entry||entry.error){errors.push(entry?.error||'Unknown news detail error');continue;}
-  const {mail,details:detail}=entry;
-  const materials=Array.isArray(detail?.materials)?detail.materials:[];
-  const rows=Array.isArray(detail?.rows)?detail.rows:[];
-  for(const material of materials){
-    const key=identity(material.url);if(!key)continue;
-    let topic=topics.get(key);
-    if(!topic){
-      topic={
-        title:material.title||('Материал '+(material.id||'')),
-        url:material.url||'',
-        term:String(material.id||''),
-        kind:material.kind==='news'?'news':'art',
-        group:String(mail.product||'').split(' ')[0]||material.group||'',
-        red:0,yellow:0,green:0,
-        byWeek:{},
-        letters:[],
-        evidenceKeys:new Set()
-      };
-      topics.set(key,topic);
-    }
-    if(String(material.title||'').length>String(topic.title||'').length)topic.title=material.title;
-    if(!topic.letters.some(x=>x.id===mail.id))topic.letters.push({id:mail.id,subject:mail.subject||'',url:mail.sendsay||'',date:mail.date||''});
-  }
-  for(const row of rows){
-    const key=identity(row.url);if(!key)continue;
-    let topic=topics.get(key);
-    if(!topic){
-      topic={
-        title:row.title||('Материал '+(row.term||'')),
-        url:row.url||'',
-        term:String(row.term||''),
-        kind:/^news$/i.test(String(row.content||''))?'news':'art',
-        group:String(mail.product||'').split(' ')[0]||String(row.product||'').split(' ')[0],
-        red:0,yellow:0,green:0,byWeek:{},letters:[],evidenceKeys:new Set()
-      };
-      topics.set(key,topic);
-    }
-    const evidenceKey=[row.product,row.sourceUrl].join('|');
-    if(topic.evidenceKeys.has(evidenceKey))continue;
-    topic.evidenceKeys.add(evidenceKey);
-    for(const w of row.weeks||[]){
-      const wk=String(w.week);
-      if(!topic.byWeek[wk])topic.byWeek[wk]={red:0,yellow:0,green:0};
-      for(const metric of ['red','yellow','green']){
-        const value=n(w[metric]);
-        topic.byWeek[wk][metric]+=value;
-        topic[metric]+=value;
-      }
-    }
-  }
-}
-
-const cleanTopics=[...topics.values()].map(topic=>{
-  delete topic.evidenceKeys;
-  return {...topic,total:topic.red+topic.yellow+topic.green};
-}).sort((a,b)=>b.green-a.green||b.total-a.total||String(a.title).localeCompare(String(b.title),'ru'));
-const weeks=[...new Set(cleanTopics.flatMap(t=>Object.keys(t.byWeek).map(Number)))].filter(Boolean).sort((a,b)=>a-b);
-
-const newsSnapshot={
-  generatedAt,
-  period:{from:recent.from||'',to:recent.to||'',days:recent.days||7},
-  periodLabel:recent.from&&recent.to?recent.from+' — '+recent.to:'последние 7 дней',
-  mailsChecked:news.length,
-  latestNewsletterDate:news.reduce((max,item)=>String(item.date||'')>max?String(item.date||''):max,''),
-  successfulDetails:details.filter(x=>x&&!x.error).length,
-  errors:[...new Set(errors)],
-  weeks,
-  topics:cleanTopics
+// CUMULATIVE NEWS ARCHIVE FROM ISO W27. No past issue is discarded by a
+// seven-day refresh. These two files are durable build inputs, not browser caches.
+const readJson=async(path,fallback)=>{
+  try{return JSON.parse(await fs.readFile(path,'utf8'));}
+  catch(e){if(e.code==='ENOENT')return fallback;throw e;}
 };
-if(newsSnapshot.mailsChecked===0||(newsSnapshot.successfulDetails===0&&newsSnapshot.errors.length)){
-  console.warn('NEWS_SNAPSHOT_PRESERVED:',newsSnapshot.mailsChecked===0?'No news letters in recent archive':newsSnapshot.errors.join(' | '));
-  // Do not replace the last valid material report with an empty success-shaped JSON.
-}else{
-  await fs.writeFile('news-demo-current.json',JSON.stringify(newsSnapshot,null,2)+'\n','utf8');
+const inventory=await readJson('news-demo-inventory.json',{schemaVersion:1,from:'2026-06-29',emails:[],missingEarlyWeeks:[]});
+const archive=await readJson('news-demo-letter-results.json',{schemaVersion:1,results:{},failures:{}});
+archive.results=archive.results||{};
+archive.failures=archive.failures||{};
+
+let recentError='',pageError='';
+let latestNews=[];
+try {
+  const recent=await call('getMailRegistryRecentUi',[7],180000);
+  latestNews=(recent.emails||[]).filter(m=>m?.type==='news'&&normalizeIssue(m));
+} catch(e) {
+  recentError=String(e.message||e);
+  console.warn('NEWS_RECENT_SOURCE_ERROR:',recentError);
 }
 
-console.log(JSON.stringify({
-  pulseWeek,
-  pulseGreen:pulseProducts.reduce((s,p)=>s+p.green,0),
-  demandEvidence:(demand.evidence||[]).length,
-  demandMeta:demand.meta||{},
-  newsMails:news.length,
-  newsTopics:cleanTopics.length,
-  newsErrors:newsSnapshot.errors.length,
-  weeks
+// Walk ONE source-registry page per run, so late-imported old emails
+// are eventually discovered without loading 27,000 DEMO rows every hour.
+try {
+  const offset=Number.isInteger(inventory.scanOffset)&&inventory.scanOffset>=0?inventory.scanOffset:0;
+  const page=await call('getMailRegistryPageUi',[offset],180000);
+  const found=(page.emails||[]).filter(m=>m?.type==='news'&&normalizeIssue(m));
+  latestNews.push(...found);
+  const next=Number(page.nextOffset);
+  inventory.scanOffset=page.done?0:(Number.isInteger(next)&&next>offset?next:0);
+  inventory.scanCheckedAt=generatedAt;
+} catch(e) {
+  pageError=String(e.message||e);
+  console.warn('NEWS_PAGED_SOURCE_ERROR:',pageError);
+}
+
+inventory.emails=mergeIssues(inventory.emails,latestNews);
+inventory.generatedAt=generatedAt;
+inventory.through=inventory.emails.reduce((date,m)=>m.date>date?m.date:date,'');
+if(!inventory.from)inventory.from='2026-06-29';
+const all=inventory.emails;
+const pending=all.filter(m=>!Object.prototype.hasOwnProperty.call(archive.results,m.id));
+const eligible=pending.filter(m=>{
+  const fail=archive.failures[m.id];
+  return !fail||!fail.attemptedAt||Date.now()-Date.parse(fail.attemptedAt)>2*3600000;
+});
+const maxBatch=Math.max(1,Math.min(90,Number(process.env.NEWS_BATCH_SIZE)||55));
+// Start with the earliest W31 newsletters, while also keeping new issues
+// represented in a still-incomplete backfill. Then continue chronologically.
+const newest=eligible.slice(-Math.min(14,Math.floor(maxBatch/3)));
+const pickedIds=new Set(newest.map(m=>m.id));
+const batch=eligible.filter(m=>!pickedIds.has(m.id)).slice(0,maxBatch-newest.length).concat(newest);
+console.log('NEWS_HISTORY_PROGRESS',JSON.stringify({
+  indexed:all.length,processed:Object.keys(archive.results).length,
+  pending:pending.length,scheduled:batch.length,
+  from:inventory.from,earliestIndexed:all[0]?.date,latestIndexed:inventory.through
 }));
+
+const completed=await mapLimit(batch,4,async mail=>{
+  const response=await call('getMailDemoDetailsUi',[mail.id],150000);
+  if(!response||!Array.isArray(response.materials)||!Array.isArray(response.rows))
+    throw new Error('Invalid materials response for '+mail.id);
+  return {id:mail.id,materials:response.materials.map(m=>({
+    id:String(m.id||''),url:String(m.url||''),title:String(m.title||''),
+    kind:String(m.kind||''),group:String(m.group||'')
+  })),rows:response.rows.map(r=>({
+    product:String(r.product||''),content:String(r.content||''),
+    term:String(r.term||''),title:String(r.title||''),url:String(r.url||''),
+    sourceUrl:String(r.sourceUrl||''),weeks:Array.isArray(r.weeks)
+      ?r.weeks.map(w=>({week:Number(w.week),red:n(w.red),yellow:n(w.yellow),green:n(w.green)}))
+      :[]
+  })),processedAt:generatedAt};
+});
+let savedNew=0,failedNew=0;
+for(let i=0;i<completed.length;i++){
+  const mail=batch[i],result=completed[i];
+  if(result&&result.error){
+    const prior=archive.failures[mail.id]||{};
+    archive.failures[mail.id]={attempts:Number(prior.attempts||0)+1,
+      attemptedAt:generatedAt,message:String(result.error).slice(0,350)};
+    failedNew++;
+  }else if(result){
+    archive.results[mail.id]={materials:result.materials,rows:result.rows,processedAt:generatedAt};
+    delete archive.failures[mail.id];
+    savedNew++;
+  }
+}
+archive.generatedAt=generatedAt;
+archive.schemaVersion=1;
+await fs.writeFile('news-demo-inventory.json',JSON.stringify(inventory,null,2)+'\n','utf8');
+await fs.writeFile('news-demo-letter-results.json',JSON.stringify(archive,null,2)+'\n','utf8');
+
+const cumulative=buildNewsSummary(inventory,archive,generatedAt);
+cumulative.recentSourceWarning=recentError;
+cumulative.pagedSourceWarning=pageError;
+// On an API outage, do not overwrite a valid report with empty fabricated facts.
+const oldSnapshot=await readJson('news-demo-current.json',null);
+if(cumulative.mailsChecked>0||!oldSnapshot?.topics?.length)
+  await fs.writeFile('news-demo-current.json',JSON.stringify(cumulative,null,2)+'\n','utf8');
+else console.warn('NEWS_ARCHIVE_PRESERVED: no historical items processed yet');
+
+console.log('NEWS_CUMULATIVE_RESULT',JSON.stringify({
+  indexed:all.length,processed:cumulative.mailsChecked,
+  added:savedNew,failedThisRun:failedNew,pending:cumulative.pendingCount,
+  weeks:cumulative.weeks,topics:cumulative.topics.length,
+  missingEarlyWeeks:cumulative.sourceMissingWeeks
+}));
+if(process.env.GITHUB_OUTPUT)
+  await fs.appendFile(process.env.GITHUB_OUTPUT,
+    'archive_pending='+String(cumulative.pendingCount)+'\n'+
+    'archive_added='+String(savedNew)+'\n','utf8');
