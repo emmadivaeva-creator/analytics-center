@@ -349,3 +349,30 @@ main{padding:28px 32px 56px;min-width:0}.topline{display:flex;justify-content:sp
 .vio-drill-foot,.vio-drill-warning,.vio-drill-empty{color:var(--muted);font-size:10px;line-height:1.5;margin:10px 0 0}
 .vio-drill-warning{color:#866525}
 @media(max-width:640px){.vio-drill-panel{padding:13px}.vio-drill-card summary{padding:11px 10px;gap:7px}.vio-drill-title>b{font-size:12px}.vio-drill-title>small{font-size:9px}.vio-drill-total>b{font-size:17px}.vio-drill-months{grid-template-columns:repeat(2,minmax(0,1fr))}.vio-drill-body{padding:10px}}
+
+
+/* Торговые письма: ровно тот же паттерн реестра и недельного среза, что DEMO. */
+#page-trade .trade-mail-filters{margin-top:2px;margin-bottom:12px}
+#page-trade .trade-actions{margin:12px 0 14px}
+#page-trade .trade-week-table{margin-top:7px;overflow-x:auto}
+#page-trade .trade-week-table table{min-width:660px}
+#page-trade .trade-week-table small{display:block;color:var(--muted);font-size:10px}
+#page-trade .trade-mail-registry{overflow-x:auto}
+#page-trade .trade-mail-registry .trade-table{width:100%;min-width:990px;font-size:13px;border-collapse:collapse}
+#page-trade .trade-mail-registry .trade-table th,
+#page-trade .trade-mail-registry .trade-table td{padding:12px;text-align:left;border-bottom:1px solid var(--line)}
+#page-trade .trade-mail-registry .trade-table td:nth-child(3){min-width:320px;max-width:560px;overflow-wrap:anywhere}
+#page-trade .trade-mail-registry .trade-table td:nth-child(4){width:auto;min-width:100px;max-width:none}
+#page-trade .trade-mail-registry .trade-table td:nth-child(2){min-width:145px}
+#page-trade .trade-mail-registry .trade-table td.num{text-align:right;min-width:105px;font-variant-numeric:tabular-nums}
+#page-trade .trade-mail-registry .trade-table td.num small{font-size:10px}
+#page-trade .mail-letter-actions{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-top:9px}
+#page-trade .mail-letter-actions a{display:inline-flex;align-items:center;min-height:30px;padding:6px 9px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--accent);font-size:11px;font-weight:750;text-decoration:none}
+#page-trade .trade-letter-details{margin-top:9px;max-width:650px}
+#page-trade .trade-letter-details p{font-size:11px;line-height:1.55;margin:7px 0;overflow-wrap:anywhere}
+#page-trade #tradeMore{display:block;margin:12px auto 20px;min-width:160px;border:1px solid var(--line);border-radius:9px;background:#fff;font-weight:800;color:var(--accent)}
+@media(max-width:800px){
+ #page-trade .trade-mail-filters input{width:100%;min-width:180px}
+ #page-trade .trade-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-trade .trade-mail-registry .trade-table td:nth-child(3){min-width:280px}
+}
