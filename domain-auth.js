@@ -74,7 +74,7 @@
   }
   function startApp() {
     if(started)return;
-    const script=document.createElement('script');script.src='app.js?v=20261123-unified-v2-09';
+    const script=document.createElement('script');script.src='app.js?v=20261123-trade-cache-w47-10';
     script.onerror=()=>{started=false;showGate('Не удалось загрузить приложение. Обновите страницу.');};
     document.head.append(script);started=true;gate.hidden=true;
   }
