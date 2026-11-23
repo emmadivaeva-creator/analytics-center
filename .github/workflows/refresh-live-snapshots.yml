@@ -43,5 +43,17 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add pulse-current.json demand-current.json news-demo-current.json
           git commit -m "Refresh live analytics snapshots [skip ci]"
-          git pull --rebase origin v2-rebuild
-          git push origin HEAD:v2-rebuild
+          # Other Analytics Center publishes may land between fetch and push.
+          # Rebase onto the newest branch and retry without overwriting commits.
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin v2-rebuild
+            git rebase origin/v2-rebuild
+            if git push origin HEAD:v2-rebuild; then
+              echo "Snapshot update published on attempt $attempt"
+              exit 0
+            fi
+            echo "Branch moved during snapshot push ($attempt/8), retrying safely"
+            sleep $((attempt * 3))
+          done
+          echo "::error::Unable to publish refreshed snapshots after 8 rebases"
+          exit 1
