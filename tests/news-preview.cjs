@@ -62,9 +62,9 @@ async function test(browser,engine,before){
  try{
   await page.goto(base+'#news',{waitUntil:'domcontentloaded'});
   await page.locator('#newsRows tbody tr').first().waitFor();
-  await page.waitForFunction(()=>before
+  await page.waitForFunction(beforeFlag=>beforeFlag
     ? /DEMO проверены/.test(document.querySelector('#mailDemoStatus')?.textContent||'')
-    : /Новостных писем:/.test(document.querySelector('#newsStatus')?.textContent||''));
+    : /Новостных писем:/.test(document.querySelector('#newsStatus')?.textContent||''),before);
   if(before){
    assert.equal(await page.locator('#newsRows .mail-body-preview').count(),0);
    assert.equal(await page.locator('#mailRows .mail-body-preview').count(),1);
