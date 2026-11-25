@@ -572,6 +572,22 @@ function sendsayApiRowToReport_(row, policy) {
     ''
   );
 
+  // Для тематических триггеров код источника надёжнее свободного имени.
+  // Берём только четыре продукта Система/ПЕР, школы не включаем.
+  if (isThematicPortalCampaign_(campaign)) {
+    const source = String(issueName.match(/^\s*(\d+)\s*\|/)?.[1] || '');
+    const thematicProducts = {
+      '1223': 'ГФ Система', '818': 'ГЗ Система',
+      '821': 'ГЗ Система', '824': 'ГЗ Система',
+      '265': 'ГФ Периодика', '266': 'ГФ Периодика',
+      '350': 'ГФ Периодика', '729': 'ГЗ Периодика',
+      '733': 'ГЗ Периодика', '737': 'ГЗ Периодика'
+    };
+    if (!thematicProducts[source]) return null;
+    classification.product = thematicProducts[source];
+    classification.flow = classification.product;
+    classification.segment = 'Тематический триггер';
+  }
   if (!classification.product || classification.product === 'Не указано') {
     return null;
   }
@@ -646,6 +662,13 @@ function campaignFromIssueName_(issueName) {
     : text;
 }
 
+function isThematicPortalCampaign_(campaign) {
+  const name = String(campaign || '').trim().toLowerCase();
+  return /^portal_custom(?:_|$)/.test(name) ||
+    /^portal_trigger_/.test(name) ||
+    /^portal_proverki-v-zakupkah_mcfr(?:_|$)/.test(name);
+}
+
 function isAnalyticsSendsayIssue_(issueName, campaign) {
   const name = String(issueName || '');
   const normalizedCampaign = String(campaign || '');
@@ -690,8 +713,9 @@ function isAnalyticsSendsayIssue_(issueName, campaign) {
   // NEWS берём только две канонические редакционные рассылки.
   if (canonicalNewsCampaign_(normalizedCampaign)) return true;
 
-  // Триггерные цепочки больше вообще не участвуют в отчёте писем.
-  // Проверяем до DEMO, потому что встречаются имена вроде "Trigger | UBU_demo_5day".
+  // Тематические портальные цепочки нужны для отдельной аналитики.
+  // Общие триггеры по-прежнему исключаем.
+  if (isThematicPortalCampaign_(normalizedCampaign)) return true;
   if (/trigg?er|триггер/i.test(text)) return false;
 
   // Оставляем только явные DEMO-рассылки. NEWS уже обработаны выше.
