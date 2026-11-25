@@ -1,7 +1,7 @@
 {
   "ok": true,
-  "readAt": "2026-11-25T02:22:13.602Z",
-  "sourceUpdatedAt": "2026-11-24T06:04:21.620Z",
+  "readAt": "2026-11-25T17:07:41.404Z",
+  "sourceUpdatedAt": "2026-11-25T06:04:10.866Z",
   "evidence": [
     {
       "id": "Факт ДЕМО пер|ГЗ Периодика|letter_demo_2026.07.01_letter_demo_goszakaz_gzru_01.07.2026",
@@ -476186,7 +476186,7 @@
     "unmatchedFacts": 1097,
     "triggerEvidence": 1037,
     "demoEvidence": 1242,
-    "sendsayRowsScanned": 25573
+    "sendsayRowsScanned": 25601
   },
-  "generatedAt": "2026-11-25T02:21:52.706Z"
+  "generatedAt": "2026-11-25T17:07:15.063Z"
 }
