@@ -1,7 +1,7 @@
 {
   "ok": true,
-  "readAt": "2026-11-28T01:26:45.273Z",
-  "sourceUpdatedAt": "2026-11-27T06:04:43.405Z",
+  "readAt": "2026-11-28T15:27:21.402Z",
+  "sourceUpdatedAt": "2026-11-28T06:04:40.855Z",
   "evidence": [
     {
       "id": "Факт ДЕМО пер|ГЗ Периодика|letter_demo_2026.07.01_letter_demo_goszakaz_gzru_01.07.2026",
@@ -30990,6 +30990,22 @@
           "clicks": 20,
           "clickRate": 0.07,
           "ctor": 1.75,
+          "segment": "Дожим демо",
+          "productFlow": "ГЗ Периодика · ГЗРУ"
+        },
+        {
+          "id": "api:61:27261831",
+          "date": "2026-11-27",
+          "time": "14:02",
+          "subject": "Два отчета вручную: вы попали в этот сценарий?",
+          "campaign": "letter_demo_goszakaz_GZRU_d_18.09.2026",
+          "sendsay": "https://app.sendsay.ru/reports/campaigns/27261831/summary",
+          "delivered": 26615,
+          "uniqueOpened": 1099,
+          "openRate": 4.13,
+          "clicks": 26,
+          "clickRate": 0.1,
+          "ctor": 2.37,
           "segment": "Дожим демо",
           "productFlow": "ГЗ Периодика · ГЗРУ"
         }
@@ -476186,7 +476202,7 @@
     "unmatchedFacts": 1097,
     "triggerEvidence": 1037,
     "demoEvidence": 1242,
-    "sendsayRowsScanned": 25658
+    "sendsayRowsScanned": 25672
   },
-  "generatedAt": "2026-11-28T01:26:16.163Z"
+  "generatedAt": "2026-11-28T15:26:56.633Z"
 }
